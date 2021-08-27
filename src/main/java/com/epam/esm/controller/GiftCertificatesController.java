@@ -1,21 +1,21 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.exception.BadEntityException;
-import com.epam.esm.exception.EntityNotExistException;
+import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.service.GiftCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/giftCertificates")
 public class GiftCertificatesController {
 
-    private final static String JSON = "application/json";
+    private static final String JSON = "application/json";
+    private static final String ID = "id";
 
     private final GiftCertificateService service;
 
@@ -25,41 +25,33 @@ public class GiftCertificatesController {
     }
 
     @GetMapping(produces = JSON)
-    public ResponseEntity<List<GiftCertificate>> giftCertificates(@RequestParam(required = false) String tagName,
-                                                                  @RequestParam(required = false) String giftCertificateName,
-                                                                  @RequestParam(required = false) String description,
-                                                                  @RequestParam(required = false) String sortByName,
-                                                                  @RequestParam(required = false) String sortByDate) {
-        List<GiftCertificate> giftCertificates = service.getGiftCertificates(tagName, giftCertificateName, description, sortByName, sortByDate);
-
-        return giftCertificates.size() == 0 ? new ResponseEntity<>(HttpStatus.NOT_FOUND)
-                                            : new ResponseEntity<>(giftCertificates, HttpStatus.OK);
+    public ResponseEntity<List<GiftCertificateDto>> giftCertificates(@RequestParam(required = false) String tagName,
+                                                                     @RequestParam(required = false) String giftCertificateName,
+                                                                     @RequestParam(required = false) String description,
+                                                                     @RequestParam(required = false) String sortByName,
+                                                                     @RequestParam(required = false) String sortByDate) {
+        return new ResponseEntity<>(service.getGiftCertificates(tagName, giftCertificateName, description, sortByName, sortByDate), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}", produces = JSON)
-    public ResponseEntity<GiftCertificate> getGiftCertificate(@PathVariable("id") long id) {
-        Optional<GiftCertificate> giftCertificateOptional = service.getGiftCertificate(id);
-
-        return giftCertificateOptional.isEmpty() ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                                                 : new ResponseEntity<>(giftCertificateOptional.get(), HttpStatus.OK);
+    public ResponseEntity<GiftCertificateDto> getGiftCertificate(@PathVariable(ID) long id) throws EntityNotExistsException {
+        return new ResponseEntity<>(service.getGiftCertificate(id), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<GiftCertificate> deleteGiftCertificate(@PathVariable("id") long id) throws EntityNotExistException {
-        service.deleteGiftCertificate(id);
+    public ResponseEntity<GiftCertificateDto> deleteGiftCertificate(@PathVariable(ID) long id) throws EntityNotExistsException {
+        service.deleteEntity(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping(produces = JSON)
-    public ResponseEntity<GiftCertificate> createGiftCertificate(@RequestBody GiftCertificate giftCertificate) throws BadEntityException {
-        service.createGiftCertificate(giftCertificate);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @PostMapping()
+    public ResponseEntity<GiftCertificateDto> createGiftCertificate(@RequestBody GiftCertificateDto giftCertificate) throws BadEntityException, EntityNotExistsException {
+        return new ResponseEntity<>(service.createGiftCertificate(giftCertificate), HttpStatus.CREATED);
     }
 
     @PatchMapping(value = "/{id}", produces = JSON)
-    public ResponseEntity<GiftCertificate> updateGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificate giftCertificate) throws EntityNotExistException, BadEntityException {
-        service.updateGiftCertificate(id, giftCertificate);
-        return new ResponseEntity<>(giftCertificate, HttpStatus.OK);
+    public ResponseEntity<GiftCertificateDto> updateGiftCertificate(@PathVariable(ID) long id, @RequestBody GiftCertificateDto giftCertificate) throws EntityNotExistsException, BadEntityException {
+        return new ResponseEntity<>(service.updateGiftCertificate(id, giftCertificate), HttpStatus.OK);
     }
 
 }

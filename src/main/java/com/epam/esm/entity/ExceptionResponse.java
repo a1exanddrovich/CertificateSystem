@@ -1,5 +1,6 @@
 package com.epam.esm.entity;
 
+
 public class ExceptionResponse {
 
     private final int code;

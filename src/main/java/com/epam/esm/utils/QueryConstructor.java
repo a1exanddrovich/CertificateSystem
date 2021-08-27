@@ -1,79 +1,77 @@
 package com.epam.esm.utils;
 
+import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.entity.GiftCertificate;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
 
 @Component
 public class QueryConstructor {
 
     public String constructQuery(String tagName, String giftCertificateName, String description, String sortByName, String sortByDate) {
-        String query = "SELECT gc.id, gc.name, gc.description, gc.price, gc.duration, gc.create_date, gc.last_update_date, gct.gift_certificate_id, t.name AS tagName FROM gift_certificate gc JOIN gift_certificate_tag gct ON gct.gift_certificate_id = gc.id JOIN tag t ON gct.tag_id = t.id";
+        StringBuilder query = new StringBuilder(GiftCertificateDao.FIND_ALL);
 
         if (giftCertificateName != null) {
-            query += " WHERE gc.name LIKE '%" + giftCertificateName + "%'";
+            query.append(" WHERE gc.name LIKE '%").append(giftCertificateName).append("%'");
 
             if (description != null) {
-                query += " AND ";
+                query.append(" AND ");
             }
         }
 
         if (description != null) {
             if (giftCertificateName == null) {
-                query += " WHERE";
+                query.append(" WHERE");
             }
 
-            query += " gc.description LIKE '%" + description + "%'";
+            query.append(" gc.description LIKE '%").append(description).append("%'");
         }
 
         if (tagName != null) {
-            query += " HAVING gc.id IN (SELECT gc.id FROM gift_certificate gc JOIN gift_certificate_tag gct ON gct.gift_certificate_id = gc.id JOIN tag t ON gct.tag_id = t.id WHERE t.name = '" + tagName + "')";
+            query.append(" HAVING gc.id IN (SELECT gc.id FROM gift_certificate gc JOIN gift_certificate_tag gct ON gct.gift_certificate_id = gc.id JOIN tag t ON gct.tag_id = t.id WHERE t.name = '").append("')");
         }
 
         if (sortByName != null && sortByDate == null) {
             if (sortByName.equals("asc")) {
-                query += " ORDER BY name";
+                query.append(" ORDER BY name");
             } else if (sortByName.equals("desc")) {
-                query += " ORDER BY name DESC";
+                query.append(" ORDER BY name DESC");
             }
         }
 
         if (sortByDate != null && sortByName == null) {
             if (sortByDate.equals("asc")) {
-                query += " ORDER BY create_date";
+                query.append(" ORDER BY create_date");
             } else if (sortByDate.equals("desc")) {
-                query += " ORDER BY create_date DESC";
+                query.append(" ORDER BY create_date DESC");
             }
         }
 
-        return query;
+        return query.toString();
     }
 
     public String constructUpdateQuery(long id, GiftCertificate giftCertificate) {
-        String query = "UPDATE gift_certificate SET ";
+        StringBuilder query = new StringBuilder("UPDATE gift_certificate SET ");
 
         if (giftCertificate.getName() != null) {
-            query += "name = '" + giftCertificate.getName() + "', ";
+            query.append("name = '").append(giftCertificate.getName()).append("', ");
         }
 
         if (giftCertificate.getDescription() != null) {
-            query += "description = '" + giftCertificate.getDescription() + "', ";
+            query.append("description = '").append(giftCertificate.getDescription()).append("', ");
         }
 
-        //if (giftCertificate.getPrice() > 0) {
-        if (giftCertificate.getPrice().compareTo(BigDecimal.ZERO) >= 1) {
-            query += "price = " + giftCertificate.getPrice() + ", ";
+        if (giftCertificate.getPrice() != null) {
+            query.append("price = ").append(giftCertificate.getPrice()).append(", ");
         }
 
-        if (giftCertificate.getDuration() > 0) {
-            query += "duration = " + giftCertificate.getDuration() + ", ";
+        if (giftCertificate.getDuration() != null) {
+            query.append("duration = ").append(giftCertificate.getDuration().toDays()).append(", ");
         }
 
-        query += "last_update_date = '" + giftCertificate.getLastUpdateDate() + "' ";
-        query += " WHERE id = " + id;
+        query.append("last_update_date = '").append(giftCertificate.getLastUpdateDate()).append("' ");
+        query.append(" WHERE id = ").append(id);
 
-        return query;
+        return query.toString();
     }
 
 }

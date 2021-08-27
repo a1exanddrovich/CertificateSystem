@@ -1,34 +1,31 @@
-package com.epam.esm.entity;
+package com.epam.esm.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class GiftCertificate implements Identifiable {
+public class GiftCertificateDto {
 
     private long id;
     private String name;
     private String description;
     private BigDecimal price;
-    private Duration duration;
+    private int duration;
     private String creationDate;
     private String lastUpdateDate;
     @JsonProperty
-    private List<Tag> tags = new ArrayList<>();
+    private List<String> tags = new ArrayList<>();
 
     @JsonCreator
-    public GiftCertificate(@JsonProperty("id") long id,
-                           @JsonProperty("name") String name,
-                           @JsonProperty("description") String description,
-                           @JsonProperty("price") BigDecimal price,
-                           @JsonProperty("duration") Duration duration,
-                           @JsonProperty("creationDate") String creationDate,
-                           @JsonProperty("lastUpdateDate") String lastUpdateDate) {
+    public GiftCertificateDto(@JsonProperty("id") long id,
+                              @JsonProperty("name") String name,
+                              @JsonProperty("description") String description,
+                              @JsonProperty("price") BigDecimal price,
+                              @JsonProperty("duration") int duration,
+                              @JsonProperty("creationDate") String creationDate,
+                              @JsonProperty("lastUpdateDate") String lastUpdateDate) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -38,7 +35,7 @@ public class GiftCertificate implements Identifiable {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public GiftCertificate() { }
+    public GiftCertificateDto() { }
 
     public long getId() {
         return this.id;
@@ -56,7 +53,7 @@ public class GiftCertificate implements Identifiable {
         return this.price;
     }
 
-    public Duration getDuration() {
+    public int getDuration() {
         return this.duration;
     }
 
@@ -84,7 +81,7 @@ public class GiftCertificate implements Identifiable {
         this.price = price;
     }
 
-    public void setDuration(Duration duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
@@ -96,15 +93,15 @@ public class GiftCertificate implements Identifiable {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
-    public List<Tag> getTags() {
+    public List<String> getTags() {
         return this.tags;
     }
 
-    public void addTag(Tag tag) {
+    public void addTag(String tag) {
         this.tags.add(tag);
     }
 
