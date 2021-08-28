@@ -1,14 +1,14 @@
 package com.epam.esm.utils;
 
-import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.SqlQueries;
 import org.springframework.stereotype.Component;
 
 @Component
 public class QueryConstructor {
 
     public String constructQuery(String tagName, String giftCertificateName, String description, String sortByName, String sortByDate) {
-        StringBuilder query = new StringBuilder(GiftCertificateDao.FIND_ALL);
+        StringBuilder query = new StringBuilder(SqlQueries.FIND_ALL_CERTIFICATES);
 
         if (giftCertificateName != null) {
             query.append(" WHERE gc.name LIKE '%").append(giftCertificateName).append("%'");
@@ -27,7 +27,7 @@ public class QueryConstructor {
         }
 
         if (tagName != null) {
-            query.append(" HAVING gc.id IN (SELECT gc.id FROM gift_certificate gc JOIN gift_certificate_tag gct ON gct.gift_certificate_id = gc.id JOIN tag t ON gct.tag_id = t.id WHERE t.name = '").append("')");
+            query.append(" HAVING gc.id IN (SELECT gc.id FROM gift_certificate gc JOIN gift_certificate_tag gct ON gct.gift_certificate_id = gc.id JOIN tag t ON gct.tag_id = t.id WHERE t.name = '").append(tagName).append("')");
         }
 
         if (sortByName != null && sortByDate == null) {

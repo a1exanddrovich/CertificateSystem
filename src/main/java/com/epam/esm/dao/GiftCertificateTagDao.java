@@ -1,20 +1,15 @@
 package com.epam.esm.dao;
 
+import com.epam.esm.entity.SqlQueries;
 import com.epam.esm.entity.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class GiftCertificateTagDao {
-
-    private static final String ADD_TAG = "INSERT INTO gift_certificate_tag (gift_certificate_id, tag_id) VALUES (?, ?)";
-    private static final String DELETE_TAG = "DELETE FROM gift_certificate_tag WHERE gift_certificate_id = ? AND tag_id = ?";
-    private static final String MAKE_TIDED = "INSERT INTO gift_certificate_tag (gift_certificate_id, tag_id) VALUES (?, (SELECT id from tag WHERE name = ?))";
-    private static final String GET_TAG_IDS_BEFORE_UPDATE = "SELECT tag_id FROM gift_certificate_tag WHERE gift_certificate_id = ?";
-    private static final String DELETE_FROM_GIFT_CERTIFICATE_TAG = "DELETE FROM gift_certificate_tag WHERE gift_certificate_id = ?";
-    private static final String DELETE_GIFT_TAG = "DELETE FROM gift_certificate_tag WHERE tag_id = ?";
 
     private final JdbcTemplate template;
 
@@ -24,29 +19,29 @@ public class GiftCertificateTagDao {
     }
 
     public void addTagId(long id, Long tagId) {
-        template.update(ADD_TAG, id, tagId);
+        template.update(SqlQueries.CONNECT_TAG_TO_CERTIFICATE, id, tagId);
     }
 
     public void deleteTagId(long id, Long tagId) {
-        template.update(DELETE_TAG, id, tagId);
+        template.update(SqlQueries.DISCONNECT_TAG_TO_CERTIFICATE, id, tagId);
     }
 
-    public void createConnections(long giftCertificateId, List<Tag> tags) {
+    public void createConnections(long giftCertificateId, Set<Tag> tags) {
         for (Tag tag : tags) {
-            template.update(MAKE_TIDED, giftCertificateId, tag.getName());
+            template.update(SqlQueries.MAKE_TIDED_TAGS_AND_CERTIFICATIONS, giftCertificateId, tag.getName());
         }
     }
 
     public List<Long> getIdsBeforeUpdate(long id) {
-        return template.queryForList(GET_TAG_IDS_BEFORE_UPDATE, Long.class, id);
+        return template.queryForList(SqlQueries.SELECT_TAG_ID_BY_CERTIFICATE_ID, Long.class, id);
     }
 
     public void deleteGiftCertificateById(long id) {
-        template.update(DELETE_FROM_GIFT_CERTIFICATE_TAG, id);
+        template.update(SqlQueries.MAKE_UNTIED_CERTIFICATE, id);
     }
 
     public void deleteByTagId(long id) {
-        template.update(DELETE_GIFT_TAG, id);
+        template.update(SqlQueries.MAKE_UNTIED_TAG, id);
     }
 
 

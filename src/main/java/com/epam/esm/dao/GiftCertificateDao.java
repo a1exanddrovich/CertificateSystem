@@ -1,9 +1,11 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.SqlQueries;
 import com.epam.esm.mapper.GiftCertificateMapper;
 import com.epam.esm.utils.QueryConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -16,12 +18,6 @@ import java.util.Optional;
 @Component
 public class GiftCertificateDao implements EntityDao<GiftCertificate> {
 
-    public static final String FIND_ALL = "SELECT gc.id, gc.name, gc.description, gc.price, gc.duration, gc.create_date, gc.last_update_date, gct.gift_certificate_id, t.name AS tagName " +
-                                           "FROM gift_certificate gc " +
-                                           "JOIN gift_certificate_tag gct ON gct.gift_certificate_id = gc.id " +
-                                           "JOIN tag t ON gct.tag_id = t.id";
-    private static final String FIND_BY_ID = FIND_ALL + " WHERE gc.id = ?";
-    private static final String DELETE_FROM_GIFT_CERTIFICATE = "DELETE FROM gift_certificate WHERE id = ?";
     private static final String CREATE_GIFT_CERTIFICATE = "INSERT INTO gift_certificate (name, description, price, duration, create_date, last_update_date) VALUES (?, ?, ?, ?, ?, ?)";
 
     private final JdbcTemplate template;
@@ -37,14 +33,14 @@ public class GiftCertificateDao implements EntityDao<GiftCertificate> {
 
     @Override
     public void deleteById(long id) {
-        template.update(DELETE_FROM_GIFT_CERTIFICATE, id);
+        template.update(SqlQueries.DELETE_CERTIFICATE, id);
     }
 
     @Override
     public long create(GiftCertificate giftCertificate) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         template.update(connection -> {
-            PreparedStatement statement = connection.prepareStatement(CREATE_GIFT_CERTIFICATE, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement statement = connection.prepareStatement(SqlQueries.CREATE_CERTIFICATE, Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, giftCertificate.getName());
             statement.setString(2, giftCertificate.getDescription());
             statement.setString(3, giftCertificate.getPrice().toString());
@@ -63,7 +59,7 @@ public class GiftCertificateDao implements EntityDao<GiftCertificate> {
 
     @Override
     public Optional<GiftCertificate> findById(long id) {
-        return template.query(FIND_BY_ID, mapper, new Object[]{id}).stream().findAny();
+        return template.query(SqlQueries.FIND_CERTIFICATE_BY_ID, mapper, new Object[]{id}).stream().findAny();
     }
 
     public void updateGiftCertificate(long id, GiftCertificate giftCertificate) {

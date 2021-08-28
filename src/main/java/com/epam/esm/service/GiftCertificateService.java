@@ -11,8 +11,6 @@ import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.utils.GiftCertificateDtoMapper;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.text.DateFormat;
@@ -20,11 +18,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-@PropertySource("classpath:timezone.properties")
 public class GiftCertificateService {
 
-    @Value("${timezone}")
-    private String MINSK_TIME;
+    private static final String MINSK_TIME = "GMT+3:00";
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     private final GiftCertificateDao giftCertificateDao;
     private final GiftCertificateTagDao giftCertificateTagDao;
@@ -110,7 +106,7 @@ public class GiftCertificateService {
         return getGiftCertificate(lastInsertedId);
     }
 
-    private void checkForTags(List<Tag> newTags) {
+    private void checkForTags(Set<Tag> newTags) {
         List<String> newTagNames = new ArrayList<>();
         newTags.stream().forEach(tag -> newTagNames.add(tag.getName()));
 

@@ -8,11 +8,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import javax.sql.DataSource;
 
 @Configuration
@@ -36,14 +37,7 @@ public class SpringConfig implements WebMvcConfigurer {
         this.environment = environment;
     }
 
-//    @Bean
-//    @Profile("dev")
-//    public DataSource testDataSource() {
-//        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
-//    }
-
     @Bean
-    //@Profile("prod")
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 

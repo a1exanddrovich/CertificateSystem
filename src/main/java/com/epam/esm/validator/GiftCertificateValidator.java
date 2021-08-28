@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.List;
+import java.util.Set;
 
 @Component
 public class GiftCertificateValidator {
@@ -23,7 +23,7 @@ public class GiftCertificateValidator {
         String description = giftCertificate.getDescription();
         BigDecimal price = giftCertificate.getPrice();
         Duration duration = giftCertificate.getDuration();
-        List<Tag> tags = giftCertificate.getTags();
+        Set<Tag> tags = giftCertificate.getTags();
 
         return (name != null && (name.length() >= 3 && name.length() <= 50)) &&
                (description != null && (description.length() >= 10 && description.length() <= 100)) &&
@@ -37,7 +37,7 @@ public class GiftCertificateValidator {
         String description = giftCertificate.getDescription();
         BigDecimal price = giftCertificate.getPrice();
         Duration duration = giftCertificate.getDuration();
-        List<Tag> tags = giftCertificate.getTags();
+        Set<Tag> tags = giftCertificate.getTags();
 
         return (name == null || name.length() >= 3 && name.length() <= 50) &&
                (description == null || description.length() >= 10 && description.length() <= 100) &&

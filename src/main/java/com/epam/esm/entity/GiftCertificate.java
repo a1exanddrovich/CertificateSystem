@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GiftCertificate implements Identifiable {
@@ -19,7 +19,7 @@ public class GiftCertificate implements Identifiable {
     private String creationDate;
     private String lastUpdateDate;
     @JsonProperty
-    private List<Tag> tags = new ArrayList<>();
+    private Set<Tag> tags = new HashSet<>();
 
     @JsonCreator
     public GiftCertificate(@JsonProperty("id") long id,
@@ -96,11 +96,11 @@ public class GiftCertificate implements Identifiable {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
 
-    public List<Tag> getTags() {
+    public Set<Tag> getTags() {
         return this.tags;
     }
 

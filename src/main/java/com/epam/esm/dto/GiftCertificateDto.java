@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class GiftCertificateDto {
 
@@ -16,7 +18,7 @@ public class GiftCertificateDto {
     private String creationDate;
     private String lastUpdateDate;
     @JsonProperty
-    private List<String> tags = new ArrayList<>();
+    private Set<String> tags = new HashSet<>();
 
     @JsonCreator
     public GiftCertificateDto(@JsonProperty("id") long id,
@@ -93,11 +95,11 @@ public class GiftCertificateDto {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(Set<String> tags) {
         this.tags = tags;
     }
 
-    public List<String> getTags() {
+    public Set<String> getTags() {
         return this.tags;
     }
 
