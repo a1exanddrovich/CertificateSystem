@@ -1,14 +1,10 @@
 package com.epam.esm.entity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class GiftCertificate implements Identifiable {
 
     private long id;
@@ -18,17 +14,9 @@ public class GiftCertificate implements Identifiable {
     private Duration duration;
     private String creationDate;
     private String lastUpdateDate;
-    @JsonProperty
     private Set<Tag> tags = new HashSet<>();
 
-    @JsonCreator
-    public GiftCertificate(@JsonProperty("id") long id,
-                           @JsonProperty("name") String name,
-                           @JsonProperty("description") String description,
-                           @JsonProperty("price") BigDecimal price,
-                           @JsonProperty("duration") Duration duration,
-                           @JsonProperty("creationDate") String creationDate,
-                           @JsonProperty("lastUpdateDate") String lastUpdateDate) {
+    public GiftCertificate(long id, String name, String description, BigDecimal price, Duration duration, String creationDate, String lastUpdateDate) {
         this.id = id;
         this.name = name;
         this.description = description;

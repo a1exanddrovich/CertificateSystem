@@ -7,9 +7,6 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -20,6 +17,7 @@ import javax.sql.DataSource;
 @ComponentScan("com.epam.esm")
 @EnableWebMvc
 @PropertySource("classpath:database.properties")
+@PropertySource("classpath:timezone.properties")
 @EnableTransactionManagement
 public class SpringConfig implements WebMvcConfigurer {
 
@@ -27,6 +25,7 @@ public class SpringConfig implements WebMvcConfigurer {
     private static final String DATABASE_PROD_URL = "database.prod.url";
     private static final String DATABASE_PROD_USER = "database.prod.user";
     private static final String DATABASE_PROD_PASSWORD = "database.prod.password";
+    private static final String ENCODING = "UTF-8";
 
     private final ApplicationContext applicationContext;
     private final Environment environment;
@@ -38,25 +37,51 @@ public class SpringConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-
-        dataSource.setDriverClassName(environment.getProperty(DATABASE_PROD_DRIVER));
-        dataSource.setUrl(environment.getProperty(DATABASE_PROD_URL));
-        dataSource.setUsername(environment.getProperty(DATABASE_PROD_USER));
-        dataSource.setPassword(environment.getProperty(DATABASE_PROD_PASSWORD));
-
-        return dataSource;
+    @Profile("dev")
+    public PlatformTransactionManager devTransactionManager() {
+        return new DataSourceTransactionManager(devDataSource());
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager() {
-        return new DataSourceTransactionManager(dataSource());
+    @Profile("prod")
+    public PlatformTransactionManager prodTransactionManager() {
+        return new DataSourceTransactionManager(prodDataSource());
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate() {
-        return new JdbcTemplate(dataSource());
+    @Profile("dev")
+    public JdbcTemplate devJdbcTemplate() {
+        return new JdbcTemplate(devDataSource());
+    }
+
+    @Bean
+    @Profile("prod")
+    public JdbcTemplate prodJdbcTemplate() {
+        return new JdbcTemplate(prodDataSource());
+    }
+
+    @Bean
+    @Profile("dev")
+    public DataSource devDataSource() {
+        return devDataSourceConfig().setUp();
+    }
+
+    @Bean
+    @Profile("prod")
+    public DataSource prodDataSource() {
+        return prodDataSourceConfig().setUp();
+    }
+
+    @Bean
+    @Profile("dev")
+    public DataSourceConfig devDataSourceConfig() {
+        return new DevDataSourceConfig();
+    }
+
+    @Bean
+    @Profile("prod")
+    public DataSourceConfig prodDataSourceConfig() {
+        return new ProdDataSourceConfig(environment);
     }
 
     @Bean
@@ -66,7 +91,7 @@ public class SpringConfig implements WebMvcConfigurer {
         reloadableResourceBundleMessageSource.setBasename("classpath:locale/messages");
         reloadableResourceBundleMessageSource.setCacheSeconds(-1);
         reloadableResourceBundleMessageSource.setUseCodeAsDefaultMessage(false);
-        reloadableResourceBundleMessageSource.setDefaultEncoding("UTF-8");
+        reloadableResourceBundleMessageSource.setDefaultEncoding(ENCODING);
 
         return reloadableResourceBundleMessageSource;
     }

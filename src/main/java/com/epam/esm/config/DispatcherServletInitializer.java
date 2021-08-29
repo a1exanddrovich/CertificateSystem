@@ -20,10 +20,9 @@ public class DispatcherServletInitializer extends AbstractAnnotationConfigDispat
         return new String[] {"/"};
     }
 
-//    @Override
-//    public void onStartup(ServletContext servletContext) {
-//
-//        servletContext.setInitParameter("spring.profiles.active", "prod");
-//    }
+    @Override
+    public void onStartup(ServletContext context) {
+        context.setInitParameter("spring.profiles.active", "prod");
+    }
 
 }

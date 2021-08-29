@@ -33,9 +33,11 @@ public class TagService {
 
     public Tag getTag(long id) throws EntityNotExistsException {
         Optional<Tag> optionalTag = tagDao.findById(id);
+
         if (optionalTag.isEmpty()) {
             throw new EntityNotExistsException();
         }
+
         return optionalTag.get();
     }
 
@@ -43,10 +45,13 @@ public class TagService {
         if (!validator.validate(tag)) {
             throw new BadEntityException();
         }
+
         Optional<Tag> optionalTag = tagDao.findTagByName(tag.getName());
+
         if (optionalTag.isPresent()) {
             throw new EntityAlreadyExistsException();
         }
+
         return getTag(tagDao.create(tag));
     }
 
@@ -55,6 +60,7 @@ public class TagService {
         if (tagDao.findById(id).isEmpty()) {
             throw new EntityNotExistsException();
         }
+
         giftCertificateTagDao.deleteByTagId(id);
         tagDao.deleteById(id);
     }

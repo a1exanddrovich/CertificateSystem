@@ -1,11 +1,7 @@
 package com.epam.esm.dto;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class GiftCertificateDto {
@@ -17,17 +13,9 @@ public class GiftCertificateDto {
     private int duration;
     private String creationDate;
     private String lastUpdateDate;
-    @JsonProperty
     private Set<String> tags = new HashSet<>();
 
-    @JsonCreator
-    public GiftCertificateDto(@JsonProperty("id") long id,
-                              @JsonProperty("name") String name,
-                              @JsonProperty("description") String description,
-                              @JsonProperty("price") BigDecimal price,
-                              @JsonProperty("duration") int duration,
-                              @JsonProperty("creationDate") String creationDate,
-                              @JsonProperty("lastUpdateDate") String lastUpdateDate) {
+    public GiftCertificateDto(long id, String name, String description, BigDecimal price, int duration, String creationDate, String lastUpdateDate) {
         this.id = id;
         this.name = name;
         this.description = description;

@@ -95,4 +95,3 @@ insert into gift_certificate_tag (gift_certificate_id, tag_id)
 values (7, 6);
 insert into gift_certificate_tag (gift_certificate_id, tag_id)
 values (7, 8);
-

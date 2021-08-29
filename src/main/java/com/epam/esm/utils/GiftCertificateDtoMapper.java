@@ -18,10 +18,7 @@ public class GiftCertificateDtoMapper {
                                                                        giftCertificate.getCreationDate(),
                                                                        giftCertificate.getLastUpdateDate());
 
-        for (Tag tag : giftCertificate.getTags()) {
-            giftCertificateDto.addTag(tag.getName());
-        }
-
+        giftCertificate.getTags().stream().forEach(tag-> giftCertificateDto.addTag(tag.getName()));
         return giftCertificateDto;
     }
 
@@ -35,10 +32,8 @@ public class GiftCertificateDtoMapper {
                                                               giftCertificateDto.getCreationDate(),
                                                               giftCertificateDto.getLastUpdateDate());
 
-        for (String tagName : giftCertificateDto.getTags()) {
-            giftCertificate.addTag(new Tag(tagName));
-        }
 
+        giftCertificateDto.getTags().stream().forEach(tagName -> giftCertificate.addTag(new Tag(tagName)));
         return giftCertificate;
     }
 

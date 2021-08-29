@@ -5,7 +5,6 @@ import com.epam.esm.entity.SqlQueries;
 import com.epam.esm.mapper.GiftCertificateMapper;
 import com.epam.esm.utils.QueryConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -17,8 +16,6 @@ import java.util.Optional;
 
 @Component
 public class GiftCertificateDao implements EntityDao<GiftCertificate> {
-
-    private static final String CREATE_GIFT_CERTIFICATE = "INSERT INTO gift_certificate (name, description, price, duration, create_date, last_update_date) VALUES (?, ?, ?, ?, ?, ?)";
 
     private final JdbcTemplate template;
     private final GiftCertificateMapper mapper;

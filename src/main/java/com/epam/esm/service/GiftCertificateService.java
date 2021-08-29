@@ -11,6 +11,7 @@ import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.utils.GiftCertificateDtoMapper;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.text.DateFormat;
@@ -20,22 +21,24 @@ import java.util.*;
 @Service
 public class GiftCertificateService {
 
-    private static final String MINSK_TIME = "GMT+3:00";
+    private static final String TIME_ZONE = "timezone";
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     private final GiftCertificateDao giftCertificateDao;
     private final GiftCertificateTagDao giftCertificateTagDao;
     private final TagDao tagDao;
     private final GiftCertificateValidator validator;
     private final GiftCertificateDtoMapper dtoMapper;
+    private final Environment environment;
 
     @Autowired
-    public GiftCertificateService(GiftCertificateDao giftCertificateDao, GiftCertificateTagDao giftCertificateTagDao, TagDao tagDao, GiftCertificateValidator validator, GiftCertificateDtoMapper dtoMapper) {
+    public GiftCertificateService(GiftCertificateDao giftCertificateDao, GiftCertificateTagDao giftCertificateTagDao, TagDao tagDao, GiftCertificateValidator validator, GiftCertificateDtoMapper dtoMapper, Environment environment) {
         this.giftCertificateDao = giftCertificateDao;
         this.giftCertificateTagDao = giftCertificateTagDao;
         this.tagDao = tagDao;
         this.validator = validator;
         this.dtoMapper = dtoMapper;
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone(MINSK_TIME));
+        this.environment = environment;
+        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone(environment.getProperty(TIME_ZONE)));
     }
 
     public List<GiftCertificateDto> getGiftCertificates(String tagName, String giftCertificateName, String description, String sortByName, String sortByDate) {
@@ -48,6 +51,7 @@ public class GiftCertificateService {
 
     public GiftCertificateDto getGiftCertificate(long id) throws EntityNotExistsException {
         Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(id);
+
         if (optionalGiftCertificate.isEmpty()) {
             throw new EntityNotExistsException();
         }
@@ -110,11 +114,13 @@ public class GiftCertificateService {
         List<String> newTagNames = new ArrayList<>();
         newTags.stream().forEach(tag -> newTagNames.add(tag.getName()));
 
-        for (String tagName : newTagNames) {
-            if (tagDao.findTagByName(tagName).isEmpty()) {
-                tagDao.create(new Tag(tagName));
-            }
-        }
+        newTagNames.stream().filter(tagName -> tagDao.findTagByName(tagName).isEmpty()).forEach(tagName -> tagDao.create(new Tag(tagName)));
+
+//        for (String tagName : newTagNames) {
+//            if (tagDao.findTagByName(tagName).isEmpty()) {
+//                tagDao.create(new Tag(tagName));
+//            }
+//        }
     }
 
     private void connectCertificatesAndTags(long id, GiftCertificate giftCertificate) {
