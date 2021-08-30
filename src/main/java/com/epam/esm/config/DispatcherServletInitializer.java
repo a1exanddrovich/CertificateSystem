@@ -1,7 +1,6 @@
 package com.epam.esm.config;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
-import javax.servlet.ServletContext;
 
 public class DispatcherServletInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 
@@ -18,11 +17,6 @@ public class DispatcherServletInitializer extends AbstractAnnotationConfigDispat
     @Override
     protected String[] getServletMappings() {
         return new String[] {"/"};
-    }
-
-    @Override
-    public void onStartup(ServletContext context) {
-        context.setInitParameter("spring.profiles.active", "prod");
     }
 
 }

@@ -1,13 +1,18 @@
 package com.epam.esm.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import javax.sql.DataSource;
 
 @Profile("prod")
-public class ProdDataSourceConfig implements DataSourceConfig {
+@Configuration
+@PropertySource("classpath:database-prod.properties")
+public class ProdDataSourceConfig {
 
     private static final String DATABASE_PROD_DRIVER = "database.prod.driver";
     private static final String DATABASE_PROD_URL = "database.prod.url";
@@ -21,9 +26,8 @@ public class ProdDataSourceConfig implements DataSourceConfig {
         this.environment = environment;
     }
 
-
-    @Override
-    public DataSource setUp() {
+    @Bean
+    public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 
         dataSource.setDriverClassName(environment.getProperty(DATABASE_PROD_DRIVER));
