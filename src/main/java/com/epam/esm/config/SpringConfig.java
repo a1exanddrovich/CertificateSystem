@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 @ComponentScan("com.epam.esm")
 @EnableWebMvc
 @PropertySource("classpath:database.properties")
+@PropertySource("classpath:timezone.properties")
 @EnableTransactionManagement
 public class SpringConfig implements WebMvcConfigurer {
 

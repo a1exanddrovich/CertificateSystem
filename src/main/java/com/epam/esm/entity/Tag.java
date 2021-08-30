@@ -1,18 +1,11 @@
 package com.epam.esm.entity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Tag implements Identifiable {
 
     private long id;
     private String name;
 
-    @JsonCreator
-    public Tag(@JsonProperty("id") long id,
-               @JsonProperty("name") String name) {
+    public Tag(long id, String name) {
         this.id = id;
         this.name = name;
     }

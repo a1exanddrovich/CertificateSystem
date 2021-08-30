@@ -13,6 +13,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.core.env.Environment;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +35,7 @@ public class GiftCertificateServiceTest {
     private static Optional<GiftCertificate> optionalGiftCertificate;
     private static List<GiftCertificate> giftCertificates;
     private static List<GiftCertificateDto> giftCertificateDtos;
+    private static Environment environment;
 
     @BeforeClass
     public static void init() {
@@ -43,7 +46,8 @@ public class GiftCertificateServiceTest {
         dtoMapper = Mockito.mock(GiftCertificateDtoMapper.class);
         giftCertificate = Mockito.mock(GiftCertificate.class);
         giftCertificateDto = Mockito.mock(GiftCertificateDto.class);
-        service = new GiftCertificateService(giftCertificateDao,giftCertificateTagDao, tagDao, validator, dtoMapper);
+        environment = Mockito.mock(Environment.class);
+        service = new GiftCertificateService(giftCertificateDao,giftCertificateTagDao, tagDao, validator, dtoMapper, environment);
         optionalGiftCertificate = Optional.of(giftCertificate);
         giftCertificates = new ArrayList<>();
         giftCertificateDtos = new ArrayList<>();
