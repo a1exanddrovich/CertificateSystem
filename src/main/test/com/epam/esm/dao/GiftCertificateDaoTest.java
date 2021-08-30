@@ -7,37 +7,31 @@ import com.epam.esm.utils.QueryConstructor;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-//@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = SpringConfig.class, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = SpringConfig.class)
+@ActiveProfiles("dev")
 public class GiftCertificateDaoTest {
 
     private QueryConstructor constructor;
     private GiftCertificateMapper mapper;
     private GiftCertificateDao dao;
     private GiftCertificate giftCertificate;
+    @Autowired
     private JdbcTemplate template;
 
     @Before
     public void init() {
-        EmbeddedDatabase database = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).addScript("test-data.sql").build();
-        template = new JdbcTemplate(database);
         constructor = new QueryConstructor();
         mapper = new GiftCertificateMapper();
         giftCertificate = new GiftCertificate();
