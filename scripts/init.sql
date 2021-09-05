@@ -2,7 +2,7 @@ create table gift_certificate
 (
     id bigint auto_increment,
     name varchar(50),
-    description varchar(50),
+    description varchar(100),
     price decimal(10, 2) default 0 null,
     duration int,
     create_date varchar(50),
@@ -14,7 +14,7 @@ create table gift_certificate
 create table tag
 (
     id bigint auto_increment,
-    name varchar(50),
+    name varchar(50) unique,
 
     primary key (id)
 
