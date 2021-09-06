@@ -1,7 +1,5 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.entity.GiftCertificate;
-
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Objects;

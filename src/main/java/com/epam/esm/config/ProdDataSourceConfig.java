@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 
 @Profile("prod")
 @Configuration
-@PropertySource("database-prod.properties")
+@PropertySource("classpath:database-prod.properties")
 public class ProdDataSourceConfig {
 
     private static final String DATABASE_PROD_DRIVER = "database.prod.driver";
