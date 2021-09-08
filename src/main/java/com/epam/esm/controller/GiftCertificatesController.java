@@ -37,8 +37,8 @@ public class GiftCertificatesController {
      * All parameters are optional.
      *
      * @param tagName - name of a {@link Tag} tag should be contained in a gift certificate.
-     * @param giftCertificateName - part of a name of searched gift certificate.
-     * @param description - part of a description of searched gift certificate.
+     * @param giftCertificateName - part of a name of a searched gift certificate.
+     * @param description - part of a description of a searched gift certificate.
      * @param sortByName - sort of the retrieved gift certificates by name.
      * @param sortByDate - sort of the retrieved gift certificates by creation date.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link List} of {@link GiftCertificateDto}

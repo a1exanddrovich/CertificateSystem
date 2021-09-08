@@ -33,7 +33,7 @@ public class GiftCertificateValidatorTest {
         giftCertificate.setDuration(Duration.ofDays(50));
 
         //when
-        boolean actual = validator.validateCreating(giftCertificate);
+        boolean actual = validator.validateCreate(giftCertificate);
 
         //then
         Assert.assertTrue(actual);
@@ -49,7 +49,7 @@ public class GiftCertificateValidatorTest {
         giftCertificate.setDuration(Duration.ofDays(50));
 
         //when
-        boolean actual = validator.validateCreating(giftCertificate);
+        boolean actual = validator.validateCreate(giftCertificate);
 
         //then
         Assert.assertFalse(actual);

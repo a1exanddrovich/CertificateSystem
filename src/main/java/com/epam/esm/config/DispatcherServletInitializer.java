@@ -4,6 +4,8 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 
 public class DispatcherServletInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 
+    private static final String SLASH = "/";
+
     @Override
     protected Class<?>[] getRootConfigClasses() {
         return new Class[] { };
@@ -16,7 +18,7 @@ public class DispatcherServletInitializer extends AbstractAnnotationConfigDispat
 
     @Override
     protected String[] getServletMappings() {
-        return new String[] {"/"};
+        return new String[] {SLASH};
     }
 
 }

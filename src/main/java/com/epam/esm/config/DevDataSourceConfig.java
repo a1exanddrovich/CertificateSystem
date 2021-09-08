@@ -11,9 +11,11 @@ import javax.sql.DataSource;
 @Configuration
 public class DevDataSourceConfig {
 
+    private static final String TEST_DATA = "test-data.sql";
+
     @Bean
     public DataSource dataSource() {
-        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).addScript("test-data.sql").build();
+        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).addScript(TEST_DATA).build();
     }
 
 

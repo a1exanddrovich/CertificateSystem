@@ -16,10 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class GiftCertificateService {
@@ -41,11 +41,7 @@ public class GiftCertificateService {
     }
 
     public List<GiftCertificateDto> getGiftCertificates(String tagName, String giftCertificateName, String description, String sortByName, String sortByDate) {
-        List<GiftCertificate> giftCertificates = giftCertificateDao.getGiftCertificates(tagName, giftCertificateName, description, sortByName, sortByDate);
-        List<GiftCertificateDto> giftCertificateDtos = new ArrayList<>();
-
-        giftCertificates.stream().forEach(giftCertificate -> giftCertificateDtos.add(dtoMapper.map(giftCertificate)));
-        return giftCertificateDtos;
+        return giftCertificateDao.getGiftCertificates(tagName, giftCertificateName, description, sortByName, sortByDate).stream().map(dtoMapper::map).collect(Collectors.toList());
     }
 
     public GiftCertificateDto getGiftCertificate(long id) throws EntityNotExistsException {
@@ -75,18 +71,19 @@ public class GiftCertificateService {
 
         GiftCertificate giftCertificate = dtoMapper.unmap(giftCertificateDto);
 
-        if (!validator.validateUpdating(giftCertificate)) {
+        if (!validator.validateUpdate(giftCertificate)) {
             throw new BadEntityException();
         }
 
         giftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
 
-        checkForTags(giftCertificate.getTags());
+        giftCertificate.setTags(initializeTags(giftCertificate.getTags()));
         giftCertificateDao.updateGiftCertificate(id, giftCertificate);
 
         if (!giftCertificate.getTags().isEmpty()) {
             connectCertificatesAndTags(id, giftCertificate);
         }
+
         return getGiftCertificate(id);
     }
 
@@ -94,40 +91,37 @@ public class GiftCertificateService {
     public GiftCertificateDto createGiftCertificate(GiftCertificateDto giftCertificateDto) throws BadEntityException, EntityNotExistsException {
         GiftCertificate giftCertificate = dtoMapper.unmap(giftCertificateDto);
 
-        if (!validator.validateCreating(giftCertificate)) {
+        if (!validator.validateCreate(giftCertificate)) {
             throw new BadEntityException();
         }
 
         giftCertificate.setCreationDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
         giftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
 
-        checkForTags(giftCertificate.getTags());
+        giftCertificate.setTags(initializeTags(giftCertificate.getTags()));
         long lastInsertedId = giftCertificateDao.create(giftCertificate);
         giftCertificateTagDao.createConnections(lastInsertedId, giftCertificate.getTags());
 
         return getGiftCertificate(lastInsertedId);
     }
 
-    private void checkForTags(Set<Tag> incomingTags) {
-//        return incomingTags.stream().map(tag -> {
-//            Optional<Tag> optionalTag = tagDao.findTagByName(tag.getName());
-//            if (optionalTag.isPresent()) {
-//                return optionalTag.get();
-//            } else {
-//                Tag newTag = new Tag(tag.getName());
-//                long newTagId = tagDao.create(newTag);
-//                newTag.setId(newTagId);
-//                return newTag;
-//            }
-//        }).collect(Collectors.toSet());
-        List<String> newTagNames = new ArrayList<>();
-        incomingTags.stream().forEach(tag -> newTagNames.add(tag.getName()));
-        newTagNames.stream().filter(tagName -> tagDao.findTagByName(tagName).isEmpty()).forEach(tagName -> tagDao.create(new Tag(tagName)));
+    private Set<Tag> initializeTags(Set<Tag> incomingTags) {
+        return incomingTags.stream().map(tag -> {
+            Optional<Tag> optionalTag = tagDao.findTagByName(tag.getName());
+            if (optionalTag.isPresent()) {
+                return optionalTag.get();
+            } else {
+                Tag newTag = new Tag(tag.getName());
+                long newTagId = tagDao.create(newTag);
+                newTag.setId(newTagId);
+                return newTag;
+            }
+        }).collect(Collectors.toSet());
     }
 
     private void connectCertificatesAndTags(long id, GiftCertificate giftCertificate) {
         List<Long> tagIdsBeforeUpdate = giftCertificateTagDao.getIdsBeforeUpdate(id);
-        List<Long> tagIdsAfterUpdate = tagDao.getIdsAfterUpdate(giftCertificate.getTags());
+        List<Long> tagIdsAfterUpdate = giftCertificate.getTags().stream().map(Tag::getId).collect(Collectors.toList());
 
         for (Long tagId : tagIdsAfterUpdate) {
             if (!tagIdsBeforeUpdate.contains(tagId)) {
@@ -135,21 +129,12 @@ public class GiftCertificateService {
             }
         }
 
-//        for (Tag tag : giftCertificate.getTags()) {
-//            if (!tagIdsBeforeUpdate.contains(tag.getId())) {
-//                giftCertificateTagDao.addTagId(id, tag.getId());
-//            }
-//        }
-
         for (Long tagId : tagIdsBeforeUpdate) {
             if (!tagIdsAfterUpdate.contains(tagId)) {
                 giftCertificateTagDao.deleteTagId(id, tagId);
             }
         }
 
-//        for (Long tagId : tagIdsBeforeUpdate) {
-//            if (giftCertificate.getTags())
-//        }
     }
 
 }

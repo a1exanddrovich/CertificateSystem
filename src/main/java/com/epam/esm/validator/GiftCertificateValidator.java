@@ -1,12 +1,10 @@
 package com.epam.esm.validator;
 
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.Set;
 
 @Component
 public class GiftCertificateValidator {
@@ -18,33 +16,36 @@ public class GiftCertificateValidator {
         this.tagValidator = tagValidator;
     }
 
-    public boolean validateCreating(GiftCertificate giftCertificate) {
-        String name = giftCertificate.getName();
-        String description = giftCertificate.getDescription();
-        BigDecimal price = giftCertificate.getPrice();
-        Duration duration = giftCertificate.getDuration();
-        Set<Tag> tags = giftCertificate.getTags();
-
-        return (name != null && (name.length() >= 3 && name.length() <= 50)) &&
-               (description != null && (description.length() >= 10 && description.length() <= 100)) &&
-               (price != null && (price.compareTo(BigDecimal.ZERO) >= 1)) &&
-               (duration != null && (duration.toDays() > 0)) &&
-               (tags != null && tags.stream().allMatch(tagValidator::validate));
+    public boolean validateCreate(GiftCertificate giftCertificate) {
+        return (giftCertificate.getName() != null && validateName(giftCertificate.getName())) &&
+               (giftCertificate.getDescription() != null && validateDescription(giftCertificate.getDescription())) &&
+               (giftCertificate.getPrice() != null && validatePrice(giftCertificate.getPrice())) &&
+               (giftCertificate.getDuration() != null && validateDuration(giftCertificate.getDuration())) &&
+               (giftCertificate.getTags() != null && giftCertificate.getTags().stream().allMatch(tagValidator::validate));
     }
 
-    public boolean validateUpdating(GiftCertificate giftCertificate) {
-        String name = giftCertificate.getName();
-        String description = giftCertificate.getDescription();
-        BigDecimal price = giftCertificate.getPrice();
-        Duration duration = giftCertificate.getDuration();
-        Set<Tag> tags = giftCertificate.getTags();
+    public boolean validateUpdate(GiftCertificate giftCertificate) {
+        return (giftCertificate.getName() == null || validateName(giftCertificate.getName())) &&
+               (giftCertificate.getDescription() == null || validateDescription(giftCertificate.getDescription())) &&
+               (giftCertificate.getPrice() == null || validatePrice(giftCertificate.getPrice())) &&
+               (giftCertificate.getDuration() == null || validateDuration(giftCertificate.getDuration())) &&
+               (giftCertificate.getTags() == null || (giftCertificate.getTags().stream().allMatch(tagValidator::validate)));
+    }
 
-        return (name == null || name.length() >= 3 && name.length() <= 50) &&
-               (description == null || description.length() >= 10 && description.length() <= 100) &&
-               (price == null || price.compareTo(BigDecimal.ZERO) >= 1) &&
-               (duration == null || duration.toDays() > 0) &&
-               (tags == null || tags.stream().allMatch(tagValidator::validate));
+    private boolean validateName(String name) {
+        return name.length() >= 3 && name.length() <= 50;
+    }
 
+    private boolean validateDescription(String description) {
+        return description.length() >= 10 && description.length() <= 100;
+    }
+
+    private boolean validatePrice(BigDecimal price) {
+        return price.compareTo(BigDecimal.ZERO) >= 1;
+    }
+
+    private boolean validateDuration(Duration duration) {
+        return duration.toDays() > 0;
     }
 
 }

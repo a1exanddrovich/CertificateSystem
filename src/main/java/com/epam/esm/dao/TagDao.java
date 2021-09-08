@@ -1,8 +1,8 @@
 package com.epam.esm.dao;
 
-import com.epam.esm.sql.SqlQueries;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.mapper.TagMapper;
+import com.epam.esm.sql.SqlQueries;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -10,10 +10,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Component
 public class TagDao implements EntityDao<Tag> {
@@ -50,12 +48,6 @@ public class TagDao implements EntityDao<Tag> {
 
     public List<Tag> findAll() {
         return template.query(SqlQueries.FIND_ALL_TAGS, mapper);
-    }
-
-    public List<Long> getIdsAfterUpdate(Set<Tag> tags) {
-        List<Long> ids = new ArrayList<>();
-        tags.stream().forEach(tag -> ids.add(template.queryForObject(SqlQueries.FIND_TAG_ID_BY_NAME, Long.class, tag.getName())));
-        return ids;
     }
 
     public Optional<Tag> findTagByName(String tagName) {
