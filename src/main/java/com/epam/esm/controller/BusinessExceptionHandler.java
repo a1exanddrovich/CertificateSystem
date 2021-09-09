@@ -29,23 +29,17 @@ public class BusinessExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(EntityNotExistsException.class)
     public ResponseEntity<ExceptionResponse> handleEntityNotExistException(Locale locale) {
-        return new ResponseEntity<>(new ExceptionResponse(HttpStatus.NOT_FOUND.value(),
-                                                          messageSource.getMessage(NOT_EXIST_EXCEPTION_MESSAGE, new Object[]{}, locale)),
-                                    HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ExceptionResponse(HttpStatus.NOT_FOUND.value(), messageSource.getMessage(NOT_EXIST_EXCEPTION_MESSAGE, new Object[]{}, locale)), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BadEntityException.class)
     public ResponseEntity<ExceptionResponse> handleBadEntityException(Locale locale) {
-        return new ResponseEntity<>(new ExceptionResponse(HttpStatus.BAD_REQUEST.value(),
-                                                          messageSource.getMessage(BAD_ENTITY_MESSAGE, new Object[]{}, locale)),
-                                    HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), messageSource.getMessage(BAD_ENTITY_MESSAGE, new Object[]{}, locale)), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<ExceptionResponse> handleEntityAlreadyExistException(Locale locale) {
-        return new ResponseEntity<>(new ExceptionResponse(HttpStatus.CONFLICT.value(),
-                                                          messageSource.getMessage(ALREADY_EXIST_EXCEPTION_MESSAGE, new Object[]{}, locale)),
-                                    HttpStatus.CONFLICT);
+        return new ResponseEntity<>(new ExceptionResponse(HttpStatus.CONFLICT.value(), messageSource.getMessage(ALREADY_EXIST_EXCEPTION_MESSAGE, new Object[]{}, locale)), HttpStatus.CONFLICT);
     }
 
 }
