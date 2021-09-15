@@ -15,7 +15,9 @@ public class DevDataSourceConfig {
 
     @Bean
     public DataSource dataSource() {
-        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).addScript(TEST_DATA).build();
+        return new EmbeddedDatabaseBuilder()
+                   .setType(EmbeddedDatabaseType.H2)
+                   .addScript(TEST_DATA).build();
     }
 
 

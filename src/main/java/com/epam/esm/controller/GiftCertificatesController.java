@@ -44,7 +44,7 @@ public class GiftCertificatesController {
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link List} of {@link GiftCertificateDto}
      */
     @GetMapping(produces = JSON)
-    public ResponseEntity<List<GiftCertificateDto>> giftCertificates(@RequestParam(required = false) String tagName,
+    public ResponseEntity<List<GiftCertificateDto>> getGiftCertificates(@RequestParam(required = false) String tagName,
                                                                      @RequestParam(required = false) String giftCertificateName,
                                                                      @RequestParam(required = false) String description,
                                                                      @RequestParam(required = false) String sortByName,

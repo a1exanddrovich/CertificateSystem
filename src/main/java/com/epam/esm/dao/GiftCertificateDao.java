@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -56,7 +57,7 @@ public class GiftCertificateDao implements EntityDao<GiftCertificate> {
 
     @Override
     public Optional<GiftCertificate> findById(long id) {
-        return template.query(SqlQueries.FIND_CERTIFICATE_BY_ID, mapper, new Object[]{id}).stream().findAny();
+        return Objects.requireNonNull(template.query(SqlQueries.FIND_CERTIFICATE_BY_ID, mapper, new Object[]{id})).stream().findAny();
     }
 
     public void updateGiftCertificate(long id, GiftCertificate giftCertificate) {
