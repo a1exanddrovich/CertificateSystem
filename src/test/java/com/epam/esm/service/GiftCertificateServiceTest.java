@@ -2,13 +2,15 @@ package com.epam.esm.service;
 
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.GiftCertificateTagDao;
+import com.epam.esm.dao.OrderDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityNotExistsException;
-import com.epam.esm.utils.GiftCertificateDtoMapper;
+import com.epam.esm.dtomapper.GiftCertificateDtoMapper;
+import com.epam.esm.utils.Paginator;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -26,21 +28,25 @@ public class GiftCertificateServiceTest {
     private static GiftCertificateDao giftCertificateDao;
     private static GiftCertificateTagDao giftCertificateTagDao;
     private static TagDao tagDao;
+    private static OrderDao orderDao;
     private static GiftCertificateValidator validator;
     private static GiftCertificateDtoMapper dtoMapper;
     private static GiftCertificateDto expected;
     private static GiftCertificate expectedGiftCertificate;
     private static final long id = 2;
     private static GiftCertificateService service;
+    private static Paginator paginator;
 
     @BeforeClass
     public static void init() {
         giftCertificateDao = Mockito.mock(GiftCertificateDao.class);
         giftCertificateTagDao = Mockito.mock(GiftCertificateTagDao.class);
         tagDao = Mockito.mock(TagDao.class);
+        orderDao = Mockito.mock(OrderDao.class);
         validator = Mockito.mock(GiftCertificateValidator.class);
         dtoMapper = Mockito.mock(GiftCertificateDtoMapper.class);
-        service = new GiftCertificateService(giftCertificateDao, giftCertificateTagDao, tagDao, validator, dtoMapper);
+        paginator = Mockito.mock(Paginator.class);
+        service = new GiftCertificateService(giftCertificateDao, giftCertificateTagDao, tagDao, orderDao, validator, dtoMapper, paginator);
 
         Set<String> tags = new HashSet<>();
         Set<Tag> giftCertificateTags = new HashSet<>();
@@ -77,11 +83,11 @@ public class GiftCertificateServiceTest {
         //given
         List<GiftCertificate> expectedGiftCertificates = Arrays.asList(expectedGiftCertificate, expectedGiftCertificate);
         List<GiftCertificateDto> expectedGiftCertificateDtos = Arrays.asList(expected, expected);
-        when(giftCertificateDao.getGiftCertificates(null, null, null, null, null)).thenReturn(expectedGiftCertificates);
+        when(giftCertificateDao.getGiftCertificates(null, null, null, null, null, null, null)).thenReturn(expectedGiftCertificates);
         when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expected);
 
         //when
-        List<GiftCertificateDto> actual = service.getGiftCertificates(null, null, null, null, null);
+        List<GiftCertificateDto> actual = service.getGiftCertificates(null, null, null, null, null, null, null);
 
         //then
         Assert.assertEquals(expectedGiftCertificateDtos, actual);

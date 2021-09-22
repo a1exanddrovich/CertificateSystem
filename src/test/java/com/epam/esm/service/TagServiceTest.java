@@ -6,6 +6,7 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.exception.EntityNotExistsException;
+import com.epam.esm.utils.Paginator;
 import com.epam.esm.validator.TagValidator;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -25,23 +26,25 @@ public class TagServiceTest {
     private static GiftCertificateTagDao giftCertificateTagDao;
     private static TagValidator tagValidator;
     private static TagService service;
+    private static Paginator paginator;
 
     @BeforeClass
     public static void init() {
         tagDao = Mockito.mock(TagDao.class);
         giftCertificateTagDao = Mockito.mock(GiftCertificateTagDao.class);
         tagValidator = Mockito.mock(TagValidator.class);
-        service = new TagService(tagDao, giftCertificateTagDao, tagValidator);
+        paginator = Mockito.mock(Paginator.class);
+        service = new TagService(tagDao, giftCertificateTagDao, tagValidator, paginator);
     }
 
     @Test
     public void testShouldReturnAllTags() {
         //given
         List<Tag> expected = Arrays.asList(new Tag(), new Tag());
-        when(tagDao.findAll()).thenReturn(expected);
+        when(tagDao.findAll(1, 1)).thenReturn(expected);
 
         //when
-        List<Tag> actual = service.getTags();
+        List<Tag> actual = service.getTags(1, 2);
 
         //then
         Assert.assertEquals(expected, actual);
