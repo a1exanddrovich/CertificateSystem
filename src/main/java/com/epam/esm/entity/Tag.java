@@ -1,18 +1,12 @@
 package com.epam.esm.entity;
 
-import org.springframework.hateoas.RepresentationModel;
+import org.springframework.stereotype.Component;
 import java.util.Objects;
-import javax.persistence.*;
 
-@Entity(name = "Tag")
-@Table(name = "tag")
-public class Tag extends RepresentationModel<Tag> implements Identifiable {
+@Component
+public class Tag implements Identifiable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private long id;
-    @Column(name = "name")
     private String name;
 
     public Tag(long id, String name) {

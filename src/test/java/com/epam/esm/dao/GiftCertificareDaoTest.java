@@ -3,6 +3,7 @@ package com.epam.esm.dao;
 import com.epam.esm.config.TestConfig;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.mapper.GiftCertificateMapper;
 import com.epam.esm.utils.QueryConstructor;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -13,8 +14,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-
-import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -27,15 +26,13 @@ import java.util.Set;
 public class GiftCertificareDaoTest {
 
     private static GiftCertificateDao dao;
-
     private static GiftCertificateTagDao giftCertificateTagDao;
 
     @BeforeClass
     public static void init() {
-        EntityManager manager = null;
         JdbcTemplate template = new JdbcTemplate(new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).addScript("test-data.sql").build());
-        giftCertificateTagDao = new GiftCertificateTagDao(manager);
-        dao = new GiftCertificateDao(manager, new QueryConstructor());
+        giftCertificateTagDao = new GiftCertificateTagDao(template);
+        dao = new GiftCertificateDao(template, new GiftCertificateMapper(), new QueryConstructor());
     }
 
     @Test
@@ -116,7 +113,7 @@ public class GiftCertificareDaoTest {
     @Test
     public void testShouldGetListOfGiftCertificates() {
 
-        List<GiftCertificate> giftCertificates = dao.getGiftCertificates(null, null, null, null, null, null, null);
+        List<GiftCertificate> giftCertificates = dao.getGiftCertificates(null, null, null, null, null);
 
         Assert.assertNotNull(giftCertificates);
     }

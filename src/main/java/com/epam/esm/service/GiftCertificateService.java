@@ -2,18 +2,17 @@ package com.epam.esm.service;
 
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.GiftCertificateTagDao;
-import com.epam.esm.dao.OrderDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityNotExistsException;
-import com.epam.esm.dtomapper.GiftCertificateDtoMapper;
-import com.epam.esm.utils.Paginator;
+import com.epam.esm.utils.GiftCertificateDtoMapper;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,28 +25,23 @@ import java.util.stream.Collectors;
 public class GiftCertificateService {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-
     private final GiftCertificateDao giftCertificateDao;
     private final GiftCertificateTagDao giftCertificateTagDao;
     private final TagDao tagDao;
-    private final OrderDao orderDao;
     private final GiftCertificateValidator validator;
     private final GiftCertificateDtoMapper dtoMapper;
-    private final Paginator paginator;
 
     @Autowired
-    public GiftCertificateService(GiftCertificateDao giftCertificateDao, GiftCertificateTagDao giftCertificateTagDao, TagDao tagDao, OrderDao orderDao, GiftCertificateValidator validator, GiftCertificateDtoMapper dtoMapper, Paginator paginator) {
+    public GiftCertificateService(GiftCertificateDao giftCertificateDao, GiftCertificateTagDao giftCertificateTagDao, TagDao tagDao, GiftCertificateValidator validator, GiftCertificateDtoMapper dtoMapper) {
         this.giftCertificateDao = giftCertificateDao;
         this.giftCertificateTagDao = giftCertificateTagDao;
         this.tagDao = tagDao;
-        this.orderDao = orderDao;
         this.validator = validator;
         this.dtoMapper = dtoMapper;
-        this.paginator = paginator;
     }
 
-    public List<GiftCertificateDto> getGiftCertificates(String[] tagNames, String giftCertificateName, String description, String sortByName, String sortByDate, Integer page, Integer pageSize) {
-        return giftCertificateDao.getGiftCertificates(tagNames, giftCertificateName, description, sortByName, sortByDate, page, paginator.paginate(page, pageSize, giftCertificateDao.countGiftCertificates())).stream().map(dtoMapper::map).collect(Collectors.toList());
+    public List<GiftCertificateDto> getGiftCertificates(String tagName, String giftCertificateName, String description, String sortByName, String sortByDate) {
+        return giftCertificateDao.getGiftCertificates(tagName, giftCertificateName, description, sortByName, sortByDate).stream().map(dtoMapper::map).collect(Collectors.toList());
     }
 
     public GiftCertificateDto getGiftCertificate(long id) throws EntityNotExistsException {
@@ -59,16 +53,17 @@ public class GiftCertificateService {
         return dtoMapper.map(optionalGiftCertificate.get());
     }
 
+    @Transactional
     public void deleteGiftCertificate(long id) throws EntityNotExistsException {
         if (giftCertificateDao.findById(id).isEmpty()) {
             throw new EntityNotExistsException();
         }
 
         giftCertificateTagDao.deleteGiftCertificateById(id);
-        orderDao.deleteByGiftCertificateId(id);
         giftCertificateDao.deleteById(id);
     }
 
+    @Transactional
     public GiftCertificateDto updateGiftCertificate(long id, GiftCertificateDto giftCertificateDto) throws EntityNotExistsException, BadEntityException {
         if (giftCertificateDao.findById(id).isEmpty()) {
             throw new EntityNotExistsException();
@@ -92,6 +87,7 @@ public class GiftCertificateService {
         return getGiftCertificate(id);
     }
 
+    @Transactional
     public GiftCertificateDto createGiftCertificate(GiftCertificateDto giftCertificateDto) throws BadEntityException, EntityNotExistsException {
         GiftCertificate giftCertificate = dtoMapper.unmap(giftCertificateDto);
 
@@ -101,9 +97,12 @@ public class GiftCertificateService {
 
         giftCertificate.setCreationDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
         giftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
-        giftCertificate.setTags(initializeTags(giftCertificate.getTags()));
 
-        return getGiftCertificate(giftCertificateDao.create(giftCertificate));
+        giftCertificate.setTags(initializeTags(giftCertificate.getTags()));
+        long lastInsertedId = giftCertificateDao.create(giftCertificate);
+        giftCertificateTagDao.createConnections(lastInsertedId, giftCertificate.getTags());
+
+        return getGiftCertificate(lastInsertedId);
     }
 
     private Set<Tag> initializeTags(Set<Tag> incomingTags) {

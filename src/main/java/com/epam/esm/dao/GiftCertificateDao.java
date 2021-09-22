@@ -2,63 +2,67 @@ package com.epam.esm.dao;
 
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.sql.SqlQueries;
+import com.epam.esm.mapper.GiftCertificateMapper;
 import com.epam.esm.utils.QueryConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-import javax.persistence.EntityManager;
-import java.math.BigInteger;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-@Repository
+@Component
 public class GiftCertificateDao implements EntityDao<GiftCertificate> {
 
-    private final EntityManager manager;
+    private final JdbcTemplate template;
+    private final GiftCertificateMapper mapper;
     private final QueryConstructor constructor;
 
     @Autowired
-    public GiftCertificateDao(EntityManager manager, QueryConstructor constructor) {
-        this.manager = manager;
+    public GiftCertificateDao(JdbcTemplate template, GiftCertificateMapper mapper, QueryConstructor constructor) {
+        this.template = template;
+        this.mapper = mapper;
         this.constructor = constructor;
     }
 
     @Override
     public void deleteById(long id) {
-        manager.getTransaction().begin();
-        manager.createNativeQuery(SqlQueries.DELETE_CERTIFICATE).setParameter(1, id).executeUpdate();
-        manager.getTransaction().commit();
+        template.update(SqlQueries.DELETE_CERTIFICATE, id);
     }
 
     @Override
     public long create(GiftCertificate giftCertificate) {
-        manager.getTransaction().begin();
-        manager.persist(giftCertificate);
-        manager.getTransaction().commit();
-        return giftCertificate.getId();
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        template.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(SqlQueries.CREATE_CERTIFICATE, Statement.RETURN_GENERATED_KEYS);
+            statement.setString(1, giftCertificate.getName());
+            statement.setString(2, giftCertificate.getDescription());
+            statement.setString(3, giftCertificate.getPrice().toString());
+            statement.setString(4, String.valueOf(giftCertificate.getDuration().toDays()));
+            statement.setString(5, giftCertificate.getCreationDate().toString());
+            statement.setString(6, giftCertificate.getLastUpdateDate().toString());
+            return statement;
+        }, keyHolder);
+        return keyHolder.getKey().longValue();
     }
 
-    public List<GiftCertificate> getGiftCertificates(String[] tagNames, String giftCertificateName, String description, String sortByName, String sortByDate, Integer page, Integer pageSize) {
-        String query = constructor.constructGiftCertificateQuery(tagNames, giftCertificateName, description, sortByName, sortByDate, page, pageSize);
-        List<?> tags = manager.createNativeQuery(query, GiftCertificate.class).getResultList();
-        return tags.stream().map(GiftCertificate.class::cast).collect(Collectors.toList());
+    public List<GiftCertificate> getGiftCertificates(String tagName, String giftCertificateName, String description, String sortByName, String sortByDate) {
+        String query = constructor.constructQuery(tagName, giftCertificateName, description, sortByName, sortByDate);
+        return template.query(query, mapper);
     }
 
     @Override
     public Optional<GiftCertificate> findById(long id) {
-        manager.clear();
-        List<?> result = manager.createNativeQuery(SqlQueries.FIND_CERTIFICATE_BY_ID, GiftCertificate.class).setParameter(1, id).getResultList();
-        return result.isEmpty() ? Optional.empty() : Optional.of((GiftCertificate) result.get(0));
+        return Objects.requireNonNull(template.query(SqlQueries.FIND_CERTIFICATE_BY_ID, mapper, new Object[]{id})).stream().findAny();
     }
 
     public void updateGiftCertificate(long id, GiftCertificate giftCertificate) {
-        String updateQuery = constructor.constructGiftCertificateUpdateQuery(id, giftCertificate);
-        manager.getTransaction().begin();
-        manager.createNativeQuery(updateQuery).executeUpdate();
-        manager.getTransaction().commit();
+        String updateQuery = constructor.constructUpdateQuery(id, giftCertificate);
+        template.update(updateQuery);
     }
 
-    public Integer countGiftCertificates() {
-        return ((BigInteger) manager.createNativeQuery(SqlQueries.COUNT_ALL_CERTIFICATES).getSingleResult()).intValue();
-    }
 }

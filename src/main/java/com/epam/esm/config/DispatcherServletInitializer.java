@@ -1,6 +1,5 @@
 package com.epam.esm.config;
 
-import com.epam.esm.SpringConfig;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class DispatcherServletInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {

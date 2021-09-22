@@ -1,7 +1,6 @@
 package com.epam.esm.entity;
 
-import com.epam.esm.converter.ZonedDateTimeAttributeConverter;
-import javax.persistence.*;
+import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -9,35 +8,19 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity(name = "GiftCertificate")
-@Table(name = "gift_certificate")
+@Component
 public class GiftCertificate implements Identifiable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private long id;
-    @Column(name = "name")
     private String name;
-    @Column(name = "description")
     private String description;
-    @Column(name = "price", scale = 2, precision = 10)
     private BigDecimal price;
-    @Column(name = "duration")
     private Duration duration;
-    @Column(name = "create_date")
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
     private ZonedDateTime creationDate;
-    @Column(name = "last_update_date")
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
     private ZonedDateTime lastUpdateDate;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "gift_certificate_tag",
-               joinColumns = @JoinColumn(name = "gift_certificate_id"),
-               inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
 
-    public GiftCertificate(long id, String name, String description, BigDecimal price, Duration duration, ZonedDateTime creationDate, ZonedDateTime lastUpdateDate, Set<Tag> tags) {
+    public GiftCertificate(long id, String name, String description, BigDecimal price, Duration duration, ZonedDateTime creationDate, ZonedDateTime lastUpdateDate) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -45,7 +28,6 @@ public class GiftCertificate implements Identifiable {
         this.duration = duration;
         this.creationDate = creationDate;
         this.lastUpdateDate = lastUpdateDate;
-        this.tags = tags;
     }
 
     public GiftCertificate() { }

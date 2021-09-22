@@ -10,15 +10,12 @@ public class QueryConstructor {
     private static final String ORDER_BY_NAME_STATEMENT = " ORDER BY name";
     private static final String ORDER_BY_DATE_STATEMENT = " ORDER BY create_date";
     private static final String DESCENDING_ORDER = " DESC";
-    private static final String COMMA = ", ";
-    private static final String LIMIT = " LIMIT ";
 
-    public String constructGiftCertificateQuery(String[] tagNames, String giftCertificateName, String description, String sortByName, String sortByDate, Integer page, Integer pageSize) {
-        //StringBuilder query = new StringBuilder(SqlQueries.FIND_ALL_CERTIFICATES);
-        StringBuilder query = new StringBuilder("Select * from gift_certificate");
+    public String constructQuery(String tagName, String giftCertificateName, String description, String sortByName, String sortByDate) {
+        StringBuilder query = new StringBuilder(SqlQueries.FIND_ALL_CERTIFICATES);
 
         if (giftCertificateName != null) {
-            query.append(" WHERE gift_certificate.name LIKE '%").append(giftCertificateName).append("%'");
+            query.append(" WHERE gc.name LIKE '%").append(giftCertificateName).append("%'");
 
             if (description != null) {
                 query.append(" AND ");
@@ -30,15 +27,11 @@ public class QueryConstructor {
                 query.append(" WHERE");
             }
 
-            query.append(" gift_certificate.description LIKE '%").append(description).append("%'");
+            query.append(" gc.description LIKE '%").append(description).append("%'");
         }
 
-        if (tagNames != null && tagNames.length != 0) {
-            query.append(" HAVING gift_certificate.id IN ");
-            for (String tagName : tagNames) {
-                query.append(SqlQueries.SELECT_CERTIFICATE_ID_BY_TAG_NAME).append("'").append(tagName).append("')").append(" AND gc.id IN ");
-            }
-            query.delete(query.length() - 14, query.length());
+        if (tagName != null) {
+            query.append(" HAVING gc.id IN ").append(SqlQueries.SELECT_CERTIFICATE_ID_BY_TAG_NAME).append("'").append(tagName).append("')");
         }
 
         if (sortByName != null && sortByDate == null) {
@@ -57,14 +50,10 @@ public class QueryConstructor {
             }
         }
 
-        if (page != null && pageSize != null) {
-            query.append(LIMIT).append(pageSize * (page - 1)).append(COMMA).append(pageSize);
-        }
-
         return query.toString();
     }
 
-    public String constructGiftCertificateUpdateQuery(long id, GiftCertificate giftCertificate) {
+    public String constructUpdateQuery(long id, GiftCertificate giftCertificate) {
         StringBuilder query = new StringBuilder("UPDATE gift_certificate SET ");
 
         if (giftCertificate.getName() != null) {
@@ -76,25 +65,15 @@ public class QueryConstructor {
         }
 
         if (giftCertificate.getPrice() != null) {
-            query.append("price = ").append(giftCertificate.getPrice()).append(COMMA);
+            query.append("price = ").append(giftCertificate.getPrice()).append(", ");
         }
 
         if (giftCertificate.getDuration() != null) {
-            query.append("duration = ").append(giftCertificate.getDuration().toDays()).append(COMMA);
+            query.append("duration = ").append(giftCertificate.getDuration().toDays()).append(", ");
         }
 
         query.append("last_update_date = '").append(giftCertificate.getLastUpdateDate()).append("' ");
         query.append(" WHERE id = ").append(id);
-
-        return query.toString();
-    }
-
-    public String constructPaginatedQuery(Integer page, Integer pageSize, String initialQuery) {
-        StringBuilder query = new StringBuilder(initialQuery);
-
-        if (page != null && pageSize != null) {
-            query.append(LIMIT).append(pageSize * (page - 1)).append(COMMA).append(pageSize);
-        }
 
         return query.toString();
     }
