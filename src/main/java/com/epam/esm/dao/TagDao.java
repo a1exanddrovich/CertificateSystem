@@ -51,6 +51,7 @@ public class TagDao implements EntityDao<Tag> {
 
     public Optional<Tag> findTagByName(String tagName) {
         List<?> result = manager.createNativeQuery(SqlQueries.FIND_TAG_BY_NAME, Tag.class).setParameter(1, tagName).getResultList();
+
         return result.isEmpty() ? Optional.empty() : Optional.of((Tag) result.get(0));
     }
 
