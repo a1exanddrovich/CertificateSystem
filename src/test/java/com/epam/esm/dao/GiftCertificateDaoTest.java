@@ -3,17 +3,17 @@ package com.epam.esm.dao;
 import com.epam.esm.config.TestConfig;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.mapper.GiftCertificateMapper;
-import com.epam.esm.utils.QueryConstructor;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -21,19 +21,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@ContextConfiguration(classes = TestConfig.class)
-@ActiveProfiles(profiles = "dev")
-public class GiftCertificareDaoTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {TestConfig.class})
+@WebAppConfiguration
+@ActiveProfiles("dev")
+public class GiftCertificateDaoTest {
 
-    private static GiftCertificateDao dao;
-    private static GiftCertificateTagDao giftCertificateTagDao;
-
-    @BeforeClass
-    public static void init() {
-        JdbcTemplate template = new JdbcTemplate(new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).addScript("test-data.sql").build());
-        giftCertificateTagDao = new GiftCertificateTagDao(template);
-        dao = new GiftCertificateDao(template, new GiftCertificateMapper(), new QueryConstructor());
-    }
+    @Autowired
+    private GiftCertificateDao dao;
+    @Autowired
+    private GiftCertificateTagDao giftCertificateTagDao;
 
     @Test
     public void testShouldFindById() {
