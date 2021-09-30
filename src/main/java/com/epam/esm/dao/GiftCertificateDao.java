@@ -41,6 +41,7 @@ public class GiftCertificateDao implements EntityDao<GiftCertificate> {
     public List<GiftCertificate> getGiftCertificates(String[] tagNames, String giftCertificateName, String description, String sortByName, String sortByDate, Integer page, Integer pageSize) {
         String query = constructor.constructGiftCertificateQuery(tagNames, giftCertificateName, description, sortByName, sortByDate, page, pageSize);
         List<?> tags = manager.createNativeQuery(query, GiftCertificate.class).getResultList();
+
         return tags.stream().map(GiftCertificate.class::cast).collect(Collectors.toList());
     }
 
