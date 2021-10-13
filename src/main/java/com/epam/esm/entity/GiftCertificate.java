@@ -9,9 +9,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity(name = "GiftCertificate")
-@Table(name = "gift_certificate")
-public class GiftCertificate implements Identifiable {
+@Entity
+public class GiftCertificate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +30,13 @@ public class GiftCertificate implements Identifiable {
     @Column(name = "last_update_date")
     @Convert(converter = ZonedDateTimeAttributeConverter.class)
     private ZonedDateTime lastUpdateDate;
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "tag")
-//    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    @JoinTable(name = "gift_certificate_tag",
-//               joinColumns = @JoinColumn(name = "gift_certificate_id"),
-//               inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE,
+    }, fetch = FetchType.LAZY)
+    @JoinTable(name = "gift_certificate_tag",
+               joinColumns = @JoinColumn(name = "gift_certificate_id"),
+               inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
 
     public GiftCertificate(long id, String name, String description, BigDecimal price, Duration duration, ZonedDateTime creationDate, ZonedDateTime lastUpdateDate, Set<Tag> tags) {
@@ -51,7 +52,6 @@ public class GiftCertificate implements Identifiable {
 
     public GiftCertificate() { }
 
-    @Override
     public long getId() {
         return this.id;
     }

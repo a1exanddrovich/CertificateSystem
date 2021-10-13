@@ -111,7 +111,7 @@ public class GiftCertificateDaoTest {
     @Test
     public void testShouldGetListOfGiftCertificates() {
 
-        List<GiftCertificate> giftCertificates = dao.getGiftCertificates(null, null, null, null, null);
+        List<GiftCertificate> giftCertificates = dao.getGiftCertificates(null, null, null, null, null, null, null);
 
         Assert.assertNotNull(giftCertificates);
     }

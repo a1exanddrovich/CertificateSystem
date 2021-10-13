@@ -1,8 +1,6 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.GiftCertificateTagDao;
-import com.epam.esm.dao.OrderDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
@@ -14,6 +12,7 @@ import com.epam.esm.utils.Paginator;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,24 +22,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class GiftCertificateService {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     private final GiftCertificateDao giftCertificateDao;
-    //private final GiftCertificateTagDao giftCertificateTagDao;
     private final TagDao tagDao;
-    private final OrderDao orderDao;
     private final GiftCertificateValidator validator;
     private final GiftCertificateDtoMapper dtoMapper;
     private final Paginator paginator;
 
     @Autowired
-    public GiftCertificateService(GiftCertificateDao giftCertificateDao, GiftCertificateTagDao giftCertificateTagDao, TagDao tagDao, OrderDao orderDao, GiftCertificateValidator validator, GiftCertificateDtoMapper dtoMapper, Paginator paginator) {
+    public GiftCertificateService(GiftCertificateDao giftCertificateDao, TagDao tagDao, GiftCertificateValidator validator, GiftCertificateDtoMapper dtoMapper, Paginator paginator) {
         this.giftCertificateDao = giftCertificateDao;
-        //this.giftCertificateTagDao = giftCertificateTagDao;
         this.tagDao = tagDao;
-        this.orderDao = orderDao;
         this.validator = validator;
         this.dtoMapper = dtoMapper;
         this.paginator = paginator;
@@ -64,8 +60,6 @@ public class GiftCertificateService {
             throw new EntityNotExistsException();
         }
 
-        //giftCertificateTagDao.deleteGiftCertificateById(id);
-        orderDao.deleteByGiftCertificateId(id);
         giftCertificateDao.deleteById(id);
     }
 
@@ -81,13 +75,8 @@ public class GiftCertificateService {
         }
 
         giftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
-
         giftCertificate.setTags(initializeTags(giftCertificate.getTags()));
         giftCertificateDao.updateGiftCertificate(id, giftCertificate);
-
-//        if (!giftCertificate.getTags().isEmpty()) {
-//            connectCertificatesAndTags(id, giftCertificate);
-//        }
 
         return getGiftCertificate(id);
     }

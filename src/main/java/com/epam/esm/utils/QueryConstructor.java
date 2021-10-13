@@ -1,7 +1,6 @@
 package com.epam.esm.utils;
 
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.sql.SqlQueries;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,6 +11,7 @@ public class QueryConstructor {
     private static final String DESCENDING_ORDER = " DESC";
     private static final String COMMA = ", ";
     private static final String LIMIT = " LIMIT ";
+    private static final String SELECT_CERTIFICATE_ID_BY_TAG_NAME = "(SELECT gc.id FROM gift_certificate gc JOIN gift_certificate_tag gct ON gct.gift_certificate_id = gc.id JOIN tag t ON gct.tag_id = t.id WHERE t.name = ";
 
     public String constructGiftCertificateQuery(String[] tagNames, String giftCertificateName, String description, String sortByName, String sortByDate, Integer page, Integer pageSize) {
 
@@ -40,7 +40,7 @@ public class QueryConstructor {
         if (tagNames != null && tagNames.length != 0) {
             query.append(" HAVING gift_certificate.id IN ");
             for (String tagName : tagNames) {
-                query.append(SqlQueries.SELECT_CERTIFICATE_ID_BY_TAG_NAME).append("'").append(tagName).append("')").append(" AND gc.id IN ");
+                query.append(SELECT_CERTIFICATE_ID_BY_TAG_NAME).append("'").append(tagName).append("')").append(" AND gc.id IN ");
             }
             query.delete(query.length() - 14, query.length());
         }

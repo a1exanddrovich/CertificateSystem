@@ -1,6 +1,5 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dao.GiftCertificateTagDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadEntityException;
@@ -10,21 +9,22 @@ import com.epam.esm.utils.Paginator;
 import com.epam.esm.validator.TagValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class TagService {
 
     private final TagDao tagDao;
-    //private final GiftCertificateTagDao giftCertificateTagDao;
     private final TagValidator validator;
     private final Paginator paginator;
 
     @Autowired
-    public TagService(TagDao tagDao, GiftCertificateTagDao giftCertificateTagDao, TagValidator validator, Paginator paginator) {
+    public TagService(TagDao tagDao, TagValidator validator, Paginator paginator) {
         this.tagDao = tagDao;
-        //this.giftCertificateTagDao = giftCertificateTagDao;
         this.validator = validator;
         this.paginator = paginator;
     }
@@ -61,7 +61,6 @@ public class TagService {
             throw new EntityNotExistsException();
         }
 
-        //giftCertificateTagDao.deleteByTagId(id);
         tagDao.deleteById(id);
     }
 

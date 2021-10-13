@@ -1,25 +1,22 @@
 package com.epam.esm.entity;
 
 import com.epam.esm.converter.ZonedDateTimeAttributeConverter;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-@Entity(name = "Order")
-@Table(name = "orders")
-@JsonIgnoreProperties({"user"})
-public class Order implements Identifiable {
+@Entity
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="user_id")
     private User user;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "gift_certificate_id")
     private GiftCertificate giftCertificate;
     @Column(name = "timestamp")
@@ -36,12 +33,9 @@ public class Order implements Identifiable {
 
     public Order() { }
 
-    @Override
     public long getId() {
         return this.id;
     }
-
-
 
     public ZonedDateTime getTimeStamp() {
         return this.timeStamp;

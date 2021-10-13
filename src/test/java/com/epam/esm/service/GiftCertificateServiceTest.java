@@ -1,7 +1,6 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.GiftCertificateTagDao;
 import com.epam.esm.dao.OrderDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dto.GiftCertificateDto;
@@ -46,7 +45,7 @@ public class GiftCertificateServiceTest {
         validator = Mockito.mock(GiftCertificateValidator.class);
         dtoMapper = Mockito.mock(GiftCertificateDtoMapper.class);
         paginator = Mockito.mock(Paginator.class);
-        service = new GiftCertificateService(giftCertificateDao, giftCertificateTagDao, tagDao, orderDao, validator, dtoMapper, paginator);
+        service = new GiftCertificateService(giftCertificateDao, tagDao, validator, dtoMapper, paginator);
 
         Set<String> tags = new HashSet<>();
         Set<Tag> giftCertificateTags = new HashSet<>();

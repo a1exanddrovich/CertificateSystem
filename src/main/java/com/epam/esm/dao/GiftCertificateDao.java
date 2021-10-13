@@ -1,24 +1,22 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.Order;
-import com.epam.esm.sql.SqlQueries;
 import com.epam.esm.utils.Constructor;
 import com.epam.esm.utils.QueryConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaQuery;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
-public class GiftCertificateDao implements EntityDao<GiftCertificate> {
+public class GiftCertificateDao {
 
+    private static final String COUNT_CERTIFICATES = "SELECT COUNT(c) FROM GiftCertificate c";
+
+    @PersistenceContext
     private final EntityManager manager;
     private final QueryConstructor constructor;
     private final Constructor<GiftCertificate> searchCriteriaConstructor;
@@ -30,20 +28,13 @@ public class GiftCertificateDao implements EntityDao<GiftCertificate> {
         this.searchCriteriaConstructor = searchCriteriaConstructor;
     }
 
-    @Override
-    @Transactional
     public void deleteById(long id) {
-//        manager.getTransaction().begin();
-        manager.createNativeQuery(SqlQueries.DELETE_CERTIFICATE).setParameter(1, id).executeUpdate();
-//        manager.getTransaction().commit();
+        Optional<GiftCertificate> optionalGiftCertificate = findById(id);
+        optionalGiftCertificate.ifPresent(manager::remove);
     }
 
-    @Override
-    @Transactional
     public long create(GiftCertificate giftCertificate) {
-//        manager.getTransaction().begin();
         manager.persist(giftCertificate);
-//        manager.getTransaction().commit();
         return giftCertificate.getId();
     }
 
@@ -57,17 +48,10 @@ public class GiftCertificateDao implements EntityDao<GiftCertificate> {
         return result;
     }
 
-    @Override
     public Optional<GiftCertificate> findById(long id) {
-        manager.clear();
-//        List<?> result = manager.createNativeQuery(SqlQueries.FIND_CERTIFICATE_BY_ID, GiftCertificate.class).setParameter(1, id).getResultList();
-//        return result.isEmpty() ? Optional.empty() : Optional.of((GiftCertificate) result.get(0));
-        CriteriaQuery<GiftCertificate> criteriaQuery = searchCriteriaConstructor.constructFindByIdQuery(manager, GiftCertificate.class, id);
-        List<GiftCertificate> result = manager.createQuery(criteriaQuery).getResultList();
-        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+        return Optional.ofNullable(manager.find(GiftCertificate.class, id));
     }
 
-    @Transactional
     public void updateGiftCertificate(long id, GiftCertificate giftCertificate) {
         String updateQuery = constructor.constructGiftCertificateUpdateQuery(id, giftCertificate);
 //        manager.getTransaction().begin();
@@ -76,6 +60,6 @@ public class GiftCertificateDao implements EntityDao<GiftCertificate> {
     }
 
     public Integer countGiftCertificates() {
-        return ((BigInteger) manager.createNativeQuery(SqlQueries.COUNT_ALL_CERTIFICATES).getSingleResult()).intValue();
+        return Integer.parseInt(manager.createQuery(COUNT_CERTIFICATES).getSingleResult().toString());
     }
 }

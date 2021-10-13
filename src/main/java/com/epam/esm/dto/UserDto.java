@@ -1,23 +1,14 @@
 package com.epam.esm.dto;
 
 import org.springframework.hateoas.RepresentationModel;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class UserDto extends RepresentationModel<UserDto> {
 
     private long id;
-    private String name;
-    private BigDecimal balance;
-    private List<OrderDto> orders = new ArrayList<>();
 
-    public UserDto(long id, String name, BigDecimal balance, List<OrderDto> orders) {
+    public UserDto(long id) {
         this.id = id;
-        this.name = name;
-        this.balance = balance;
-        this.orders = orders;
     }
 
     public UserDto() { }
@@ -26,33 +17,11 @@ public class UserDto extends RepresentationModel<UserDto> {
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public List<OrderDto> getOrder() {
-        return orders;
-    }
 
     public void setId(long id) {
         this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
-
-    public void setOrder(List<OrderDto> order) {
-        this.orders = order;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -70,11 +39,11 @@ public class UserDto extends RepresentationModel<UserDto> {
 
         UserDto userDto = (UserDto) o;
 
-        return id == userDto.id && Objects.equals(name, userDto.name) && Objects.equals(balance, userDto.balance) && Objects.equals(orders, userDto.orders);
+        return id == userDto.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, name, balance, orders);
+        return Objects.hash(super.hashCode(), id);
     }
 }

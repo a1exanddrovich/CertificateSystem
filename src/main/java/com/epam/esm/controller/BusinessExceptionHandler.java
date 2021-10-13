@@ -17,7 +17,6 @@ public class BusinessExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String BAD_ENTITY_MESSAGE = "exception.badEntity";
     private static final String ALREADY_EXIST_EXCEPTION_MESSAGE = "exception.alreadyExist";
     private static final String PAGINATION_EXCEPTION_MESSAGE = "exception.badPagination";
-    private static final String NOT_PAYABLE_USER_EXCEPTION_MESSAGE = "exception.notPayableUser";
 
     private final ReloadableResourceBundleMessageSource messageSource;
 
@@ -44,11 +43,6 @@ public class BusinessExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(PaginationException.class)
     public ResponseEntity<ExceptionResponse> handlePaginationException(Locale locale) {
         return new ResponseEntity<>(new ExceptionResponse(HttpStatus.NOT_FOUND.value(), messageSource.getMessage(PAGINATION_EXCEPTION_MESSAGE, new Object[] {}, locale)), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(NotPayableUserException.class)
-    public ResponseEntity<ExceptionResponse> handleNotPayableUserException(Locale locale) {
-        return new ResponseEntity<>(new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), messageSource.getMessage(NOT_PAYABLE_USER_EXCEPTION_MESSAGE, new Object[] {}, locale)), HttpStatus.BAD_REQUEST);
     }
 
 }

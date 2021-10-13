@@ -1,78 +1,78 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.entity.User;
-import com.epam.esm.sql.SqlQueries;
-import com.epam.esm.utils.Constructor;
-import com.epam.esm.utils.QueryConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-import java.math.BigInteger;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
-public class TagDao implements EntityDao<Tag> {
+public class TagDao {
 
+    private static final String GET_ALL_TAGS = "SELECT t FROM Tag t";
+    private static final String GET_TAG_BY_NAME = "SELECT t FROM Tag t WHERE t.name=:tagName";
+    private static final String TAG_NAME_PARAMETER = "tagName";
+    private static final String COUNT_TAGS = "SELECT COUNT(t) FROM Tag t";
+    private static final String GET_MOST_POPULAR_TAG = "select *\n" +
+            "from tag\n" +
+            "where id = (select tag_id\n" +
+            "\t    from (select tag_id, count(tag_id) count from\n" +
+            "\t\t\t\t\t\t     (select gift_certificate_id\n" +
+            "\t\t\t\t\t\t      from user u\n" +
+            "\t\t\t\t\t\t      join orders o\n" +
+            "\t\t\t\t\t\t      on u.id=o.user_id\n" +
+            "\t\t\t\t\t\t      where user_id = (select id\n" +
+            "\t\t\t\t\t\t\t\t\t      from (select u.id, u.name, sum(o.price) as sum\n" +
+            "\t\t\t\t\t\t\t\t\t\t    from user u\n" +
+            "\t\t\t\t\t\t\t\t\t\t    join orders o\n" +
+            "\t\t\t\t\t\t\t\t\t            on u.id=o.user_id\n" +
+            "\t\t\t\t\t\t\t\t\t\t    group by u.id) s\n" +
+            "\t\t\t\t\t\t\t\t\torder by s.sum desc limit 1)\n" +
+            "\t\t\t\t\t\t      ) h\n" +
+            "\t    join gift_certificate_tag gct\n" +
+            "\t    on gct.gift_certificate_id = h.gift_certificate_id\n" +
+            "\t    GROUP BY tag_id limit 1) s\n" +
+            "\t   );\n";
+
+    @PersistenceContext
     private final EntityManager manager;
-    private final QueryConstructor constructor;
-    private final Constructor<Tag> searchCriteriaConstructor;
 
     @Autowired
-    public TagDao(EntityManager manager, QueryConstructor constructor, Constructor<Tag> searchCriteriaConstructor) {
+    public TagDao(EntityManager manager) {
         this.manager = manager;
-        this.constructor = constructor;
-        this.searchCriteriaConstructor = searchCriteriaConstructor;
     }
 
-    @Override
-    @Transactional
     public long create(Tag tag) {
-//        manager.getTransaction().begin();
         manager.persist(tag);
-//        manager.getTransaction().commit();
         return tag.getId();
     }
 
-    @Override
-    @Transactional
     public void deleteById(long id) {
-//        manager.getTransaction().begin();
-        manager.createNativeQuery(SqlQueries.DELETE_TAG).setParameter(1, id).executeUpdate();
-//        manager.getTransaction().commit();
+        Optional<Tag> optionalTag = findById(id);
+        optionalTag.ifPresent(manager::remove);
     }
 
-    @Override
     public Optional<Tag> findById(long id) {
-//        List<?> result = manager.createNativeQuery(SqlQueries.FIND_TAG_BY_ID, Tag.class).setParameter(1, id).getResultList();
-//        return result.isEmpty() ? Optional.empty() : Optional.of((Tag) result.get(0));
-        CriteriaQuery<Tag> criteriaQuery = searchCriteriaConstructor.constructFindByIdQuery(manager, Tag.class, id);
-        List<Tag> result = manager.createQuery(criteriaQuery).getResultList();
-        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+        return Optional.ofNullable(manager.find(Tag.class, id));
     }
 
     public List<Tag> findAll(Integer page, Integer pageSize) {
-        List<?> tags = manager.createNativeQuery(constructor.constructPaginatedQuery(page, pageSize, SqlQueries.FIND_ALL_TAGS), Tag.class).getResultList();
-        return tags.stream().map(Tag.class::cast).collect(Collectors.toList());
+        return page != null ? manager.createQuery(GET_ALL_TAGS, Tag.class).setFirstResult(page).setMaxResults(pageSize).getResultList()
+                            : manager.createQuery(GET_ALL_TAGS, Tag.class).getResultList();
     }
 
     public Optional<Tag> findTagByName(String tagName) {
-        List<?> result = manager.createNativeQuery(SqlQueries.FIND_TAG_BY_NAME, Tag.class).setParameter(1, tagName).getResultList();
-
-        return result.isEmpty() ? Optional.empty() : Optional.of((Tag) result.get(0));
+        return manager.createQuery(GET_TAG_BY_NAME, Tag.class).setParameter(TAG_NAME_PARAMETER, tagName).getResultStream().findFirst();
     }
 
     public Integer countTags() {
-        return ((BigInteger) manager.createNativeQuery(SqlQueries.COUNT_ALL_TAGS).getSingleResult()).intValue();
+        return Integer.parseInt(manager.createQuery(COUNT_TAGS).getSingleResult().toString());
     }
 
     public Tag getMostPopular() {
-        return (Tag) manager.createNativeQuery(SqlQueries.GET_MOST_POPULAR_TAG, Tag.class).getSingleResult();
+        return (Tag) manager.createNativeQuery(GET_MOST_POPULAR_TAG, Tag.class).getSingleResult();
     }
 
 }
