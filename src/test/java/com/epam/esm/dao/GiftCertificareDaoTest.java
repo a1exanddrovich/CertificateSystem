@@ -3,6 +3,7 @@ package com.epam.esm.dao;
 import com.epam.esm.config.TestConfig;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.utils.Constructor;
 import com.epam.esm.utils.QueryConstructor;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -35,7 +36,7 @@ public class GiftCertificareDaoTest {
         EntityManager manager = null;
         JdbcTemplate template = new JdbcTemplate(new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).addScript("test-data.sql").build());
         giftCertificateTagDao = new GiftCertificateTagDao(manager);
-        dao = new GiftCertificateDao(manager, new QueryConstructor());
+        dao = new GiftCertificateDao(manager, new QueryConstructor(), new Constructor<>());
     }
 
     @Test

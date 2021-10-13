@@ -6,6 +6,7 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.service.GiftCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/giftCertificates")
 public class GiftCertificatesController {
 
-    private static final String JSON = "application/json";
     private static final String ID = "id";
 
     private final GiftCertificateService service;
@@ -47,8 +47,8 @@ public class GiftCertificatesController {
      *                 default page size applies.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link List} of {@link GiftCertificateDto}
      */
-    @GetMapping(produces = JSON)
-    public ResponseEntity<CollectionModel<GiftCertificateDto>> getGiftCertificates(@RequestParam(required = false, value = "tagName") String[] tagNames,
+    @GetMapping
+    public ResponseEntity<CollectionModel<GiftCertificateDto>> getGiftCertificates(@RequestParam(required = false, value = "tagNames") String[] tagNames,
                                                                                    @RequestParam(required = false) String giftCertificateName,
                                                                                    @RequestParam(required = false) String description,
                                                                                    @RequestParam(required = false) String sortByName,
@@ -67,11 +67,10 @@ public class GiftCertificatesController {
      * @param id - id of {@link GiftCertificate} that has to be retrieved from database.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link GiftCertificateDto} object
      */
-    @GetMapping(value = "/{id}", produces = JSON)
+    @GetMapping("/{id}")
     public ResponseEntity<GiftCertificateDto> getGiftCertificate(@PathVariable(ID) long id) {
         GiftCertificateDto giftCertificate = service.getGiftCertificate(id);
-        giftCertificate.add(linkTo(methodOn(GiftCertificatesController.class).getGiftCertificate(id)).withSelfRel());
-        return new ResponseEntity<>(giftCertificate, HttpStatus.OK);
+        return new ResponseEntity<>(this.addHateoas(giftCertificate), HttpStatus.OK);
     }
 
     /**
@@ -97,8 +96,7 @@ public class GiftCertificatesController {
     @PostMapping()
     public ResponseEntity<GiftCertificateDto> createGiftCertificate(@RequestBody GiftCertificateDto giftCertificate) {
         GiftCertificateDto createdGiftCertificate = service.createGiftCertificate(giftCertificate);
-        createdGiftCertificate.add(linkTo(methodOn(GiftCertificatesController.class).getGiftCertificate(createdGiftCertificate.getId())).withSelfRel());
-        return new ResponseEntity<>(createdGiftCertificate, HttpStatus.CREATED);
+        return new ResponseEntity<>(this.addHateoas(createdGiftCertificate), HttpStatus.CREATED);
     }
 
     /**
@@ -109,11 +107,14 @@ public class GiftCertificatesController {
      * @param giftCertificate - new data for updating an {@link GiftCertificate} object to be updated.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and updated {@link GiftCertificate} object.
      */
-    @PatchMapping(value = "/{id}", produces = JSON)
+    @PatchMapping("/{id}")
     public ResponseEntity<GiftCertificateDto> updateGiftCertificate(@PathVariable(ID) long id, @RequestBody GiftCertificateDto giftCertificate) {
         GiftCertificateDto updatedGiftCertificate = service.updateGiftCertificate(id, giftCertificate);
-        updatedGiftCertificate.add(linkTo(methodOn(GiftCertificatesController.class).getGiftCertificate(updatedGiftCertificate.getId())).withSelfRel());
-        return new ResponseEntity<>(updatedGiftCertificate, HttpStatus.OK);
+        return new ResponseEntity<>(this.addHateoas(updatedGiftCertificate), HttpStatus.OK);
+    }
+
+    private GiftCertificateDto addHateoas(GiftCertificateDto giftCertificate) {
+        return giftCertificate.add(linkTo(methodOn(GiftCertificatesController.class).getGiftCertificate(giftCertificate.getId())).withSelfRel());
     }
 
 }

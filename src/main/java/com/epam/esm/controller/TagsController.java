@@ -21,9 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/tags")
 public class TagsController {
 
-    private static final String JSON = "application/json";
     private static final String ID = "id";
-    private static final String ALL_TAGS = "tags";
 
     private final TagService service;
 
@@ -42,13 +40,16 @@ public class TagsController {
      *                   default page size applies.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link List} of {@link Tag} tags.
      */
-    @GetMapping(produces = JSON)
+    @GetMapping
     public ResponseEntity<CollectionModel<Tag>> getTags(@RequestParam(required = false) Integer page,
                                                         @RequestParam(required = false) Integer pageSize) {
         List<Tag> tags = service.getTags(page, pageSize);
         tags.forEach(tag -> tag.add(linkTo(methodOn(TagsController.class).getTag(tag.getId())).withSelfRel()));
-        Link allTagsLink = linkTo(methodOn(TagsController.class).getTags(page, pageSize)).withSelfRel();
-        return ResponseEntity.ok(CollectionModel.of(tags, allTagsLink));
+        Integer initialPage = page == null ? 4 : page;
+        Integer initialPageSize = pageSize == null ? 4 : pageSize;
+        Link previousPage = linkTo(methodOn(TagsController.class).getTags(initialPage - 1, initialPageSize)).withSelfRel();
+        Link nextPage = linkTo(methodOn(TagsController.class).getTags(initialPage - + 1, initialPageSize)).withSelfRel();
+        return ResponseEntity.ok(CollectionModel.of(tags, previousPage, nextPage));
     }
 
     /**
@@ -57,11 +58,10 @@ public class TagsController {
      * @param id id of {@link Tag} that has to be retrieved from database.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and an {@link Tag} object.
      */
-    @GetMapping(value = "/{id}", produces = JSON)
+    @GetMapping("/{id}")
     public ResponseEntity<Tag> getTag(@PathVariable(ID) long id) {
         Tag tag = service.getTag(id);
         tag.add(linkTo(methodOn(TagsController.class).getTag(id)).withSelfRel());
-        tag.add(linkTo(methodOn(TagsController.class).getTags(4, 4)).withRel(ALL_TAGS));
         return new ResponseEntity<>(tag, HttpStatus.OK);
     }
 
@@ -85,11 +85,11 @@ public class TagsController {
      * @param tag new data for creating an {@link Tag} object.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and created {@link Tag} object.
      */
-    @PostMapping(produces = JSON)
+    @PostMapping
     public ResponseEntity<Tag> createTag(@RequestBody Tag tag) {
         Tag createdTag = service.createTag(tag);
         createdTag.add(linkTo(methodOn(TagsController.class).getTag(createdTag.getId())).withSelfRel());
-        createdTag.add(linkTo(methodOn(TagsController.class).getTags(4, 4)).withRel(ALL_TAGS));
+        //createdTag.add(linkTo(methodOn(TagsController.class).getTags(4, 4)).withRel(ALL_TAGS));
         return new ResponseEntity<>(createdTag, HttpStatus.CREATED);
     }
 
@@ -98,11 +98,10 @@ public class TagsController {
      *
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link Tag} object.
      */
-    @GetMapping(value = "/mostPopular", produces = JSON)
+    @GetMapping("/mostPopular")
     public ResponseEntity<Tag> getMostPopularTag() {
         Tag tag = service.getMostPopular();
         tag.add(linkTo(methodOn(TagsController.class).getTag(tag.getId())).withSelfRel());
-        tag.add(linkTo(methodOn(TagsController.class).getTags(4, 4)).withRel(ALL_TAGS));
         return new ResponseEntity<>(tag, HttpStatus.OK);
     }
 

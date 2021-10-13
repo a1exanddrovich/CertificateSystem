@@ -3,14 +3,13 @@ package com.epam.esm.service;
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.OrderDao;
 import com.epam.esm.dao.UserDao;
-import com.epam.esm.dto.OrderDto;
 import com.epam.esm.dtomapper.OrderDtoMapper;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.exception.NotPayableUserException;
-import com.epam.esm.utils.InitialOrderDataHolder;
+import com.epam.esm.dto.OrderRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +38,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDto createOrder(InitialOrderDataHolder holder) {
+    public com.epam.esm.dto.OrderDto createOrder(OrderRequestDto holder) {
         long userId = holder.getUserId();
         long giftCertificateId = holder.getGiftCertificateId();
         Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(giftCertificateId);
@@ -68,7 +67,7 @@ public class OrderService {
         return findById(createdOrderId);
     }
 
-    public OrderDto findById(long id) {
+    public com.epam.esm.dto.OrderDto findById(long id) {
         Optional<Order> optionalOrder = orderDao.findById(id);
 
         if (optionalOrder.isEmpty()) {

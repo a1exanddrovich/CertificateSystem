@@ -17,14 +17,14 @@ import java.util.Optional;
 public class TagService {
 
     private final TagDao tagDao;
-    private final GiftCertificateTagDao giftCertificateTagDao;
+    //private final GiftCertificateTagDao giftCertificateTagDao;
     private final TagValidator validator;
     private final Paginator paginator;
 
     @Autowired
     public TagService(TagDao tagDao, GiftCertificateTagDao giftCertificateTagDao, TagValidator validator, Paginator paginator) {
         this.tagDao = tagDao;
-        this.giftCertificateTagDao = giftCertificateTagDao;
+        //this.giftCertificateTagDao = giftCertificateTagDao;
         this.validator = validator;
         this.paginator = paginator;
     }
@@ -61,7 +61,7 @@ public class TagService {
             throw new EntityNotExistsException();
         }
 
-        giftCertificateTagDao.deleteByTagId(id);
+        //giftCertificateTagDao.deleteByTagId(id);
         tagDao.deleteById(id);
     }
 

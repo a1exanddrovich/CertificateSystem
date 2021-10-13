@@ -1,16 +1,16 @@
-package com.epam.esm.utils;
+package com.epam.esm.dto;
 
-public class InitialOrderDataHolder {
+public class OrderRequestDto {
 
     private long userId;
     private long giftCertificateId;
 
-    public InitialOrderDataHolder(long userId, long giftCertificateId) {
+    public OrderRequestDto(long userId, long giftCertificateId) {
         this.userId = userId;
         this.giftCertificateId = giftCertificateId;
     }
 
-    public InitialOrderDataHolder() { }
+    public OrderRequestDto() { }
 
     public void setUserId(long userId) {
         this.userId = userId;

@@ -1,7 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.OrderDto;
-import com.epam.esm.utils.InitialOrderDataHolder;
+import com.epam.esm.dto.OrderRequestDto;
 import com.epam.esm.entity.Order;
 import com.epam.esm.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * The class that represents an API for basic operations with the application concerned to orders.
@@ -22,8 +21,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping("/orders")
 public class OrdersController {
-
-    private static final String JSON = "application/json";
 
     private final OrderService service;
 
@@ -39,8 +36,8 @@ public class OrdersController {
      * @param holder contains essential data for creating order e.g. user's and purchased gift certificate's id
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and created {@link Order} object.
      */
-    @PostMapping(produces = JSON)
-    public ResponseEntity<OrderDto> createOrder(@RequestBody InitialOrderDataHolder holder) {
+    @PostMapping
+    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderRequestDto holder) {
         OrderDto createdOrder = service.createOrder(holder);
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }

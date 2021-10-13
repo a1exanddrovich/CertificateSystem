@@ -14,6 +14,10 @@ public class QueryConstructor {
     private static final String LIMIT = " LIMIT ";
 
     public String constructGiftCertificateQuery(String[] tagNames, String giftCertificateName, String description, String sortByName, String sortByDate, Integer page, Integer pageSize) {
+
+
+
+
         //StringBuilder query = new StringBuilder(SqlQueries.FIND_ALL_CERTIFICATES);
         StringBuilder query = new StringBuilder("Select * from gift_certificate");
 

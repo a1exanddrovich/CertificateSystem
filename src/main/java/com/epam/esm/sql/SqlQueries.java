@@ -47,7 +47,7 @@ public class SqlQueries {
     public static final String FIND_ALL_USER_ORDERS = "SELECT * FROM orders WHERE user_id = ?";
     public static final String COUNT_USER_ORDERS = "SELECT COUNT(*) FROM orders WHERE user_id = ?";
 
-    public static final String GET_MOST_POPULAR_TAG = "";
+    public static final String GET_MOST_POPULAR_TAG = "select id from user where ";
 
 
 

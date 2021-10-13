@@ -3,7 +3,6 @@ package com.epam.esm.controller;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.entity.Order;
-import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
 import com.epam.esm.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +25,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/users")
 public class UsersController {
 
-    private static final String JSON = "application/json";
     private static final String ID = "id";
     private static final String ALL_USERS = "users";
-    private static final String ALL_ = "users";
 
     private final UserService service;
 
@@ -47,7 +44,7 @@ public class UsersController {
      *                 default page size applies.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link List} of {@link User} users.
      */
-    @GetMapping(produces = JSON)
+    @GetMapping
     public ResponseEntity<CollectionModel<UserDto>> getUsers(@RequestParam(required = false) Integer page,
                                                              @RequestParam(required = false) Integer pageSize) {
         List<UserDto> users = service.getUsers(page, pageSize);
@@ -61,11 +58,10 @@ public class UsersController {
      * @param id id of {@link User} that has to be retrieved from database.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and an {@link User} object.
      */
-    @GetMapping(value = "/{id}", produces = JSON)
+    @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable(ID) long id) {
         UserDto user = service.getUser(id);
         user.add(linkTo(methodOn(UsersController.class).getUser(id)).withSelfRel());
-        user.add(linkTo(methodOn(UsersController.class).getUsers(4, 4)).withRel(ALL_USERS));
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -78,13 +74,16 @@ public class UsersController {
      *                 default page size applies.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and a list of {@link Order} orders of specified user
      */
-    @GetMapping(value = "/{id}/orders", produces = JSON)
+    @GetMapping("/{id}/orders")
     public ResponseEntity<CollectionModel<OrderDto>> getUsersOrders(@PathVariable(ID) long id,
                                                          @RequestParam(required = false) Integer page,
                                                          @RequestParam(required = false) Integer pageSize) {
         List<OrderDto> orders = service.getUsersOrders(id, page, pageSize);
-        Link allUsersOrdersLink = linkTo(methodOn(UsersController.class).getUsersOrders(id, 4, 4)).withSelfRel();
-        return ResponseEntity.ok(CollectionModel.of(orders, allUsersOrdersLink));
+        Integer initialPage = page == null ? 4 : page;
+        Integer initialPageSize = pageSize == null ? 4 : pageSize;
+        Link previousPage = linkTo(methodOn(UsersController.class).getUsersOrders(id, initialPage - 1, initialPageSize)).withSelfRel();
+        Link nextPage = linkTo(methodOn(UsersController.class).getUsersOrders(id, initialPage - + 1, initialPageSize)).withSelfRel();
+        return ResponseEntity.ok(CollectionModel.of(orders, previousPage, nextPage));
 
     }
 

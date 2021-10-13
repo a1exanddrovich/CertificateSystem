@@ -28,7 +28,7 @@ public class GiftCertificateService {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     private final GiftCertificateDao giftCertificateDao;
-    private final GiftCertificateTagDao giftCertificateTagDao;
+    //private final GiftCertificateTagDao giftCertificateTagDao;
     private final TagDao tagDao;
     private final OrderDao orderDao;
     private final GiftCertificateValidator validator;
@@ -38,7 +38,7 @@ public class GiftCertificateService {
     @Autowired
     public GiftCertificateService(GiftCertificateDao giftCertificateDao, GiftCertificateTagDao giftCertificateTagDao, TagDao tagDao, OrderDao orderDao, GiftCertificateValidator validator, GiftCertificateDtoMapper dtoMapper, Paginator paginator) {
         this.giftCertificateDao = giftCertificateDao;
-        this.giftCertificateTagDao = giftCertificateTagDao;
+        //this.giftCertificateTagDao = giftCertificateTagDao;
         this.tagDao = tagDao;
         this.orderDao = orderDao;
         this.validator = validator;
@@ -64,7 +64,7 @@ public class GiftCertificateService {
             throw new EntityNotExistsException();
         }
 
-        giftCertificateTagDao.deleteGiftCertificateById(id);
+        //giftCertificateTagDao.deleteGiftCertificateById(id);
         orderDao.deleteByGiftCertificateId(id);
         giftCertificateDao.deleteById(id);
     }
@@ -85,9 +85,9 @@ public class GiftCertificateService {
         giftCertificate.setTags(initializeTags(giftCertificate.getTags()));
         giftCertificateDao.updateGiftCertificate(id, giftCertificate);
 
-        if (!giftCertificate.getTags().isEmpty()) {
-            connectCertificatesAndTags(id, giftCertificate);
-        }
+//        if (!giftCertificate.getTags().isEmpty()) {
+//            connectCertificatesAndTags(id, giftCertificate);
+//        }
 
         return getGiftCertificate(id);
     }
@@ -120,22 +120,22 @@ public class GiftCertificateService {
         }).collect(Collectors.toSet());
     }
 
-    private void connectCertificatesAndTags(long id, GiftCertificate giftCertificate) {
-        List<Long> tagIdsBeforeUpdate = giftCertificateTagDao.getIdsBeforeUpdate(id);
-        List<Long> tagIdsAfterUpdate = giftCertificate.getTags().stream().map(Tag::getId).collect(Collectors.toList());
-
-        for (Long tagId : tagIdsAfterUpdate) {
-            if (!tagIdsBeforeUpdate.contains(tagId)) {
-                giftCertificateTagDao.addTagId(id, tagId);
-            }
-        }
-
-        for (Long tagId : tagIdsBeforeUpdate) {
-            if (!tagIdsAfterUpdate.contains(tagId)) {
-                giftCertificateTagDao.deleteTagId(id, tagId);
-            }
-        }
-
-    }
+//    private void connectCertificatesAndTags(long id, GiftCertificate giftCertificate) {
+//        List<Long> tagIdsBeforeUpdate = giftCertificateTagDao.getIdsBeforeUpdate(id);
+//        List<Long> tagIdsAfterUpdate = giftCertificate.getTags().stream().map(Tag::getId).collect(Collectors.toList());
+//
+//        for (Long tagId : tagIdsAfterUpdate) {
+//            if (!tagIdsBeforeUpdate.contains(tagId)) {
+//                //giftCertificateTagDao.addTagId(id, tagId);
+//            }
+//        }
+//
+//        for (Long tagId : tagIdsBeforeUpdate) {
+//            if (!tagIdsAfterUpdate.contains(tagId)) {
+//                //giftCertificateTagDao.deleteTagId(id, tagId);
+//            }
+//        }
+//
+//    }
 
 }

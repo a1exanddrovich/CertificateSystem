@@ -31,10 +31,11 @@ public class GiftCertificate implements Identifiable {
     @Column(name = "last_update_date")
     @Convert(converter = ZonedDateTimeAttributeConverter.class)
     private ZonedDateTime lastUpdateDate;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "gift_certificate_tag",
-               joinColumns = @JoinColumn(name = "gift_certificate_id"),
-               inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "tag")
+//    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @JoinTable(name = "gift_certificate_tag",
+//               joinColumns = @JoinColumn(name = "gift_certificate_id"),
+//               inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
 
     public GiftCertificate(long id, String name, String description, BigDecimal price, Duration duration, ZonedDateTime creationDate, ZonedDateTime lastUpdateDate, Set<Tag> tags) {

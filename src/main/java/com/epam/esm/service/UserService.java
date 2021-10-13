@@ -47,6 +47,6 @@ public class UserService {
     }
 
     public List<OrderDto> getUsersOrders(long id, Integer page, Integer pageSize) {
-        return orderDao.findOrdersByUserId(id, page, paginator.paginate(page, pageSize, orderDao.countOrdersById(id))).stream().map(orderDtoMapper::map).collect(Collectors.toList());
+        return orderDao.findAllByUserId(id, page, paginator.paginate(page, pageSize, orderDao.countById(id))).stream().map(orderDtoMapper::map).collect(Collectors.toList());
     }
 }

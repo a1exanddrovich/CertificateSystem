@@ -2,6 +2,7 @@ package com.epam.esm.entity;
 
 import org.springframework.hateoas.RepresentationModel;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.*;
 
 @Entity(name = "Tag")
@@ -14,6 +15,19 @@ public class Tag extends RepresentationModel<Tag> implements Identifiable {
     private long id;
     @Column(name = "name")
     private String name;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "tag_tag",
+            joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "tag_id"))
+    private Set<GiftCertificate> tag;
+
+    public Set<GiftCertificate> getTag() {
+        return tag;
+    }
+
+    public void setTag(Set<GiftCertificate> tag) {
+        this.tag = tag;
+    }
 
     public Tag(long id, String name) {
         this.id = id;
