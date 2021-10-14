@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 public class GiftCertificateServiceTest {
 
     private static GiftCertificateDao giftCertificateDao;
-    private static GiftCertificateTagDao giftCertificateTagDao;
+   // private static GiftCertificateTagDao giftCertificateTagDao;
     private static TagDao tagDao;
     private static OrderDao orderDao;
     private static GiftCertificateValidator validator;
@@ -39,7 +39,7 @@ public class GiftCertificateServiceTest {
     @BeforeClass
     public static void init() {
         giftCertificateDao = Mockito.mock(GiftCertificateDao.class);
-        giftCertificateTagDao = Mockito.mock(GiftCertificateTagDao.class);
+        //giftCertificateTagDao = Mockito.mock(GiftCertificateTagDao.class);
         tagDao = Mockito.mock(TagDao.class);
         orderDao = Mockito.mock(OrderDao.class);
         validator = Mockito.mock(GiftCertificateValidator.class);
@@ -82,11 +82,11 @@ public class GiftCertificateServiceTest {
         //given
         List<GiftCertificate> expectedGiftCertificates = Arrays.asList(expectedGiftCertificate, expectedGiftCertificate);
         List<GiftCertificateDto> expectedGiftCertificateDtos = Arrays.asList(expected, expected);
-        when(giftCertificateDao.getGiftCertificates(null, null, null, null, null, null, null)).thenReturn(expectedGiftCertificates);
+        when(giftCertificateDao.getGiftCertificates( null, null, null)).thenReturn(expectedGiftCertificates);
         when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expected);
 
         //when
-        List<GiftCertificateDto> actual = service.getGiftCertificates(null, null, null, null, null, null, null);
+        List<GiftCertificateDto> actual = service.getGiftCertificates( null, null, null);
 
         //then
         Assert.assertEquals(expectedGiftCertificateDtos, actual);
@@ -126,13 +126,13 @@ public class GiftCertificateServiceTest {
     public void testShouldDeleteGiftCertificateCorrectly() throws EntityNotExistsException {
         //when
         when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
-        doNothing().when(giftCertificateTagDao).deleteGiftCertificateById(id);
+        //doNothing().when(giftCertificateTagDao).deleteGiftCertificateById(id);
         doNothing().when(giftCertificateDao).deleteById(id);
         service.deleteGiftCertificate(id);
 
         //then
         Mockito.verify(giftCertificateDao, times(1)).deleteById(anyLong());
-        Mockito.verify(giftCertificateTagDao, times(1)).deleteGiftCertificateById(anyLong());
+        //Mockito.verify(giftCertificateTagDao, times(1)).deleteGiftCertificateById(anyLong());
     }
 
     @Test
@@ -153,7 +153,7 @@ public class GiftCertificateServiceTest {
         when(validator.validateCreate(expectedGiftCertificate)).thenReturn(true);
         when(giftCertificateDao.create(expectedGiftCertificate)).thenReturn(id);
         when(tagDao.findTagByName(anyString())).thenReturn(Optional.of(new Tag()));
-        doNothing().when(giftCertificateTagDao).createConnections(id, expectedGiftCertificate.getTags());
+       // doNothing().when(giftCertificateTagDao).createConnections(id, expectedGiftCertificate.getTags());
         when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
         when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expected);
 
@@ -171,7 +171,7 @@ public class GiftCertificateServiceTest {
             when(validator.validateCreate(expectedGiftCertificate)).thenReturn(true);
             when(giftCertificateDao.create(expectedGiftCertificate)).thenReturn(id);
             when(tagDao.findTagByName(anyString())).thenReturn(Optional.of(new Tag()));
-            doNothing().when(giftCertificateTagDao).createConnections(id, expectedGiftCertificate.getTags());
+            //doNothing().when(giftCertificateTagDao).createConnections(id, expectedGiftCertificate.getTags());
             when(giftCertificateDao.findById(id)).thenReturn(Optional.empty());
 
             service.createGiftCertificate(expected);
@@ -204,10 +204,10 @@ public class GiftCertificateServiceTest {
         when(dtoMapper.unmap(expected)).thenReturn(expectedGiftCertificate);
         when(validator.validateUpdate(expectedGiftCertificate)).thenReturn(true);
         when(tagDao.findTagByName(anyString())).thenReturn(Optional.of(new Tag()));
-        doNothing().when(giftCertificateDao).updateGiftCertificate(id,expectedGiftCertificate);
-        doNothing().when(giftCertificateTagDao).addTagId(anyLong(), anyLong());
-        doNothing().when(giftCertificateTagDao).deleteTagId(anyLong(), anyLong());
-        when(giftCertificateTagDao.getIdsBeforeUpdate(id)).thenReturn(new ArrayList<>());
+        doNothing().when(giftCertificateDao).updateGiftCertificate(expectedGiftCertificate);
+//        doNothing().when(giftCertificateTagDao).addTagId(anyLong(), anyLong());
+//        doNothing().when(giftCertificateTagDao).deleteTagId(anyLong(), anyLong());
+//        when(giftCertificateTagDao.getIdsBeforeUpdate(id)).thenReturn(new ArrayList<>());
         when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
         when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expected);
 
@@ -226,10 +226,10 @@ public class GiftCertificateServiceTest {
             when(dtoMapper.unmap(expected)).thenReturn(expectedGiftCertificate);
             when(validator.validateUpdate(expectedGiftCertificate)).thenReturn(true);
             when(tagDao.findTagByName(anyString())).thenReturn(Optional.of(new Tag()));
-            doNothing().when(giftCertificateDao).updateGiftCertificate(id,expectedGiftCertificate);
-            doNothing().when(giftCertificateTagDao).addTagId(anyLong(), anyLong());
-            doNothing().when(giftCertificateTagDao).deleteTagId(anyLong(), anyLong());
-            when(giftCertificateTagDao.getIdsBeforeUpdate(id)).thenReturn(new ArrayList<>());
+            doNothing().when(giftCertificateDao).updateGiftCertificate(expectedGiftCertificate);
+//            doNothing().when(giftCertificateTagDao).addTagId(anyLong(), anyLong());
+//            doNothing().when(giftCertificateTagDao).deleteTagId(anyLong(), anyLong());
+//            when(giftCertificateTagDao.getIdsBeforeUpdate(id)).thenReturn(new ArrayList<>());
             when(giftCertificateDao.findById(id)).thenReturn(Optional.empty());
 
             service.updateGiftCertificate(id, expected);

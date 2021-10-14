@@ -2,15 +2,15 @@ package com.epam.esm.controller;
 
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.Tag;
 import com.epam.esm.service.GiftCertificateService;
+import com.epam.esm.utils.GiftCertificateQueryParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -37,25 +37,18 @@ public class GiftCertificatesController {
      * mapped from a list of {@link GiftCertificate} gift certificates retrieved from database.The retrieved data has to fulfill parameters received from request.
      * All parameters are optional.
      *
-     * @param tagNames in general a list of names of {@link Tag} tags should be contained in a gift certificate.
-     * @param giftCertificateName part of a name of a searched gift certificate.
-     * @param description part of a description of a searched gift certificate.
-     * @param sortByName sort of the retrieved gift certificates by name.
-     * @param sortByDate sort of the retrieved gift certificates by creation date.
+     * @param parameters object {@link GiftCertificateQueryParameters} contains all the parameters could be sent
+     *                   in order to filter the result
      * @param page specifies page of the result list.
      * @param pageSize specifies number of gift certificates to be displayed in a single page. In case page were passed without page size
      *                 default page size applies.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link List} of {@link GiftCertificateDto}
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<GiftCertificateDto>> getGiftCertificates(@RequestParam(required = false, value = "tagNames") String[] tagNames,
-                                                                                   @RequestParam(required = false) String giftCertificateName,
-                                                                                   @RequestParam(required = false) String description,
-                                                                                   @RequestParam(required = false) String sortByName,
-                                                                                   @RequestParam(required = false) String sortByDate,
-                                                                                   @RequestParam(required = false) Integer page,
-                                                                                   @RequestParam(required = false) Integer pageSize) {
-        List<GiftCertificateDto> giftCertificates = service.getGiftCertificates(tagNames, giftCertificateName, description, sortByName, sortByDate, page, pageSize);
+    public ResponseEntity<CollectionModel<GiftCertificateDto>> getGiftCertificates(@RequestParam(required = false) Integer page,
+                                                                                   @RequestParam(required = false) Integer pageSize,
+                                                                                   GiftCertificateQueryParameters parameters) {
+        List<GiftCertificateDto> giftCertificates = service.getGiftCertificates(parameters, page, pageSize);
         giftCertificates.forEach(giftCertificate -> giftCertificate.add(linkTo(methodOn(GiftCertificatesController.class).getGiftCertificate(giftCertificate.getId())).withSelfRel()));
         return ResponseEntity.ok(CollectionModel.of(giftCertificates));
     }

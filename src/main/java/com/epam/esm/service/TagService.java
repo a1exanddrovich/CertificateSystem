@@ -1,6 +1,8 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dao.TagDao;
+import com.epam.esm.dto.TagDto;
+import com.epam.esm.dtomapper.TagDtoMapper;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
@@ -10,9 +12,9 @@ import com.epam.esm.validator.TagValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -21,29 +23,32 @@ public class TagService {
     private final TagDao tagDao;
     private final TagValidator validator;
     private final Paginator paginator;
+    private final TagDtoMapper mapper;
 
     @Autowired
-    public TagService(TagDao tagDao, TagValidator validator, Paginator paginator) {
+    public TagService(TagDao tagDao, TagValidator validator, Paginator paginator, TagDtoMapper mapper) {
         this.tagDao = tagDao;
         this.validator = validator;
         this.paginator = paginator;
+        this.mapper = mapper;
     }
 
-    public List<Tag> getTags(Integer page, Integer pageSize) {
-        return tagDao.findAll(page, paginator.paginate(page, pageSize, tagDao.countTags()));
+    public List<TagDto> getTags(Integer page, Integer pageSize) {
+        return tagDao.findAll(page, paginator.paginate(page, pageSize, tagDao.countTags())).stream().map(mapper::map).collect(Collectors.toList());
     }
 
-    public Tag getTag(long id) throws EntityNotExistsException {
+    public TagDto getTag(long id) throws EntityNotExistsException {
         Optional<Tag> optionalTag = tagDao.findById(id);
         if (optionalTag.isEmpty()) {
             throw new EntityNotExistsException();
         }
 
-        return optionalTag.get();
+        return mapper.map(optionalTag.get());
     }
 
 
-    public Tag createTag(Tag tag) {
+    public TagDto createTag(TagDto tagDto) {
+        Tag tag = mapper.unmap(tagDto);
         if (!validator.validate(tag)) {
             throw new BadEntityException();
         }
@@ -64,7 +69,7 @@ public class TagService {
         tagDao.deleteById(id);
     }
 
-    public Tag getMostPopular() {
-        return tagDao.getMostPopular();
+    public TagDto getMostPopular() {
+        return mapper.map(tagDao.getMostPopular());
     }
 }

@@ -7,16 +7,17 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @Entity
+@Table(name = "`order`")
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "gift_certificate_id")
     private GiftCertificate giftCertificate;
     @Column(name = "timestamp")
@@ -25,8 +26,10 @@ public class Order {
     @Column(name = "price", scale = 2, precision = 10)
     private BigDecimal price;
 
-    public Order(long id, ZonedDateTime timeStamp, BigDecimal price) {
+    public Order(long id, User user, GiftCertificate giftCertificate, ZonedDateTime timeStamp, BigDecimal price) {
         this.id = id;
+        this.user = user;
+        this.giftCertificate = giftCertificate;
         this.timeStamp = timeStamp;
         this.price = price;
     }

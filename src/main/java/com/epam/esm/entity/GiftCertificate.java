@@ -33,7 +33,7 @@ public class GiftCertificate {
     @ManyToMany(cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE,
-    }, fetch = FetchType.LAZY)
+    }, fetch = FetchType.EAGER)
     @JoinTable(name = "gift_certificate_tag",
                joinColumns = @JoinColumn(name = "gift_certificate_id"),
                inverseJoinColumns = @JoinColumn(name = "tag_id"))

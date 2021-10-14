@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.dto.OrderDto;
 import com.epam.esm.dto.OrderRequestDto;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
@@ -41,10 +42,10 @@ public class OrdersController {
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and a list of {@link Order} orders of specified user
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<Order>> getUsersOrders(@RequestParam(required = false) long id,
+    public ResponseEntity<CollectionModel<OrderDto>> getUsersOrders(@RequestParam long id,
                                                                  @RequestParam(required = false) Integer page,
                                                                  @RequestParam(required = false) Integer pageSize) {
-        List<Order> orders = service.getUsersOrders(id, page, pageSize);
+        List<OrderDto> orders = service.getUsersOrders(id, page, pageSize);
         Integer initialPage = page == null ? 4 : page;
         Integer initialPageSize = pageSize == null ? 4 : pageSize;
         Link previousPage = linkTo(methodOn(OrdersController.class).getUsersOrders(id, initialPage - 1, initialPageSize)).withSelfRel();
@@ -61,8 +62,8 @@ public class OrdersController {
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and created {@link Order} object.
      */
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody OrderRequestDto holder) {
-        Order createdOrder = service.createOrder(holder);
+    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderRequestDto holder) {
+        OrderDto createdOrder = service.createOrder(holder);
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
 

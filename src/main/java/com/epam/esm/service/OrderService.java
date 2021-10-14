@@ -3,6 +3,8 @@ package com.epam.esm.service;
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.OrderDao;
 import com.epam.esm.dao.UserDao;
+import com.epam.esm.dto.OrderDto;
+import com.epam.esm.dtomapper.OrderDtoMapper;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
@@ -17,6 +19,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -28,16 +31,18 @@ public class OrderService {
     private final OrderDao orderDao;
     private final GiftCertificateDao giftCertificateDao;
     private final Paginator paginator;
+    private final OrderDtoMapper mapper;
 
     @Autowired
-    public OrderService(UserDao userDao, OrderDao orderDao, GiftCertificateDao giftCertificateDao, Paginator paginator) {
+    public OrderService(UserDao userDao, OrderDao orderDao, GiftCertificateDao giftCertificateDao, Paginator paginator, OrderDtoMapper mapper) {
         this.userDao = userDao;
         this.orderDao = orderDao;
         this.giftCertificateDao = giftCertificateDao;
         this.paginator = paginator;
+        this.mapper = mapper;
     }
 
-    public Order createOrder(OrderRequestDto holder) {
+    public OrderDto createOrder(OrderRequestDto holder) {
         Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(holder.getGiftCertificateId());
         Optional<User> optionalUser = userDao.findById(holder.getUserId());
 
@@ -45,15 +50,18 @@ public class OrderService {
             throw new EntityNotExistsException();
         }
 
+        GiftCertificate certificate = optionalGiftCertificate.get();
+        User user = optionalUser.get();
+
         Order order = new Order();
-        order.setGiftCertificate(optionalGiftCertificate.get());
-        order.setUser(optionalUser.get());
-        order.setPrice(optionalGiftCertificate.get().getPrice());
+        order.setGiftCertificate(certificate);
+        order.setUser(user);
+        order.setPrice(certificate.getPrice());
         order.setTimeStamp(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
 
         long createdOrderId = orderDao.create(order);
 
-        return findById(createdOrderId);
+        return mapper.map(findById(createdOrderId));
     }
 
     public Order findById(long id) {
@@ -66,14 +74,16 @@ public class OrderService {
         return optionalOrder.get();
     }
 
-    public List<Order> getUsersOrders(long id, Integer page, Integer pageSize) {
+    public List<OrderDto> getUsersOrders(long id, Integer page, Integer pageSize) {
         Optional<User> optionalUser = userDao.findById(id);
 
         if (optionalUser.isEmpty()) {
             throw new EntityNotExistsException();
         }
 
-        return orderDao.findAllByUserId(id, page, paginator.paginate(page, pageSize, orderDao.countById(id)));
+        List<Order> result = orderDao.findAllByUserId(optionalUser.get(), page, paginator.paginate(page, pageSize, orderDao.countById(optionalUser.get())));
+
+        return result.stream().map(mapper::map).collect(Collectors.toList());
     }
 
 }

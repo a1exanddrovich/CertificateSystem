@@ -17,6 +17,7 @@ public class BusinessExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String BAD_ENTITY_MESSAGE = "exception.badEntity";
     private static final String ALREADY_EXIST_EXCEPTION_MESSAGE = "exception.alreadyExist";
     private static final String PAGINATION_EXCEPTION_MESSAGE = "exception.badPagination";
+    private static final String GIFT_CERTIFICATE_QUERY_EXCEPTION_MESSAGE = "exception.badCertificateQuery";
 
     private final ReloadableResourceBundleMessageSource messageSource;
 
@@ -43,6 +44,11 @@ public class BusinessExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(PaginationException.class)
     public ResponseEntity<ExceptionResponse> handlePaginationException(Locale locale) {
         return new ResponseEntity<>(new ExceptionResponse(HttpStatus.NOT_FOUND.value(), messageSource.getMessage(PAGINATION_EXCEPTION_MESSAGE, new Object[] {}, locale)), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(GiftCertificateQueryException.class)
+    public ResponseEntity<ExceptionResponse> handleGiftCertificateQueryException(Locale locale) {
+        return new ResponseEntity<>(new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), messageSource.getMessage(GIFT_CERTIFICATE_QUERY_EXCEPTION_MESSAGE, new Object[] {}, locale)), HttpStatus.BAD_REQUEST);
     }
 
 }

@@ -11,4 +11,8 @@ public class UserDtoMapper {
         return new UserDto(user.getId());
     }
 
+    public User unmap(UserDto userDto) {
+        return new User(userDto.getId());
+    }
+
 }

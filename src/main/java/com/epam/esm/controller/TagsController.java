@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +38,13 @@ public class TagsController {
      *
      * @param page     specifies page of the result list.
      * @param pageSize specifies number of tags to be displayed in a single page. In case page were passed without page size
-     *                   default page size applies.
+     *                 default page size applies.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link List} of {@link Tag} tags.
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<Tag>> getTags(@RequestParam(required = false) Integer page,
+    public ResponseEntity<CollectionModel<TagDto>> getTags(@RequestParam(required = false) Integer page,
                                                         @RequestParam(required = false) Integer pageSize) {
-        List<Tag> tags = service.getTags(page, pageSize);
+        List<TagDto> tags = service.getTags(page, pageSize);
         tags.forEach(tag -> tag.add(linkTo(methodOn(TagsController.class).getTag(tag.getId())).withSelfRel()));
         Integer initialPage = page == null ? 4 : page;
         Integer initialPageSize = pageSize == null ? 4 : pageSize;
@@ -59,8 +60,8 @@ public class TagsController {
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and an {@link Tag} object.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Tag> getTag(@PathVariable(ID) long id) {
-        Tag tag = service.getTag(id);
+    public ResponseEntity<TagDto> getTag(@PathVariable(ID) long id) {
+        TagDto tag = service.getTag(id);
         tag.add(linkTo(methodOn(TagsController.class).getTag(id)).withSelfRel());
         return new ResponseEntity<>(tag, HttpStatus.OK);
     }
@@ -73,7 +74,7 @@ public class TagsController {
      * @return {@link ResponseEntity} contained {@link HttpStatus} status.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Tag> deleteTag(@PathVariable(ID) long id) {
+    public ResponseEntity<TagDto> deleteTag(@PathVariable(ID) long id) {
         service.deleteTag(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -86,8 +87,8 @@ public class TagsController {
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and created {@link Tag} object.
      */
     @PostMapping
-    public ResponseEntity<Tag> createTag(@RequestBody Tag tag) {
-        Tag createdTag = service.createTag(tag);
+    public ResponseEntity<TagDto> createTag(@RequestBody TagDto tag) {
+        TagDto createdTag = service.createTag(tag);
         createdTag.add(linkTo(methodOn(TagsController.class).getTag(createdTag.getId())).withSelfRel());
         //createdTag.add(linkTo(methodOn(TagsController.class).getTags(4, 4)).withRel(ALL_TAGS));
         return new ResponseEntity<>(createdTag, HttpStatus.CREATED);
@@ -99,8 +100,8 @@ public class TagsController {
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link Tag} object.
      */
     @GetMapping("/mostPopular")
-    public ResponseEntity<Tag> getMostPopularTag() {
-        Tag tag = service.getMostPopular();
+    public ResponseEntity<TagDto> getMostPopularTag() {
+        TagDto tag = service.getMostPopular();
         tag.add(linkTo(methodOn(TagsController.class).getTag(tag.getId())).withSelfRel());
         return new ResponseEntity<>(tag, HttpStatus.OK);
     }

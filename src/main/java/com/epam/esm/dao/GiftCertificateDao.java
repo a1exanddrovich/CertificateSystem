@@ -1,8 +1,9 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.utils.Constructor;
-import com.epam.esm.utils.QueryConstructor;
+import com.epam.esm.query.Queries;
+import com.epam.esm.utils.GiftCertificateCriteriaBuilder;
+import com.epam.esm.utils.GiftCertificateQueryParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
@@ -14,18 +15,14 @@ import java.util.Optional;
 @Repository
 public class GiftCertificateDao {
 
-    private static final String COUNT_CERTIFICATES = "SELECT COUNT(c) FROM GiftCertificate c";
-
     @PersistenceContext
     private final EntityManager manager;
-    private final QueryConstructor constructor;
-    private final Constructor<GiftCertificate> searchCriteriaConstructor;
+    private final GiftCertificateCriteriaBuilder queryBuilder;
 
     @Autowired
-    public GiftCertificateDao(EntityManager manager, QueryConstructor constructor, Constructor<GiftCertificate> searchCriteriaConstructor) {
+    public GiftCertificateDao(EntityManager manager, GiftCertificateCriteriaBuilder queryBuilder) {
         this.manager = manager;
-        this.constructor = constructor;
-        this.searchCriteriaConstructor = searchCriteriaConstructor;
+        this.queryBuilder = queryBuilder;
     }
 
     public void deleteById(long id) {
@@ -38,28 +35,21 @@ public class GiftCertificateDao {
         return giftCertificate.getId();
     }
 
-    public List<GiftCertificate> getGiftCertificates(String[] tagNames, String giftCertificateName, String description, String sortByName, String sortByDate, Integer page, Integer pageSize) {
-//        String query = constructor.constructGiftCertificateQuery(tagNames, giftCertificateName, description, sortByName, sortByDate, page, pageSize);
-//        List<?> tags = manager.createNativeQuery(query, GiftCertificate.class).getResultList();
-//
-//        return tags.stream().map(GiftCertificate.class::cast).collect(Collectors.toList());
-        CriteriaQuery<GiftCertificate> criteriaQuery = searchCriteriaConstructor.constructGiftCertificateQuery(manager, GiftCertificate.class, tagNames, giftCertificateName, description, sortByName, sortByDate, page, pageSize);
-        List<GiftCertificate> result = manager.createQuery(criteriaQuery).getResultList();
-        return result;
+    public List<GiftCertificate> getGiftCertificates(GiftCertificateQueryParameters parameters, Integer page, Integer pageSize) {
+        CriteriaQuery<GiftCertificate> criteriaQuery = queryBuilder.buildQuery(manager, parameters);
+        return page != null ? manager.createQuery(criteriaQuery).setFirstResult(page).setMaxResults(pageSize).getResultList()
+                            : manager.createQuery(criteriaQuery).getResultList();
     }
 
     public Optional<GiftCertificate> findById(long id) {
         return Optional.ofNullable(manager.find(GiftCertificate.class, id));
     }
 
-    public void updateGiftCertificate(long id, GiftCertificate giftCertificate) {
-        String updateQuery = constructor.constructGiftCertificateUpdateQuery(id, giftCertificate);
-//        manager.getTransaction().begin();
-        manager.createNativeQuery(updateQuery).executeUpdate();
-//        manager.getTransaction().commit();
+    public void updateGiftCertificate(GiftCertificate giftCertificate) {
+        manager.merge(giftCertificate);
     }
 
     public Integer countGiftCertificates() {
-        return Integer.parseInt(manager.createQuery(COUNT_CERTIFICATES).getSingleResult().toString());
+        return Integer.parseInt(manager.createQuery(Queries.COUNT_CERTIFICATES).getSingleResult().toString());
     }
 }

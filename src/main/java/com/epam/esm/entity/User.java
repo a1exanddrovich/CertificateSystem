@@ -1,7 +1,6 @@
 package com.epam.esm.entity;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -11,9 +10,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-    private List<Order> orders;
 
     public User(long id) {
         this.id = id;
@@ -29,7 +25,6 @@ public class User {
     public void setId(long id) {
         this.id = id;
     }
-
 
     @Override
     public boolean equals(Object o) {

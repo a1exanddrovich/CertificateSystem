@@ -31,7 +31,7 @@ public class GiftCertificateDaoTest {
     @Autowired
     private GiftCertificateDao dao;
     @Autowired
-    private GiftCertificateTagDao giftCertificateTagDao;
+    //private GiftCertificateTagDao giftCertificateTagDao;
 
     @Test
     public void testShouldFindById() {
@@ -78,7 +78,7 @@ public class GiftCertificateDaoTest {
 
 
         //when
-        dao.updateGiftCertificate(id, updatedGiftCertificate);
+        dao.updateGiftCertificate(updatedGiftCertificate);
         Optional<GiftCertificate> actual = dao.findById(id);
 
         Assert.assertEquals(expected, actual.get());
@@ -101,7 +101,7 @@ public class GiftCertificateDaoTest {
 
         //when
         long id = dao.create(expected);
-        giftCertificateTagDao.createConnections(id, expected.getTags());
+       // giftCertificateTagDao.createConnections(id, expected.getTags());
         Optional<GiftCertificate> actual = dao.findById(id);
 
         //then
@@ -111,7 +111,7 @@ public class GiftCertificateDaoTest {
     @Test
     public void testShouldGetListOfGiftCertificates() {
 
-        List<GiftCertificate> giftCertificates = dao.getGiftCertificates(null, null, null, null, null, null, null);
+        List<GiftCertificate> giftCertificates = dao.getGiftCertificates(null, null, null);
 
         Assert.assertNotNull(giftCertificates);
     }
@@ -123,7 +123,7 @@ public class GiftCertificateDaoTest {
         long id = 5;
 
         //when
-        giftCertificateTagDao.deleteGiftCertificateById(id);
+//        giftCertificateTagDao.deleteGiftCertificateById(id);
         dao.deleteById(id);
         Optional<GiftCertificate> optionalGiftCertificate = dao.findById(id);
 
