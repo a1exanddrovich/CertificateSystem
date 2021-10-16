@@ -1,5 +1,6 @@
 package com.epam.esm.entity;
 
+import com.epam.esm.audit.AuditListener;
 import com.epam.esm.converter.ZonedDateTimeAttributeConverter;
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -8,7 +9,8 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "`order`")
-public class Order {
+@EntityListeners(AuditListener.class)
+public class Order implements Identifiable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +38,7 @@ public class Order {
 
     public Order() { }
 
+    @Override
     public long getId() {
         return this.id;
     }
@@ -95,6 +98,21 @@ public class Order {
     @Override
     public int hashCode() {
         return Objects.hash(id, timeStamp, price);
+    }
+
+    @PrePersist
+    public void onPrePersist() {
+        System.out.println("Persist");
+    }
+
+    @PreUpdate
+    public void onPreUpdate() {
+        System.out.println("Update");
+    }
+
+    @PreRemove
+    public void onPreRemove() {
+        System.out.println("Remove");
     }
 
 }

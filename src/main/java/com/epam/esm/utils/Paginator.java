@@ -1,6 +1,7 @@
 package com.epam.esm.utils;
 
 import com.epam.esm.exception.PaginationException;
+import com.mysql.cj.util.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,11 +27,12 @@ public class Paginator {
             throw new PaginationException();
         }
 
-        if (page != null && page != 1 && (((pageSize == null ? DEFAULT_PAGE_SIZE : pageSize) * (page - 1) + 1) > maximumData)) {
+        if (page != null && page < 1 && ((((pageSize == null || pageSize < 1) ? DEFAULT_PAGE_SIZE : pageSize) * (page - 1) + 1) > maximumData)) {
             throw new PaginationException();
         }
 
         return pageSize == null ? DEFAULT_PAGE_SIZE : pageSize;
+
     }
 
 }

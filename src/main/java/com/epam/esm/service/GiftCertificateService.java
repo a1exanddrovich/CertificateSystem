@@ -45,6 +45,7 @@ public class GiftCertificateService {
     }
 
     public List<GiftCertificateDto> getGiftCertificates(GiftCertificateQueryParameters parameters, Integer page, Integer pageSize) {
+
         return giftCertificateDao.getGiftCertificates(parameters, page, paginator.paginate(page, pageSize, giftCertificateDao.countGiftCertificates())).stream().map(dtoMapper::map).collect(Collectors.toList());
     }
 

@@ -8,9 +8,11 @@ import com.epam.esm.dtomapper.OrderDtoMapper;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
+import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.dto.OrderRequestDto;
 import com.epam.esm.utils.Paginator;
+import com.epam.esm.validator.OrderRequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,19 +34,25 @@ public class OrderService {
     private final GiftCertificateDao giftCertificateDao;
     private final Paginator paginator;
     private final OrderDtoMapper mapper;
+    private final OrderRequestValidator validator;
 
     @Autowired
-    public OrderService(UserDao userDao, OrderDao orderDao, GiftCertificateDao giftCertificateDao, Paginator paginator, OrderDtoMapper mapper) {
+    public OrderService(UserDao userDao, OrderDao orderDao, GiftCertificateDao giftCertificateDao, Paginator paginator, OrderDtoMapper mapper, OrderRequestValidator validator) {
         this.userDao = userDao;
         this.orderDao = orderDao;
         this.giftCertificateDao = giftCertificateDao;
         this.paginator = paginator;
         this.mapper = mapper;
+        this.validator = validator;
     }
 
-    public OrderDto createOrder(OrderRequestDto holder) {
-        Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(holder.getGiftCertificateId());
-        Optional<User> optionalUser = userDao.findById(holder.getUserId());
+    public OrderDto createOrder(OrderRequestDto orderRequestDto) {
+        if (validator.validate(orderRequestDto)) {
+            throw new BadEntityException();
+        }
+
+        Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(orderRequestDto.getGiftCertificateId());
+        Optional<User> optionalUser = userDao.findById(orderRequestDto.getUserId());
 
         if (optionalGiftCertificate.isEmpty() || optionalUser.isEmpty()) {
             throw new EntityNotExistsException();

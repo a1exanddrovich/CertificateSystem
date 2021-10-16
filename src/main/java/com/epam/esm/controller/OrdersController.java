@@ -57,18 +57,13 @@ public class OrdersController {
      * Creates new {@link Order} object and returns an {@link ResponseEntity} object contained
      * {@link HttpStatus} status and create {@link Order} object.
      *
-     * @param holder contains essential data for creating order e.g. user's and purchased gift certificate's id
+     * @param orderRequestDto contains essential data for creating order e.g. user's and purchased gift certificate's id
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and created {@link Order} object.
      */
     @PostMapping
-    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderRequestDto holder) {
-        OrderDto createdOrder = service.createOrder(holder);
-//        createdOrder.add(linkTo(methodOn(OrdersController.class).getOrderById(createdOrder.getId())).withSelfRel());
+    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderRequestDto orderRequestDto) {
+        OrderDto createdOrder = service.createOrder(orderRequestDto);
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
-    }
-
-    private OrderDto getOrderById(long id) {
-        return service.findById(id);
     }
 
 }
