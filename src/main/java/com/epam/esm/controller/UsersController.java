@@ -5,11 +5,11 @@ import com.epam.esm.entity.User;
 import com.epam.esm.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -45,7 +45,11 @@ public class UsersController {
                                                              @RequestParam(required = false) Integer pageSize) {
         List<UserDto> users = service.getUsers(page, pageSize);
         users.forEach(user -> user.add(linkTo(methodOn(UsersController.class).getUser(user.getId())).withSelfRel()));
-        return ResponseEntity.ok(CollectionModel.of(users));
+        int initialPage = page == null ? 4 : page;
+        int initialPageSize = pageSize == null ? 4 : pageSize;
+        Link previousPage = linkTo(methodOn(UsersController.class).getUsers(initialPage - 1, initialPageSize)).withSelfRel();
+        Link nextPage = linkTo(methodOn(UsersController.class).getUsers(initialPage + 1, initialPageSize)).withSelfRel();
+        return ResponseEntity.ok(CollectionModel.of(users, previousPage, nextPage));
     }
 
     /**

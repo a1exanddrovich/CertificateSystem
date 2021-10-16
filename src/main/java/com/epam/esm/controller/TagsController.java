@@ -46,10 +46,10 @@ public class TagsController {
                                                         @RequestParam(required = false) Integer pageSize) {
         List<TagDto> tags = service.getTags(page, pageSize);
         tags.forEach(tag -> tag.add(linkTo(methodOn(TagsController.class).getTag(tag.getId())).withSelfRel()));
-        Integer initialPage = page == null ? 4 : page;
-        Integer initialPageSize = pageSize == null ? 4 : pageSize;
+        int initialPage = page == null ? 4 : page;
+        int initialPageSize = pageSize == null ? 4 : pageSize;
         Link previousPage = linkTo(methodOn(TagsController.class).getTags(initialPage - 1, initialPageSize)).withSelfRel();
-        Link nextPage = linkTo(methodOn(TagsController.class).getTags(initialPage - + 1, initialPageSize)).withSelfRel();
+        Link nextPage = linkTo(methodOn(TagsController.class).getTags(initialPage + 1, initialPageSize)).withSelfRel();
         return ResponseEntity.ok(CollectionModel.of(tags, previousPage, nextPage));
     }
 
@@ -90,7 +90,6 @@ public class TagsController {
     public ResponseEntity<TagDto> createTag(@RequestBody TagDto tag) {
         TagDto createdTag = service.createTag(tag);
         createdTag.add(linkTo(methodOn(TagsController.class).getTag(createdTag.getId())).withSelfRel());
-        //createdTag.add(linkTo(methodOn(TagsController.class).getTags(4, 4)).withRel(ALL_TAGS));
         return new ResponseEntity<>(createdTag, HttpStatus.CREATED);
     }
 

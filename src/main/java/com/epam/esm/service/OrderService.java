@@ -61,17 +61,17 @@ public class OrderService {
 
         long createdOrderId = orderDao.create(order);
 
-        return mapper.map(findById(createdOrderId));
+        return findById(createdOrderId);
     }
 
-    public Order findById(long id) {
+    public OrderDto findById(long id) {
         Optional<Order> optionalOrder = orderDao.findById(id);
 
         if (optionalOrder.isEmpty()) {
             throw new EntityNotExistsException();
         }
 
-        return optionalOrder.get();
+        return mapper.map(optionalOrder.get());
     }
 
     public List<OrderDto> getUsersOrders(long id, Integer page, Integer pageSize) {

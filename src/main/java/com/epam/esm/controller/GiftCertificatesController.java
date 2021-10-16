@@ -6,6 +6,7 @@ import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.utils.GiftCertificateQueryParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +51,11 @@ public class GiftCertificatesController {
                                                                                    GiftCertificateQueryParameters parameters) {
         List<GiftCertificateDto> giftCertificates = service.getGiftCertificates(parameters, page, pageSize);
         giftCertificates.forEach(giftCertificate -> giftCertificate.add(linkTo(methodOn(GiftCertificatesController.class).getGiftCertificate(giftCertificate.getId())).withSelfRel()));
-        return ResponseEntity.ok(CollectionModel.of(giftCertificates));
+        int initialPage = page == null ? 4 : page;
+        int initialPageSize = pageSize == null ? 4 : pageSize;
+        Link previousPage = linkTo(methodOn(GiftCertificatesController.class).getGiftCertificates(initialPage - 1, initialPageSize, parameters)).withSelfRel();
+        Link nextPage = linkTo(methodOn(GiftCertificatesController.class).getGiftCertificates(initialPage + 1, initialPageSize, parameters)).withSelfRel();
+        return ResponseEntity.ok(CollectionModel.of(giftCertificates, previousPage, nextPage));
     }
 
     /**

@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -46,10 +45,10 @@ public class OrdersController {
                                                                  @RequestParam(required = false) Integer page,
                                                                  @RequestParam(required = false) Integer pageSize) {
         List<OrderDto> orders = service.getUsersOrders(id, page, pageSize);
-        Integer initialPage = page == null ? 4 : page;
-        Integer initialPageSize = pageSize == null ? 4 : pageSize;
+        int initialPage = page == null ? 4 : page;
+        int initialPageSize = pageSize == null ? 4 : pageSize;
         Link previousPage = linkTo(methodOn(OrdersController.class).getUsersOrders(id, initialPage - 1, initialPageSize)).withSelfRel();
-        Link nextPage = linkTo(methodOn(OrdersController.class).getUsersOrders(id, initialPage - + 1, initialPageSize)).withSelfRel();
+        Link nextPage = linkTo(methodOn(OrdersController.class).getUsersOrders(id, initialPage + 1, initialPageSize)).withSelfRel();
         return ResponseEntity.ok(CollectionModel.of(orders, previousPage, nextPage));
 
     }
@@ -64,7 +63,12 @@ public class OrdersController {
     @PostMapping
     public ResponseEntity<OrderDto> createOrder(@RequestBody OrderRequestDto holder) {
         OrderDto createdOrder = service.createOrder(holder);
+//        createdOrder.add(linkTo(methodOn(OrdersController.class).getOrderById(createdOrder.getId())).withSelfRel());
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+    }
+
+    private OrderDto getOrderById(long id) {
+        return service.findById(id);
     }
 
 }

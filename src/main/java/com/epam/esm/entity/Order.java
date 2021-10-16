@@ -17,7 +17,7 @@ public class Order {
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "gift_certificate_id")
     private GiftCertificate giftCertificate;
     @Column(name = "timestamp")
