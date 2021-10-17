@@ -19,18 +19,18 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.*;
 
 public class GiftCertificateServiceTest {
 
     private static GiftCertificateDao giftCertificateDao;
-   // private static GiftCertificateTagDao giftCertificateTagDao;
     private static TagDao tagDao;
-    private static OrderDao orderDao;
     private static GiftCertificateValidator validator;
     private static GiftCertificateDtoMapper dtoMapper;
-    private static GiftCertificateDto expected;
+    private static GiftCertificateDto expectedGiftCertificateDto;
     private static GiftCertificate expectedGiftCertificate;
     private static final long id = 2;
     private static GiftCertificateService service;
@@ -39,9 +39,7 @@ public class GiftCertificateServiceTest {
     @BeforeClass
     public static void init() {
         giftCertificateDao = Mockito.mock(GiftCertificateDao.class);
-        //giftCertificateTagDao = Mockito.mock(GiftCertificateTagDao.class);
         tagDao = Mockito.mock(TagDao.class);
-        orderDao = Mockito.mock(OrderDao.class);
         validator = Mockito.mock(GiftCertificateValidator.class);
         dtoMapper = Mockito.mock(GiftCertificateDtoMapper.class);
         paginator = Mockito.mock(Paginator.class);
@@ -55,15 +53,15 @@ public class GiftCertificateServiceTest {
         giftCertificateTags.add(new Tag("name2"));
 
 
-        expected = new GiftCertificateDto();
-        expected.setId(id);
-        expected.setName("testName");
-        expected.setPrice(new BigDecimal(120));
-        expected.setDescription("testDescription");
-        expected.setDuration(20);
-        expected.setCreationDate("2021-08-21T06:11:43.547Z");
-        expected.setLastUpdateDate("2021-08-21T06:11:43.547Z");
-        expected.setTags(tags);
+        expectedGiftCertificateDto = new GiftCertificateDto();
+        expectedGiftCertificateDto.setId(id);
+        expectedGiftCertificateDto.setName("testName");
+        expectedGiftCertificateDto.setPrice(new BigDecimal(120));
+        expectedGiftCertificateDto.setDescription("testDescription");
+        expectedGiftCertificateDto.setDuration(20);
+        expectedGiftCertificateDto.setCreationDate("2021-08-21T06:11:43.547Z");
+        expectedGiftCertificateDto.setLastUpdateDate("2021-08-21T06:11:43.547Z");
+        expectedGiftCertificateDto.setTags(tags);
 
         expectedGiftCertificate = new GiftCertificate();
         expectedGiftCertificate.setId(id);
@@ -74,22 +72,25 @@ public class GiftCertificateServiceTest {
         expectedGiftCertificate.setCreationDate(ZonedDateTime.parse("2021-08-21T06:11:43.547Z"));
         expectedGiftCertificate.setLastUpdateDate(ZonedDateTime.parse("2021-08-21T06:11:43.547Z"));
         expectedGiftCertificate.setTags(giftCertificateTags);
-
     }
 
     @Test
     public void testShouldReturnListOfGiftCertificates() throws EntityNotExistsException {
         //given
         List<GiftCertificate> expectedGiftCertificates = Arrays.asList(expectedGiftCertificate, expectedGiftCertificate);
-        List<GiftCertificateDto> expectedGiftCertificateDtos = Arrays.asList(expected, expected);
-        when(giftCertificateDao.getGiftCertificates( null, null, null)).thenReturn(expectedGiftCertificates);
-        when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expected);
+
 
         //when
-        List<GiftCertificateDto> actual = service.getGiftCertificates( null, null, null);
+        when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expectedGiftCertificateDto);
+        when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
+        when(giftCertificateDao.countGiftCertificates()).thenReturn(2);
+        when(paginator.paginate(1,1, 2)).thenReturn(1);
+        when(giftCertificateDao.getGiftCertificates(null, 1, 1)).thenReturn(expectedGiftCertificates);
+        List<GiftCertificate> actual = service.getGiftCertificates( null, 1, 1).stream().map(dtoMapper::unmap).collect(Collectors.toList());
 
         //then
-        Assert.assertEquals(expectedGiftCertificateDtos, actual);
+        Assert.assertEquals(expectedGiftCertificates, actual);
+
     }
 
     @Test
@@ -103,14 +104,14 @@ public class GiftCertificateServiceTest {
     @Test
     public void testShouldGetGiftCertificateById() throws EntityNotExistsException {
         //given
-        Mockito.when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expected);
+        Mockito.when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expectedGiftCertificateDto);
         Mockito.when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
 
         //when
         GiftCertificateDto actual = service.getGiftCertificate(id);
 
         //then
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(expectedGiftCertificateDto, actual);
     }
 
     @Test
@@ -126,7 +127,6 @@ public class GiftCertificateServiceTest {
     public void testShouldDeleteGiftCertificateCorrectly() throws EntityNotExistsException {
         //when
         when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
-        //doNothing().when(giftCertificateTagDao).deleteGiftCertificateById(id);
         doNothing().when(giftCertificateDao).deleteById(id);
         service.deleteGiftCertificate(id);
 
@@ -138,10 +138,10 @@ public class GiftCertificateServiceTest {
     @Test
     public void testShouldThrowBadEntityExceptionWhenInvalidGiftCertificatePassedWhileCreating() {
         Assert.assertThrows(BadEntityException.class, () -> {
-            when(dtoMapper.unmap(expected)).thenReturn(expectedGiftCertificate);
+            when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
             when(validator.validateCreate(expectedGiftCertificate)).thenReturn(false);
 
-            service.createGiftCertificate(expected);
+            service.createGiftCertificate(expectedGiftCertificateDto);
         });
 
     }
@@ -149,32 +149,31 @@ public class GiftCertificateServiceTest {
     @Test
     public void testShouldCreateGiftCertificateCorrectly() throws EntityNotExistsException, BadEntityException {
         //given
-        when(dtoMapper.unmap(expected)).thenReturn(expectedGiftCertificate);
+        when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
         when(validator.validateCreate(expectedGiftCertificate)).thenReturn(true);
         when(giftCertificateDao.create(expectedGiftCertificate)).thenReturn(id);
         when(tagDao.findTagByName(anyString())).thenReturn(Optional.of(new Tag()));
-       // doNothing().when(giftCertificateTagDao).createConnections(id, expectedGiftCertificate.getTags());
         when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
-        when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expected);
+        when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expectedGiftCertificateDto);
 
         //when
-        GiftCertificateDto actual = service.createGiftCertificate(expected);
+        GiftCertificateDto actual = service.createGiftCertificate(expectedGiftCertificateDto);
 
         //then
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(expectedGiftCertificateDto, actual);
     }
 
     @Test
     public void testShouldThrowEntityNotExistsExceptionWhenInvalidIdPassedAfterCreation() {
         Assert.assertThrows(EntityNotExistsException.class, () -> {
-            when(dtoMapper.unmap(expected)).thenReturn(expectedGiftCertificate);
+            when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
             when(validator.validateCreate(expectedGiftCertificate)).thenReturn(true);
             when(giftCertificateDao.create(expectedGiftCertificate)).thenReturn(id);
             when(tagDao.findTagByName(anyString())).thenReturn(Optional.of(new Tag()));
             //doNothing().when(giftCertificateTagDao).createConnections(id, expectedGiftCertificate.getTags());
             when(giftCertificateDao.findById(id)).thenReturn(Optional.empty());
 
-            service.createGiftCertificate(expected);
+            service.createGiftCertificate(expectedGiftCertificateDto);
         });
     }
 
@@ -183,7 +182,7 @@ public class GiftCertificateServiceTest {
         Assert.assertThrows(EntityNotExistsException.class, () -> {
             when(giftCertificateDao.findById(id)).thenReturn(Optional.empty());
 
-            service.updateGiftCertificate(id, expected);
+            service.updateGiftCertificate(id, expectedGiftCertificateDto);
         });
     }
 
@@ -193,7 +192,7 @@ public class GiftCertificateServiceTest {
             when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
             when(validator.validateUpdate(expectedGiftCertificate)).thenReturn(false);
 
-            service.updateGiftCertificate(id, expected);
+            service.updateGiftCertificate(id, expectedGiftCertificateDto);
         });
     }
 
@@ -201,21 +200,18 @@ public class GiftCertificateServiceTest {
     public void testShouldUpdateGiftCertificateCorrectly() throws EntityNotExistsException, BadEntityException {
         //given
         when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
-        when(dtoMapper.unmap(expected)).thenReturn(expectedGiftCertificate);
+        when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
         when(validator.validateUpdate(expectedGiftCertificate)).thenReturn(true);
         when(tagDao.findTagByName(anyString())).thenReturn(Optional.of(new Tag()));
         doNothing().when(giftCertificateDao).updateGiftCertificate(expectedGiftCertificate);
-//        doNothing().when(giftCertificateTagDao).addTagId(anyLong(), anyLong());
-//        doNothing().when(giftCertificateTagDao).deleteTagId(anyLong(), anyLong());
-//        when(giftCertificateTagDao.getIdsBeforeUpdate(id)).thenReturn(new ArrayList<>());
         when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
-        when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expected);
+        when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expectedGiftCertificateDto);
 
         //when
-        GiftCertificateDto actual = service.updateGiftCertificate(id, expected);
+        GiftCertificateDto actual = service.updateGiftCertificate(id, expectedGiftCertificateDto);
 
         //then
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(expectedGiftCertificateDto, actual);
 
     }
 
@@ -223,16 +219,13 @@ public class GiftCertificateServiceTest {
     public void testShouldThrowEntityNotExistsExceptionWhileUpdatingGiftCertificate() {
         Assert.assertThrows(EntityNotExistsException.class, () -> {
             when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
-            when(dtoMapper.unmap(expected)).thenReturn(expectedGiftCertificate);
+            when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
             when(validator.validateUpdate(expectedGiftCertificate)).thenReturn(true);
             when(tagDao.findTagByName(anyString())).thenReturn(Optional.of(new Tag()));
             doNothing().when(giftCertificateDao).updateGiftCertificate(expectedGiftCertificate);
-//            doNothing().when(giftCertificateTagDao).addTagId(anyLong(), anyLong());
-//            doNothing().when(giftCertificateTagDao).deleteTagId(anyLong(), anyLong());
-//            when(giftCertificateTagDao.getIdsBeforeUpdate(id)).thenReturn(new ArrayList<>());
             when(giftCertificateDao.findById(id)).thenReturn(Optional.empty());
 
-            service.updateGiftCertificate(id, expected);
+            service.updateGiftCertificate(id, expectedGiftCertificateDto);
         });
     }
 

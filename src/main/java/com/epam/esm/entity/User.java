@@ -1,11 +1,12 @@
 package com.epam.esm.entity;
 
 import com.epam.esm.audit.AuditListener;
+import com.epam.esm.auditTest.AuditUserListener;
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@EntityListeners(AuditListener.class)
+@EntityListeners(AuditUserListener.class)
 public class User implements Identifiable {
 
     @Id

@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -25,7 +26,6 @@ public class TagServiceTest {
 
     private static TagDao tagDao;
     private static TagDtoMapper mapper;
-    //private static GiftCertificateTagDao giftCertificateTagDao;
     private static TagValidator tagValidator;
     private static TagService service;
     private static Paginator paginator;
@@ -33,7 +33,6 @@ public class TagServiceTest {
     @BeforeClass
     public static void init() {
         tagDao = Mockito.mock(TagDao.class);
-        //giftCertificateTagDao = Mockito.mock(GiftCertificateTagDao.class);
         mapper = Mockito.mock(TagDtoMapper.class);
         tagValidator = Mockito.mock(TagValidator.class);
         paginator = Mockito.mock(Paginator.class);
@@ -43,11 +42,17 @@ public class TagServiceTest {
     @Test
     public void testShouldReturnAllTags() {
         //given
-        List<Tag> expected = Arrays.asList(new Tag(), new Tag());
-        when(tagDao.findAll(1, 1)).thenReturn(expected);
+        Tag testFirst = new Tag(1, TEST_NAME);
+        TagDto testDtoFirst = new TagDto(1, TEST_NAME);
+        List<Tag> expected = Arrays.asList(testFirst, testFirst);
 
         //when
-        List<TagDto> actual = service.getTags(1, 2);
+        when(mapper.map(testFirst)).thenReturn(testDtoFirst);
+        when(mapper.unmap(testDtoFirst)).thenReturn(testFirst);
+        when(tagDao.countTags()).thenReturn(2);
+        when(paginator.paginate(1,1, 2)).thenReturn(1);
+        when(tagDao.findAll(1, 1)).thenReturn(expected);
+        List<Tag> actual = service.getTags(1, 1).stream().map(mapper::unmap).collect(Collectors.toList());
 
         //then
         Assert.assertEquals(expected, actual);
@@ -56,15 +61,19 @@ public class TagServiceTest {
     @Test
     public void testShouldFindById() throws EntityNotExistsException {
         //given
-        long id = 0L;
-        Tag expected = new Tag();
-        Mockito.when(tagDao.findById(anyLong())).thenReturn(Optional.of(expected));
+        long id = 1L;
+        Tag testClause = new Tag(id, TEST_NAME);
+        TagDto testClauseDto = new TagDto(id, TEST_NAME);
 
         //when
-        TagDto actual = service.getTag(id);
+        when(tagDao.findById(anyLong())).thenReturn(Optional.of(testClause));
+        when(mapper.map(testClause)).thenReturn(testClauseDto);
+        when(mapper.unmap(testClauseDto)).thenReturn(testClause);
+        Tag actual = mapper.unmap(service.getTag(id));
+
 
         //then
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(testClause, actual);
     }
 
     @Test
@@ -80,31 +89,34 @@ public class TagServiceTest {
     public void testShouldCreateTag() throws EntityNotExistsException, EntityAlreadyExistsException, BadEntityException {
         //given
         long id = 1L;
-        TagDto expected = new TagDto(id, TEST_NAME);
-        when(tagValidator.validate(mapper.unmap(expected))).thenReturn(true);
+        TagDto expectedDto = new TagDto();
+        Tag expectedTag = new Tag();
+        when(mapper.unmap(expectedDto)).thenReturn(expectedTag);
+        when(mapper.map((expectedTag))).thenReturn(expectedDto);
+        when(tagValidator.validate(mapper.unmap(expectedDto))).thenReturn(true);
         when(tagDao.findTagByName(anyString())).thenReturn(Optional.empty());
-        when(tagDao.create(mapper.unmap(expected))).thenReturn(id);
-        when(tagDao.findById(id)).thenReturn(Optional.of(mapper.unmap(expected)));
+        when(tagDao.create(mapper.unmap(expectedDto))).thenReturn(id);
+
+        when(tagDao.findById(id)).thenReturn(Optional.of(expectedTag));
 
         //when
-        TagDto actual = service.createTag(expected);
+        Tag actual = mapper.unmap(service.createTag(expectedDto));
         //then
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(expectedTag, actual);
     }
 
     @Test
     public void testShouldDeleteTagCorrectly() throws EntityNotExistsException {
         //given
-        long id = 0;
+        long id = 1;
 
         //when
         when(tagDao.findById(id)).thenReturn(Optional.of(new Tag()));
-//        doNothing().when(tagDao).deleteById(id);
+        doNothing().when(tagDao).deleteById(id);
         service.deleteTag(id);
 
         //then
-//        Mockito.verify(tagDao, times(1)).deleteById(anyLong());
-        //Mockito.verify(giftCertificateTagDao, times(1)).deleteByTagId(anyLong());
+        Mockito.verify(tagDao, times(1)).deleteById(anyLong());
     }
 
     @Test
@@ -128,11 +140,14 @@ public class TagServiceTest {
     @Test
     public void testShouldThrowEntityAlreadyExistExceptionWhenTagWithExistNamePassed() {
         Assert.assertThrows(EntityAlreadyExistsException.class, () -> {
-            TagDto tag = new TagDto(1, TEST_NAME);
-            Mockito.when(tagValidator.validate(mapper.unmap(tag))).thenReturn(true);
-            Mockito.when(tagDao.findTagByName(tag.getName())).thenReturn(Optional.of(mapper.unmap(tag)));
+            TagDto tagDto = new TagDto(1, TEST_NAME);
+            Tag tag = new Tag(1, TEST_NAME);
+            when(mapper.unmap(tagDto)).thenReturn(tag);
+            when(tagValidator.validate(tag)).thenReturn(true);
 
-            service.createTag(tag);
+            when(tagDao.findTagByName(tagDto.getName())).thenReturn(Optional.of(tag));
+
+            service.createTag(tagDto);
         });
     }
 

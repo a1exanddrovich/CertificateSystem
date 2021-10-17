@@ -1,6 +1,7 @@
 package com.epam.esm.entity;
 
 import com.epam.esm.audit.AuditListener;
+import com.epam.esm.auditTest.AuditOrderListener;
 import com.epam.esm.converter.ZonedDateTimeAttributeConverter;
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -9,7 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "`order`")
-@EntityListeners(AuditListener.class)
+@EntityListeners(AuditOrderListener.class)
 public class Order implements Identifiable {
 
     @Id

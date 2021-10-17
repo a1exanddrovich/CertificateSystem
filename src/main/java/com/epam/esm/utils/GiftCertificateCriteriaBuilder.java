@@ -4,7 +4,6 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.GiftCertificateQueryException;
 import org.springframework.stereotype.Component;
-
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ public class GiftCertificateCriteriaBuilder {
 
     private static final String SYMBOL = "%";
     private static final String PARAMETER_TAG_NAME_LIST = "tagNames";
-//    private static final String SELECT_TAG_BY_NAME = "SELECT t FROM Tag t WHERE t.name IN (:" + PARAMETER_TAG_NAME_LIST + ")";
     private static final String SELECT_TAG_BY_NAME = "FROM Tag t WHERE t.name IN (:" + PARAMETER_TAG_NAME_LIST + ")";
 
     public CriteriaQuery<GiftCertificate> buildQuery(EntityManager manager, GiftCertificateQueryParameters parameters) {

@@ -70,7 +70,7 @@ public class OrderDto extends RepresentationModel<OrderDto> {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         OrderDto orderDto = (OrderDto) o;
-        return id == orderDto.id && Objects.equals(user, orderDto.user) && Objects.equals(giftCertificate, orderDto.giftCertificate) && Objects.equals(timeStamp, orderDto.timeStamp) && Objects.equals(price, orderDto.price);
+        return id == orderDto.id && Objects.equals(timeStamp, orderDto.timeStamp) && Objects.equals(price, orderDto.price);
     }
 
     @Override

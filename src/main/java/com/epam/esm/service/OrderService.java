@@ -47,7 +47,7 @@ public class OrderService {
     }
 
     public OrderDto createOrder(OrderRequestDto orderRequestDto) {
-        if (validator.validate(orderRequestDto)) {
+        if (!validator.validate(orderRequestDto)) {
             throw new BadEntityException();
         }
 

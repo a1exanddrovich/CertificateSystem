@@ -1,6 +1,7 @@
 package com.epam.esm.entity;
 
 import com.epam.esm.audit.AuditListener;
+import com.epam.esm.auditTest.AuditGiftCertificateListener;
 import com.epam.esm.converter.ZonedDateTimeAttributeConverter;
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -9,7 +10,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 @Entity
-@EntityListeners(AuditListener.class)
+@EntityListeners(AuditGiftCertificateListener.class)
 public class GiftCertificate implements Identifiable {
 
     @Id

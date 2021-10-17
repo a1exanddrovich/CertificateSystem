@@ -1,11 +1,13 @@
 package com.epam.esm.entity;
 
 import com.epam.esm.audit.AuditListener;
+import com.epam.esm.auditTest.AuditTagListener;
+
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@EntityListeners(AuditListener.class)
+@EntityListeners(AuditTagListener.class)
 public class Tag implements Identifiable {
 
     @Id

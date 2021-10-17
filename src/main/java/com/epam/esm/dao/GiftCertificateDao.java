@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,11 +26,13 @@ public class GiftCertificateDao {
         this.queryBuilder = queryBuilder;
     }
 
+    @Transactional
     public void deleteById(long id) {
         Optional<GiftCertificate> optionalGiftCertificate = findById(id);
         optionalGiftCertificate.ifPresent(manager::remove);
     }
 
+    @Transactional
     public long create(GiftCertificate giftCertificate) {
         manager.persist(giftCertificate);
         return giftCertificate.getId();
@@ -45,6 +48,7 @@ public class GiftCertificateDao {
         return Optional.ofNullable(manager.find(GiftCertificate.class, id));
     }
 
+    @Transactional
     public void updateGiftCertificate(GiftCertificate giftCertificate) {
         manager.merge(giftCertificate);
     }
