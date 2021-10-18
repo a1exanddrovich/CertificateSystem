@@ -1,7 +1,6 @@
 package com.epam.esm.entity;
 
 import com.epam.esm.audit.AuditListener;
-import com.epam.esm.auditTest.AuditGiftCertificateListener;
 import com.epam.esm.converter.ZonedDateTimeAttributeConverter;
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -10,7 +9,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 @Entity
-@EntityListeners(AuditGiftCertificateListener.class)
+@EntityListeners(AuditListener.class)
 public class GiftCertificate implements Identifiable {
 
     @Id
@@ -146,21 +145,6 @@ public class GiftCertificate implements Identifiable {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, description, price, duration, creationDate, lastUpdateDate, tags);
-    }
-
-    @PrePersist
-    public void onPrePersist() {
-        System.out.println("Persist");
-    }
-
-    @PreUpdate
-    public void onPreUpdate() {
-        System.out.println("Update");
-    }
-
-    @PreRemove
-    public void onPreRemove() {
-        System.out.println("Remove");
     }
 
 }

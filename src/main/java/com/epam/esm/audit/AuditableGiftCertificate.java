@@ -1,7 +1,6 @@
 package com.epam.esm.audit;
 
 import com.epam.esm.entity.GiftCertificate;
-
 import javax.persistence.Entity;
 import javax.persistence.Table;
 

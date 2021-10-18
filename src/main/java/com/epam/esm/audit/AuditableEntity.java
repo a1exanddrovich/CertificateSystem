@@ -6,8 +6,7 @@ import javax.persistence.*;
 import java.time.ZonedDateTime;
 
 @MappedSuperclass
-@EntityListeners(AuditListener.class)
-public class AuditableEntity<T extends Identifiable> {
+public abstract class AuditableEntity<T extends Identifiable> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

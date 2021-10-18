@@ -1,12 +1,11 @@
 package com.epam.esm.entity;
 
 import com.epam.esm.audit.AuditListener;
-import com.epam.esm.auditTest.AuditUserListener;
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@EntityListeners(AuditUserListener.class)
+@EntityListeners(AuditListener.class)
 public class User implements Identifiable {
 
     @Id
@@ -46,21 +45,6 @@ public class User implements Identifiable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    @PrePersist
-    public void onPrePersist() {
-        System.out.println("Persist");
-    }
-
-    @PreUpdate
-    public void onPreUpdate() {
-        System.out.println("Update");
-    }
-
-    @PreRemove
-    public void onPreRemove() {
-        System.out.println("Remove");
     }
 
 }
