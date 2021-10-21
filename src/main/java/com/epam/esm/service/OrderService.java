@@ -11,6 +11,8 @@ import com.epam.esm.entity.User;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.dto.OrderRequestDto;
+import com.epam.esm.exception.GiftCertificateNotExistsException;
+import com.epam.esm.exception.UserNotExistsException;
 import com.epam.esm.utils.Paginator;
 import com.epam.esm.validator.OrderRequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +56,12 @@ public class OrderService {
         Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(orderRequestDto.getGiftCertificateId());
         Optional<User> optionalUser = userDao.findById(orderRequestDto.getUserId());
 
-        if (optionalGiftCertificate.isEmpty() || optionalUser.isEmpty()) {
-            throw new EntityNotExistsException();
+        if (optionalGiftCertificate.isEmpty()) {
+            throw new GiftCertificateNotExistsException();
+        }
+
+        if (optionalUser.isEmpty()) {
+            throw new UserNotExistsException();
         }
 
         GiftCertificate certificate = optionalGiftCertificate.get();

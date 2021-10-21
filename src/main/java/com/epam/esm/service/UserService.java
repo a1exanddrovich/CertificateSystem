@@ -27,7 +27,11 @@ public class UserService {
     }
 
     public List<UserDto> getUsers(Integer page, Integer pageSize) {
-        return userDao.findAll(page, paginator.paginate(page, pageSize, userDao.countUsers())).stream().map(userDtoMapper::map).collect(Collectors.toList());
+        return userDao
+                .findAll(page, paginator.paginate(page, pageSize, userDao.countUsers()))
+                .stream()
+                .map(userDtoMapper::map)
+                .collect(Collectors.toList());
     }
 
     public UserDto getUser(long id) throws EntityNotExistsException {

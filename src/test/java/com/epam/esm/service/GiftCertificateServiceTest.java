@@ -1,7 +1,6 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.OrderDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
@@ -11,9 +10,8 @@ import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.dtomapper.GiftCertificateDtoMapper;
 import com.epam.esm.utils.Paginator;
 import com.epam.esm.validator.GiftCertificateValidator;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -21,6 +19,8 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -36,7 +36,7 @@ public class GiftCertificateServiceTest {
     private static GiftCertificateService service;
     private static Paginator paginator;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         giftCertificateDao = Mockito.mock(GiftCertificateDao.class);
         tagDao = Mockito.mock(TagDao.class);
@@ -75,7 +75,7 @@ public class GiftCertificateServiceTest {
     }
 
     @Test
-    public void testShouldReturnListOfGiftCertificates() throws EntityNotExistsException {
+    void testShouldReturnListOfGiftCertificates() throws EntityNotExistsException {
         //given
         List<GiftCertificate> expectedGiftCertificates = Arrays.asList(expectedGiftCertificate, expectedGiftCertificate);
 
@@ -89,20 +89,20 @@ public class GiftCertificateServiceTest {
         List<GiftCertificate> actual = service.getGiftCertificates( null, 1, 1).stream().map(dtoMapper::unmap).collect(Collectors.toList());
 
         //then
-        Assert.assertEquals(expectedGiftCertificates, actual);
+        assertEquals(expectedGiftCertificates, actual);
 
     }
 
     @Test
-    public void testShouldThrowEntityNotExistsExceptionWhenInvalidIdPassed() {
-        Assert.assertThrows(EntityNotExistsException.class, () -> {
+    void testShouldThrowEntityNotExistsExceptionWhenInvalidIdPassed() {
+        assertThrows(EntityNotExistsException.class, () -> {
             Mockito.when(giftCertificateDao.findById(id)).thenReturn(Optional.empty());
             service.getGiftCertificate(id);
         });
     }
 
     @Test
-    public void testShouldGetGiftCertificateById() throws EntityNotExistsException {
+    void testShouldGetGiftCertificateById() throws EntityNotExistsException {
         //given
         Mockito.when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expectedGiftCertificateDto);
         Mockito.when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
@@ -111,12 +111,12 @@ public class GiftCertificateServiceTest {
         GiftCertificateDto actual = service.getGiftCertificate(id);
 
         //then
-        Assert.assertEquals(expectedGiftCertificateDto, actual);
+        assertEquals(expectedGiftCertificateDto, actual);
     }
 
     @Test
-    public void testShouldThrowEntityNotExistsExceptionWhenDeletingGiftCertificateWithInvalidId() {
-        Assert.assertThrows(EntityNotExistsException.class, () -> {
+    void testShouldThrowEntityNotExistsExceptionWhenDeletingGiftCertificateWithInvalidId() {
+        assertThrows(EntityNotExistsException.class, () -> {
             Mockito.when(giftCertificateDao.findById(id)).thenReturn(Optional.empty());
 
             service.deleteGiftCertificate(id);
@@ -124,7 +124,7 @@ public class GiftCertificateServiceTest {
     }
 
     @Test
-    public void testShouldDeleteGiftCertificateCorrectly() throws EntityNotExistsException {
+    void testShouldDeleteGiftCertificateCorrectly() throws EntityNotExistsException {
         //when
         when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
         doNothing().when(giftCertificateDao).deleteById(id);
@@ -136,8 +136,8 @@ public class GiftCertificateServiceTest {
     }
 
     @Test
-    public void testShouldThrowBadEntityExceptionWhenInvalidGiftCertificatePassedWhileCreating() {
-        Assert.assertThrows(BadEntityException.class, () -> {
+    void testShouldThrowBadEntityExceptionWhenInvalidGiftCertificatePassedWhileCreating() {
+        assertThrows(BadEntityException.class, () -> {
             when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
             when(validator.validateCreate(expectedGiftCertificate)).thenReturn(false);
 
@@ -147,7 +147,7 @@ public class GiftCertificateServiceTest {
     }
 
     @Test
-    public void testShouldCreateGiftCertificateCorrectly() throws EntityNotExistsException, BadEntityException {
+    void testShouldCreateGiftCertificateCorrectly() throws EntityNotExistsException, BadEntityException {
         //given
         when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
         when(validator.validateCreate(expectedGiftCertificate)).thenReturn(true);
@@ -160,12 +160,12 @@ public class GiftCertificateServiceTest {
         GiftCertificateDto actual = service.createGiftCertificate(expectedGiftCertificateDto);
 
         //then
-        Assert.assertEquals(expectedGiftCertificateDto, actual);
+        assertEquals(expectedGiftCertificateDto, actual);
     }
 
     @Test
-    public void testShouldThrowEntityNotExistsExceptionWhenInvalidIdPassedAfterCreation() {
-        Assert.assertThrows(EntityNotExistsException.class, () -> {
+    void testShouldThrowEntityNotExistsExceptionWhenInvalidIdPassedAfterCreation() {
+        assertThrows(EntityNotExistsException.class, () -> {
             when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
             when(validator.validateCreate(expectedGiftCertificate)).thenReturn(true);
             when(giftCertificateDao.create(expectedGiftCertificate)).thenReturn(id);
@@ -178,8 +178,8 @@ public class GiftCertificateServiceTest {
     }
 
     @Test
-    public void testShouldThrowEntityNotExistsExceptionWhenGiftCertificateWithInvalidIdPassed() {
-        Assert.assertThrows(EntityNotExistsException.class, () -> {
+    void testShouldThrowEntityNotExistsExceptionWhenGiftCertificateWithInvalidIdPassed() {
+        assertThrows(EntityNotExistsException.class, () -> {
             when(giftCertificateDao.findById(id)).thenReturn(Optional.empty());
 
             service.updateGiftCertificate(id, expectedGiftCertificateDto);
@@ -187,8 +187,8 @@ public class GiftCertificateServiceTest {
     }
 
     @Test
-    public void testShouldThrowBadEntityExceptionWhenInvalidGiftCertificatePassedWhileUpdating() {
-        Assert.assertThrows(BadEntityException.class, () -> {
+    void testShouldThrowBadEntityExceptionWhenInvalidGiftCertificatePassedWhileUpdating() {
+        assertThrows(BadEntityException.class, () -> {
             when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
             when(validator.validateUpdate(expectedGiftCertificate)).thenReturn(false);
 
@@ -197,7 +197,7 @@ public class GiftCertificateServiceTest {
     }
 
     @Test
-    public void testShouldUpdateGiftCertificateCorrectly() throws EntityNotExistsException, BadEntityException {
+    void testShouldUpdateGiftCertificateCorrectly() throws EntityNotExistsException, BadEntityException {
         //given
         when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
         when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
@@ -211,13 +211,13 @@ public class GiftCertificateServiceTest {
         GiftCertificateDto actual = service.updateGiftCertificate(id, expectedGiftCertificateDto);
 
         //then
-        Assert.assertEquals(expectedGiftCertificateDto, actual);
+        assertEquals(expectedGiftCertificateDto, actual);
 
     }
 
     @Test
-    public void testShouldThrowEntityNotExistsExceptionWhileUpdatingGiftCertificate() {
-        Assert.assertThrows(EntityNotExistsException.class, () -> {
+    void testShouldThrowEntityNotExistsExceptionWhileUpdatingGiftCertificate() {
+        assertThrows(EntityNotExistsException.class, () -> {
             when(giftCertificateDao.findById(id)).thenReturn(Optional.of(expectedGiftCertificate));
             when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
             when(validator.validateUpdate(expectedGiftCertificate)).thenReturn(true);

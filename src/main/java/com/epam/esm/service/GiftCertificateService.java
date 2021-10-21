@@ -46,7 +46,11 @@ public class GiftCertificateService {
 
     public List<GiftCertificateDto> getGiftCertificates(GiftCertificateQueryParameters parameters, Integer page, Integer pageSize) {
 
-        return giftCertificateDao.getGiftCertificates(parameters, page, paginator.paginate(page, pageSize, giftCertificateDao.countGiftCertificates())).stream().map(dtoMapper::map).collect(Collectors.toList());
+        return giftCertificateDao
+                .getGiftCertificates(parameters, page, paginator.paginate(page, pageSize, giftCertificateDao.countGiftCertificates()))
+                .stream()
+                .map(dtoMapper::map)
+                .collect(Collectors.toList());
     }
 
     public GiftCertificateDto getGiftCertificate(long id) throws EntityNotExistsException {

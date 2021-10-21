@@ -16,9 +16,8 @@ import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.utils.Paginator;
 import com.epam.esm.validator.OrderRequestValidator;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.math.BigDecimal;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +46,7 @@ public class OrderServiceTest {
     private static OrderService service;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         userDao = Mockito.mock(UserDao.class);
         orderDao = Mockito.mock(OrderDao.class);
@@ -58,7 +58,7 @@ public class OrderServiceTest {
     }
 
     @Test
-    public void testShouldReturnAllOrders() {
+    void testShouldReturnAllOrders() {
         //given
         User user = new User(1);
         Order testFirst = new Order();
@@ -75,11 +75,11 @@ public class OrderServiceTest {
         List<Order> actual = service.getUsersOrders(1, 1, 1).stream().map(mapper::unmap).collect(Collectors.toList());
 
         //then
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void testShouldFindById() throws EntityNotExistsException {
+    void testShouldFindById() throws EntityNotExistsException {
         //given
         long id = 1L;
         OrderDto testClauseDto = new OrderDto(id, new UserDto(), new GiftCertificateDto(), ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))), new BigDecimal("20"));
@@ -93,11 +93,11 @@ public class OrderServiceTest {
 
 
         //then
-        Assert.assertEquals(testClause, actual);
+        assertEquals(testClause, actual);
     }
 
     @Test
-    public void testShouldCreateOrder() throws EntityNotExistsException, EntityAlreadyExistsException, BadEntityException {
+    void testShouldCreateOrder() throws EntityNotExistsException, EntityAlreadyExistsException, BadEntityException {
         //given
         long id = 1L;
         OrderDto expectedDto = new OrderDto(id, new UserDto(), new GiftCertificateDto(), ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))), new BigDecimal("20"));
@@ -116,7 +116,7 @@ public class OrderServiceTest {
         Order actual = mapper.unmap(service.createOrder(orderRequestDto));
 
         //then
-        Assert.assertEquals(expectedOrder, actual);
+        assertEquals(expectedOrder, actual);
     }
 
 }

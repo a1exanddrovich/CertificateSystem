@@ -18,6 +18,8 @@ public class BusinessExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String ALREADY_EXIST_EXCEPTION_MESSAGE = "exception.alreadyExist";
     private static final String PAGINATION_EXCEPTION_MESSAGE = "exception.badPagination";
     private static final String GIFT_CERTIFICATE_QUERY_EXCEPTION_MESSAGE = "exception.badCertificateQuery";
+    private static final String GIFT_CERTIFICATE_NOT_EXISTS_MESSAGE = "exception.giftCertificateNotExists";
+    private static final String USER_NOT_EXISTS_MESSAGE = "exception.userNotExists";
 
     private final ReloadableResourceBundleMessageSource messageSource;
 
@@ -49,6 +51,16 @@ public class BusinessExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(GiftCertificateQueryException.class)
     public ResponseEntity<ExceptionResponse> handleGiftCertificateQueryException(Locale locale) {
         return new ResponseEntity<>(new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), messageSource.getMessage(GIFT_CERTIFICATE_QUERY_EXCEPTION_MESSAGE, new Object[] {}, locale)), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(GiftCertificateNotExistsException.class)
+    public ResponseEntity<ExceptionResponse> handleGiftCertificateNotExistsException(Locale locale) {
+        return new ResponseEntity<>(new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), messageSource.getMessage(GIFT_CERTIFICATE_NOT_EXISTS_MESSAGE, new Object[] {}, locale)), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UserNotExistsException.class)
+    public ResponseEntity<ExceptionResponse> handleUserNotExistsException(Locale locale) {
+        return new ResponseEntity<>(new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), messageSource.getMessage(USER_NOT_EXISTS_MESSAGE, new Object[] {}, locale)), HttpStatus.BAD_REQUEST);
     }
 
 }

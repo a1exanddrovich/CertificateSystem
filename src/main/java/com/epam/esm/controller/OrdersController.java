@@ -42,8 +42,8 @@ public class OrdersController {
      */
     @GetMapping
     public ResponseEntity<CollectionModel<OrderDto>> getUsersOrders(@RequestParam long id,
-                                                                 @RequestParam(required = false) Integer page,
-                                                                 @RequestParam(required = false) Integer pageSize) {
+                                                                    @RequestParam(required = false) Integer page,
+                                                                    @RequestParam(required = false) Integer pageSize) {
         List<OrderDto> orders = service.getUsersOrders(id, page, pageSize);
         int initialPage = page == null ? 4 : page;
         int initialPageSize = pageSize == null ? 4 : pageSize;
@@ -63,6 +63,7 @@ public class OrdersController {
     @PostMapping
     public ResponseEntity<OrderDto> createOrder(@RequestBody OrderRequestDto orderRequestDto) {
         OrderDto createdOrder = service.createOrder(orderRequestDto);
+        createdOrder.add(linkTo(methodOn(OrdersController.class).getUsersOrders(createdOrder.getUser().getId(), 1, 4)).withSelfRel());
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
 

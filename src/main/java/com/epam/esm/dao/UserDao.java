@@ -32,4 +32,5 @@ public class UserDao {
     public Integer countUsers() {
         return Integer.parseInt(manager.createQuery(Queries.COUNT_USERS).getSingleResult().toString());
     }
+
 }

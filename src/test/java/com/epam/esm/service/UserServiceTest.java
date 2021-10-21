@@ -1,16 +1,13 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dao.UserDao;
-import com.epam.esm.dto.TagDto;
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.dtomapper.UserDtoMapper;
-import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.utils.Paginator;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
@@ -18,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -29,7 +27,7 @@ public class UserServiceTest {
     private static UserDtoMapper userDtoMapper;
     private static UserService service;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         userDao = Mockito.mock(UserDao.class);
         paginator = Mockito.mock(Paginator.class);
@@ -38,7 +36,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testShouldReturnAllUsers() {
+    void testShouldReturnAllUsers() {
         //given
         User user = new User(1);
         UserDto userDto = new UserDto(1);
@@ -53,11 +51,11 @@ public class UserServiceTest {
         List<User> actual = service.getUsers(1, 1).stream().map(userDtoMapper::unmap).collect(Collectors.toList());
 
         //then
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void testShouldFindById() throws EntityNotExistsException {
+    void testShouldFindById() throws EntityNotExistsException {
         //given
         long id = 1L;
         User testClause = new User(id);
@@ -71,7 +69,7 @@ public class UserServiceTest {
 
 
         //then
-        Assert.assertEquals(testClause, actual);
+        assertEquals(testClause, actual);
     }
 
 }

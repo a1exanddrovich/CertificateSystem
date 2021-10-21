@@ -34,7 +34,11 @@ public class TagService {
     }
 
     public List<TagDto> getTags(Integer page, Integer pageSize) {
-        return tagDao.findAll(page, paginator.paginate(page, pageSize, tagDao.countTags())).stream().map(mapper::map).collect(Collectors.toList());
+        return tagDao
+                .findAll(page, paginator.paginate(page, pageSize, tagDao.countTags()))
+                .stream()
+                .map(mapper::map)
+                .collect(Collectors.toList());
     }
 
     public TagDto getTag(long id) throws EntityNotExistsException {

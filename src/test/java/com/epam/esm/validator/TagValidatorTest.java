@@ -1,8 +1,10 @@
 package com.epam.esm.validator;
 
 import com.epam.esm.entity.Tag;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TagValidatorTest {
 
@@ -12,7 +14,7 @@ public class TagValidatorTest {
     private final TagValidator validator = new TagValidator();
 
     @Test
-    public void testShouldReturnTrueWhenValidTagGiven() {
+    void testShouldReturnTrueWhenValidTagGiven() {
         //given
         Tag tag = new Tag(TEST_NAME_VALID);
 
@@ -20,11 +22,11 @@ public class TagValidatorTest {
         boolean actual = validator.validate(tag);
 
         //then
-        Assert.assertTrue(actual);
+        assertTrue(actual);
     }
 
     @Test
-    public void testShouldReturnFalseWhenInvalidTagGiven() {
+    void testShouldReturnFalseWhenInvalidTagGiven() {
         //given
         Tag tag = new Tag(TEST_NAME_INVALID);
 
@@ -32,7 +34,7 @@ public class TagValidatorTest {
         boolean actual = validator.validate(tag);
 
         //then
-        Assert.assertFalse(actual);
+        assertFalse(actual);
     }
 
 }
