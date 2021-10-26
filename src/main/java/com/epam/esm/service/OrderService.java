@@ -13,7 +13,7 @@ import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.dto.OrderRequestDto;
 import com.epam.esm.exception.GiftCertificateNotExistsException;
 import com.epam.esm.exception.UserNotExistsException;
-import com.epam.esm.utils.Paginator;
+import com.epam.esm.validator.PaginationValidator;
 import com.epam.esm.validator.OrderRequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,16 +34,16 @@ public class OrderService {
     private final UserDao userDao;
     private final OrderDao orderDao;
     private final GiftCertificateDao giftCertificateDao;
-    private final Paginator paginator;
+    private final PaginationValidator paginationValidator;
     private final OrderDtoMapper mapper;
     private final OrderRequestValidator validator;
 
     @Autowired
-    public OrderService(UserDao userDao, OrderDao orderDao, GiftCertificateDao giftCertificateDao, Paginator paginator, OrderDtoMapper mapper, OrderRequestValidator validator) {
+    public OrderService(UserDao userDao, OrderDao orderDao, GiftCertificateDao giftCertificateDao, PaginationValidator paginationValidator, OrderDtoMapper mapper, OrderRequestValidator validator) {
         this.userDao = userDao;
         this.orderDao = orderDao;
         this.giftCertificateDao = giftCertificateDao;
-        this.paginator = paginator;
+        this.paginationValidator = paginationValidator;
         this.mapper = mapper;
         this.validator = validator;
     }
@@ -95,7 +95,7 @@ public class OrderService {
             throw new EntityNotExistsException();
         }
 
-        List<Order> result = orderDao.findAllByUserId(optionalUser.get(), page, paginator.paginate(page, pageSize, orderDao.countById(optionalUser.get())));
+        List<Order> result = orderDao.findAllByUserId(optionalUser.get(), page, paginationValidator.paginate(page, pageSize, orderDao.countById(optionalUser.get())));
 
         return result.stream().map(mapper::map).collect(Collectors.toList());
     }

@@ -14,7 +14,7 @@ import com.epam.esm.entity.User;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.exception.EntityNotExistsException;
-import com.epam.esm.utils.Paginator;
+import com.epam.esm.validator.PaginationValidator;
 import com.epam.esm.validator.OrderRequestValidator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public class OrderServiceTest {
     private static UserDao userDao;
     private static OrderDao orderDao;
     private static GiftCertificateDao giftCertificateDao;
-    private static Paginator paginator;
+    private static PaginationValidator paginationValidator;
     private static OrderDtoMapper mapper;
     private static OrderRequestValidator validator;
     private static OrderService service;
@@ -51,10 +51,10 @@ public class OrderServiceTest {
         userDao = Mockito.mock(UserDao.class);
         orderDao = Mockito.mock(OrderDao.class);
         giftCertificateDao = Mockito.mock(GiftCertificateDao.class);
-        paginator = Mockito.mock(Paginator.class);
+        paginationValidator = Mockito.mock(PaginationValidator.class);
         mapper = Mockito.mock(OrderDtoMapper.class);
         validator = Mockito.mock(OrderRequestValidator.class);
-        service = new OrderService(userDao, orderDao, giftCertificateDao, paginator, mapper, validator);
+        service = new OrderService(userDao, orderDao, giftCertificateDao, paginationValidator, mapper, validator);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class OrderServiceTest {
         when(mapper.map(testFirst)).thenReturn(testDtoFirst);
         when(mapper.unmap(testDtoFirst)).thenReturn(testFirst);
         when(orderDao.countById(any())).thenReturn(2);
-        when(paginator.paginate(1,1, 2)).thenReturn(1);
+        when(paginationValidator.paginate(1,1, 2)).thenReturn(1);
         when(userDao.findById(1)).thenReturn(Optional.of(user));
         when(orderDao.findAllByUserId(user, 1, 1)).thenReturn(expected);
         List<Order> actual = service.getUsersOrders(1, 1, 1).stream().map(mapper::unmap).collect(Collectors.toList());

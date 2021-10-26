@@ -7,7 +7,7 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.exception.EntityNotExistsException;
-import com.epam.esm.utils.Paginator;
+import com.epam.esm.validator.PaginationValidator;
 import com.epam.esm.validator.TagValidator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -30,15 +30,15 @@ public class TagServiceTest {
     private static TagDtoMapper mapper;
     private static TagValidator tagValidator;
     private static TagService service;
-    private static Paginator paginator;
+    private static PaginationValidator paginationValidator;
 
     @BeforeAll
     public static void init() {
         tagDao = Mockito.mock(TagDao.class);
         mapper = Mockito.mock(TagDtoMapper.class);
         tagValidator = Mockito.mock(TagValidator.class);
-        paginator = Mockito.mock(Paginator.class);
-        service = new TagService(tagDao, tagValidator, paginator, mapper);
+        paginationValidator = Mockito.mock(PaginationValidator.class);
+        service = new TagService(tagDao, tagValidator, paginationValidator, mapper);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class TagServiceTest {
         when(mapper.map(testFirst)).thenReturn(testDtoFirst);
         when(mapper.unmap(testDtoFirst)).thenReturn(testFirst);
         when(tagDao.countTags()).thenReturn(2);
-        when(paginator.paginate(1,1, 2)).thenReturn(1);
+        when(paginationValidator.paginate(1,1, 2)).thenReturn(1);
         when(tagDao.findAll(1, 1)).thenReturn(expected);
         List<Tag> actual = service.getTags(1, 1).stream().map(mapper::unmap).collect(Collectors.toList());
 

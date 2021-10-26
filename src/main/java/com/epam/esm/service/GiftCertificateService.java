@@ -9,7 +9,7 @@ import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.dtomapper.GiftCertificateDtoMapper;
 import com.epam.esm.utils.GiftCertificateQueryParameters;
-import com.epam.esm.utils.Paginator;
+import com.epam.esm.validator.PaginationValidator;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,21 +33,21 @@ public class GiftCertificateService {
     private final TagDao tagDao;
     private final GiftCertificateValidator validator;
     private final GiftCertificateDtoMapper dtoMapper;
-    private final Paginator paginator;
+    private final PaginationValidator paginationValidator;
 
     @Autowired
-    public GiftCertificateService(GiftCertificateDao giftCertificateDao, TagDao tagDao, GiftCertificateValidator validator, GiftCertificateDtoMapper dtoMapper, Paginator paginator) {
+    public GiftCertificateService(GiftCertificateDao giftCertificateDao, TagDao tagDao, GiftCertificateValidator validator, GiftCertificateDtoMapper dtoMapper, PaginationValidator paginationValidator) {
         this.giftCertificateDao = giftCertificateDao;
         this.tagDao = tagDao;
         this.validator = validator;
         this.dtoMapper = dtoMapper;
-        this.paginator = paginator;
+        this.paginationValidator = paginationValidator;
     }
 
     public List<GiftCertificateDto> getGiftCertificates(GiftCertificateQueryParameters parameters, Integer page, Integer pageSize) {
 
         return giftCertificateDao
-                .getGiftCertificates(parameters, page, paginator.paginate(page, pageSize, giftCertificateDao.countGiftCertificates()))
+                .getGiftCertificates(parameters, page, paginationValidator.paginate(page, pageSize, giftCertificateDao.countGiftCertificates()))
                 .stream()
                 .map(dtoMapper::map)
                 .collect(Collectors.toList());

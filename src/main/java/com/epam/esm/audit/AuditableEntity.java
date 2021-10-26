@@ -2,7 +2,13 @@ package com.epam.esm.audit;
 
 import com.epam.esm.converter.ZonedDateTimeAttributeConverter;
 import com.epam.esm.entity.Identifiable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 import java.time.ZonedDateTime;
 
 @MappedSuperclass
@@ -20,19 +26,19 @@ public abstract class AuditableEntity<T extends Identifiable> {
     @Convert(converter = ZonedDateTimeAttributeConverter.class)
     protected ZonedDateTime operationTimeStamp;
 
-    public AuditableEntity() { }
+    protected AuditableEntity() { }
 
-    public AuditableEntity(T entity) {
+    protected AuditableEntity(T entity) {
        this.entityId = entity.getId();
     }
 
-    public AuditableEntity(long entityId, String operationType, ZonedDateTime operationTimeStamp) {
+    protected AuditableEntity(long entityId, String operationType, ZonedDateTime operationTimeStamp) {
         this.entityId = entityId;
         this.operationType = operationType;
         this.operationTimeStamp = operationTimeStamp;
     }
 
-    public AuditableEntity(long id, Long entityId, String operationType, ZonedDateTime operationTimestamp) {
+    protected AuditableEntity(long id, Long entityId, String operationType, ZonedDateTime operationTimestamp) {
         this(entityId, operationType, operationTimestamp);
         this.id = id;
     }

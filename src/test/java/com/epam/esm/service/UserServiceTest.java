@@ -5,7 +5,7 @@ import com.epam.esm.dto.UserDto;
 import com.epam.esm.dtomapper.UserDtoMapper;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.EntityNotExistsException;
-import com.epam.esm.utils.Paginator;
+import com.epam.esm.validator.PaginationValidator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -23,16 +23,16 @@ public class UserServiceTest {
 
 
     private static UserDao userDao;
-    private static Paginator paginator;
+    private static PaginationValidator paginationValidator;
     private static UserDtoMapper userDtoMapper;
     private static UserService service;
 
     @BeforeAll
     public static void init() {
         userDao = Mockito.mock(UserDao.class);
-        paginator = Mockito.mock(Paginator.class);
+        paginationValidator = Mockito.mock(PaginationValidator.class);
         userDtoMapper = Mockito.mock(UserDtoMapper.class);
-        service = new UserService(userDao, paginator, userDtoMapper);
+        service = new UserService(userDao, paginationValidator, userDtoMapper);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class UserServiceTest {
         when(userDtoMapper.map(user)).thenReturn(userDto);
         when(userDtoMapper.unmap(userDto)).thenReturn(user);
         when(userDao.countUsers()).thenReturn(2);
-        when(paginator.paginate(1,1, 2)).thenReturn(1);
+        when(paginationValidator.paginate(1,1, 2)).thenReturn(1);
         when(userDao.findAll(1, 1)).thenReturn(expected);
         List<User> actual = service.getUsers(1, 1).stream().map(userDtoMapper::unmap).collect(Collectors.toList());
 

@@ -8,7 +8,7 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.dtomapper.GiftCertificateDtoMapper;
-import com.epam.esm.utils.Paginator;
+import com.epam.esm.validator.PaginationValidator;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ public class GiftCertificateServiceTest {
     private static GiftCertificate expectedGiftCertificate;
     private static final long id = 2;
     private static GiftCertificateService service;
-    private static Paginator paginator;
+    private static PaginationValidator paginationValidator;
 
     @BeforeAll
     public static void init() {
@@ -42,8 +42,8 @@ public class GiftCertificateServiceTest {
         tagDao = Mockito.mock(TagDao.class);
         validator = Mockito.mock(GiftCertificateValidator.class);
         dtoMapper = Mockito.mock(GiftCertificateDtoMapper.class);
-        paginator = Mockito.mock(Paginator.class);
-        service = new GiftCertificateService(giftCertificateDao, tagDao, validator, dtoMapper, paginator);
+        paginationValidator = Mockito.mock(PaginationValidator.class);
+        service = new GiftCertificateService(giftCertificateDao, tagDao, validator, dtoMapper, paginationValidator);
 
         Set<String> tags = new HashSet<>();
         Set<Tag> giftCertificateTags = new HashSet<>();
@@ -84,7 +84,7 @@ public class GiftCertificateServiceTest {
         when(dtoMapper.map(expectedGiftCertificate)).thenReturn(expectedGiftCertificateDto);
         when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
         when(giftCertificateDao.countGiftCertificates()).thenReturn(2);
-        when(paginator.paginate(1,1, 2)).thenReturn(1);
+        when(paginationValidator.paginate(1,1, 2)).thenReturn(1);
         when(giftCertificateDao.getGiftCertificates(null, 1, 1)).thenReturn(expectedGiftCertificates);
         List<GiftCertificate> actual = service.getGiftCertificates( null, 1, 1).stream().map(dtoMapper::unmap).collect(Collectors.toList());
 

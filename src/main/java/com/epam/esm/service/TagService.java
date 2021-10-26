@@ -7,7 +7,7 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.exception.EntityNotExistsException;
-import com.epam.esm.utils.Paginator;
+import com.epam.esm.validator.PaginationValidator;
 import com.epam.esm.validator.TagValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,20 +22,20 @@ public class TagService {
 
     private final TagDao tagDao;
     private final TagValidator validator;
-    private final Paginator paginator;
+    private final PaginationValidator paginationValidator;
     private final TagDtoMapper mapper;
 
     @Autowired
-    public TagService(TagDao tagDao, TagValidator validator, Paginator paginator, TagDtoMapper mapper) {
+    public TagService(TagDao tagDao, TagValidator validator, PaginationValidator paginationValidator, TagDtoMapper mapper) {
         this.tagDao = tagDao;
         this.validator = validator;
-        this.paginator = paginator;
+        this.paginationValidator = paginationValidator;
         this.mapper = mapper;
     }
 
     public List<TagDto> getTags(Integer page, Integer pageSize) {
         return tagDao
-                .findAll(page, paginator.paginate(page, pageSize, tagDao.countTags()))
+                .findAll(page, paginationValidator.paginate(page, pageSize, tagDao.countTags()))
                 .stream()
                 .map(mapper::map)
                 .collect(Collectors.toList());

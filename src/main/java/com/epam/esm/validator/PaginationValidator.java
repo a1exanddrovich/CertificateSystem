@@ -1,7 +1,6 @@
-package com.epam.esm.utils;
+package com.epam.esm.validator;
 
 import com.epam.esm.exception.PaginationException;
-import com.mysql.cj.util.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @author Aliaksei Bliznichenka
  */
 @Component
-public class Paginator {
+public class PaginationValidator {
 
     private static final Integer DEFAULT_PAGE_SIZE = 4;
 

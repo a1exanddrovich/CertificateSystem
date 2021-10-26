@@ -8,8 +8,7 @@ public class TagDto extends RepresentationModel<TagDto> {
     private long id;
     private String name;
 
-    public TagDto() {
-    }
+    public TagDto() { }
 
     public TagDto(long id, String name) {
         this.id = id;
