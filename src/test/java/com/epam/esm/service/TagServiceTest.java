@@ -53,6 +53,7 @@ public class TagServiceTest {
         when(mapper.unmap(testDtoFirst)).thenReturn(testFirst);
         when(tagDao.countTags()).thenReturn(2);
         when(paginationValidator.paginate(1,1, 2)).thenReturn(1);
+        when(paginationValidator.calculateFirstPage(1)).thenReturn(1);
         when(tagDao.findAll(1, 1)).thenReturn(expected);
         List<Tag> actual = service.getTags(1, 1).stream().map(mapper::unmap).collect(Collectors.toList());
 

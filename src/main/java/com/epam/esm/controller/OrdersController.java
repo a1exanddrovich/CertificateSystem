@@ -5,6 +5,7 @@ import com.epam.esm.dto.OrderRequestDto;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
 import com.epam.esm.service.OrderService;
+import com.epam.esm.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
@@ -45,9 +46,9 @@ public class OrdersController {
                                                                     @RequestParam(required = false) Integer page,
                                                                     @RequestParam(required = false) Integer pageSize) {
         List<OrderDto> orders = service.getUsersOrders(id, page, pageSize);
-        int initialPage = page == null ? 4 : page;
-        int initialPageSize = pageSize == null ? 4 : pageSize;
-        Link previousPage = linkTo(methodOn(OrdersController.class).getUsersOrders(id, initialPage - 1, initialPageSize)).withSelfRel();
+        int initialPage = page == null ? Constants.DEFAULT_FIRST_PAGE : page;
+        int initialPageSize = pageSize == null ? Constants.DEFAULT_PAGE_SIZE : pageSize;
+        Link previousPage = linkTo(methodOn(OrdersController.class).getUsersOrders(id, initialPage - 1 == 0 ? 1 : initialPage, initialPageSize)).withSelfRel();
         Link nextPage = linkTo(methodOn(OrdersController.class).getUsersOrders(id, initialPage + 1, initialPageSize)).withSelfRel();
         return ResponseEntity.ok(CollectionModel.of(orders, previousPage, nextPage));
 
@@ -63,7 +64,7 @@ public class OrdersController {
     @PostMapping
     public ResponseEntity<OrderDto> createOrder(@RequestBody OrderRequestDto orderRequestDto) {
         OrderDto createdOrder = service.createOrder(orderRequestDto);
-        createdOrder.add(linkTo(methodOn(OrdersController.class).getUsersOrders(createdOrder.getUser().getId(), 1, 4)).withSelfRel());
+        createdOrder.add(linkTo(methodOn(OrdersController.class).getUsersOrders(createdOrder.getUser().getId(), 1, Constants.DEFAULT_PAGE_SIZE)).withSelfRel());
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
 

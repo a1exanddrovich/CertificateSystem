@@ -37,8 +37,7 @@ public class TagDao {
     }
 
     public List<Tag> findAll(Integer page, Integer pageSize) {
-        return page != null ? manager.createQuery(Queries.GET_ALL_TAGS, Tag.class).setFirstResult(page).setMaxResults(pageSize).getResultList()
-                            : manager.createQuery(Queries.GET_ALL_TAGS, Tag.class).getResultList();
+        return manager.createQuery(Queries.GET_ALL_TAGS, Tag.class).setFirstResult(page).setMaxResults(pageSize).getResultList();
     }
 
     public Optional<Tag> findTagByName(String tagName) {

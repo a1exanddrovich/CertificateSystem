@@ -70,6 +70,7 @@ public class OrderServiceTest {
         when(mapper.unmap(testDtoFirst)).thenReturn(testFirst);
         when(orderDao.countById(any())).thenReturn(2);
         when(paginationValidator.paginate(1,1, 2)).thenReturn(1);
+        when(paginationValidator.calculateFirstPage(1)).thenReturn(1);
         when(userDao.findById(1)).thenReturn(Optional.of(user));
         when(orderDao.findAllByUserId(user, 1, 1)).thenReturn(expected);
         List<Order> actual = service.getUsersOrders(1, 1, 1).stream().map(mapper::unmap).collect(Collectors.toList());

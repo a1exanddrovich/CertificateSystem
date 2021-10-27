@@ -5,6 +5,7 @@ import com.epam.esm.entity.Identifiable;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
+import com.epam.esm.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
@@ -16,7 +17,6 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class AuditListener {
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final String PERSIST = "Persist";
     private static final String UPDATE = "Update";
     private static final String NOT_AUDITABLE_ENTITY = "Not auditable entity passed";
@@ -51,7 +51,7 @@ public class AuditListener {
     }
 
     private void setTimeStamp(AuditableEntity<?> entity) {
-        ZonedDateTime timestamp = ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
+        ZonedDateTime timestamp = ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(Constants.HOUR_OFFSET)).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)));
         entity.setOperationTimeStamp(timestamp);
     }
 

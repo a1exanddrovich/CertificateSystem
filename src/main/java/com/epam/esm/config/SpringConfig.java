@@ -33,8 +33,6 @@ public class SpringConfig implements WebMvcConfigurer {
         ReloadableResourceBundleMessageSource reloadableResourceBundleMessageSource = new ReloadableResourceBundleMessageSource();
 
         reloadableResourceBundleMessageSource.setBasename(SET_LOCALE);
-        reloadableResourceBundleMessageSource.setCacheSeconds(-1);
-        reloadableResourceBundleMessageSource.setUseCodeAsDefaultMessage(false);
         reloadableResourceBundleMessageSource.setDefaultEncoding(ENCODING);
 
         return reloadableResourceBundleMessageSource;
@@ -68,8 +66,7 @@ public class SpringConfig implements WebMvcConfigurer {
                 mutablePersistenceUnitInfo);
         EntityManagerFactoryBuilder entityManagerFactoryBuilder = new EntityManagerFactoryBuilderImpl(
                 persistenceUnitDescriptor, Collections.emptyMap());
-        EntityManagerFactory entityManagerFactory = entityManagerFactoryBuilder.build();
-        return entityManagerFactory;
+        return entityManagerFactoryBuilder.build();
     }
 
 

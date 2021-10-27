@@ -35,7 +35,7 @@ public class TagService {
 
     public List<TagDto> getTags(Integer page, Integer pageSize) {
         return tagDao
-                .findAll(page, paginationValidator.paginate(page, pageSize, tagDao.countTags()))
+                .findAll(paginationValidator.calculateFirstPage(page), paginationValidator.paginate(page, pageSize, tagDao.countTags()))
                 .stream()
                 .map(mapper::map)
                 .collect(Collectors.toList());

@@ -25,8 +25,7 @@ public class UserDao {
     }
 
     public List<User> findAll(Integer page, Integer pageSize) {
-        return page != null ? manager.createQuery(Queries.GET_ALL_USERS, User.class).setFirstResult(page).setMaxResults(pageSize).getResultList()
-                    : manager.createQuery(Queries.GET_ALL_USERS, User.class).getResultList();
+        return manager.createQuery(Queries.GET_ALL_USERS, User.class).setFirstResult(page).setMaxResults(pageSize).getResultList();
     }
 
     public Integer countUsers() {

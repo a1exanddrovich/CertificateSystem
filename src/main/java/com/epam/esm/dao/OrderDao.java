@@ -33,8 +33,7 @@ public class OrderDao {
     }
 
     public List<Order> findAllByUserId(User user, Integer page, Integer pageSize) {
-        return page != null ? manager.createQuery(Queries.GET_ORDERS_BY_USER_ID, Order.class).setParameter(USER_ID_PARAMETER, user).setFirstResult(page).setMaxResults(pageSize).getResultList()
-                            : manager.createQuery(Queries.GET_ORDERS_BY_USER_ID, Order.class).setParameter(USER_ID_PARAMETER, user).getResultList();
+        return manager.createQuery(Queries.GET_ORDERS_BY_USER_ID, Order.class).setParameter(USER_ID_PARAMETER, user).setFirstResult(page).setMaxResults(pageSize).getResultList();
     }
 
     public Integer countById(User user) {

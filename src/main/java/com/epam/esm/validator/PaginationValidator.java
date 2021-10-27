@@ -1,6 +1,7 @@
 package com.epam.esm.validator;
 
 import com.epam.esm.exception.PaginationException;
+import com.epam.esm.utils.Constants;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,8 +12,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class PaginationValidator {
 
-    private static final Integer DEFAULT_PAGE_SIZE = 4;
-
     /**
      * Calculates if there is an opportunity to perform pagination
      *
@@ -22,16 +21,26 @@ public class PaginationValidator {
      * @return applied page size
      */
     public Integer paginate(Integer page, Integer pageSize, Integer maximumData) {
-        if (page == null && pageSize != null) {
+        page = calculateFirstPage(page);
+
+        if (page < 1 && getCalculatedDataCount(page, pageSize) > maximumData) {
             throw new PaginationException();
         }
 
-        if (page != null && page < 1 && ((((pageSize == null || pageSize < 1) ? DEFAULT_PAGE_SIZE : pageSize) * (page - 1) + 1) > maximumData)) {
-            throw new PaginationException();
-        }
+        return pageSize == null ? Constants.DEFAULT_PAGE_SIZE : pageSize;
 
-        return pageSize == null ? DEFAULT_PAGE_SIZE : pageSize;
+    }
 
+    public Integer calculateFirstPage(Integer page) {
+        return page == null ? Constants.DEFAULT_FIRST_PAGE : page;
+    }
+
+    private Integer setPageSize(Integer pageSize) {
+        return (pageSize == null || pageSize < 1) ? Constants.DEFAULT_PAGE_SIZE : pageSize;
+    }
+
+    private int getCalculatedDataCount(Integer page, Integer pageSize) {
+        return setPageSize(pageSize) * (page - 1) + 1;
     }
 
 }

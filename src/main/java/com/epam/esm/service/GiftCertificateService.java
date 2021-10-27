@@ -1,5 +1,6 @@
 package com.epam.esm.service;
 
+import com.epam.esm.utils.Constants;
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dto.GiftCertificateDto;
@@ -27,8 +28,6 @@ import java.util.stream.Collectors;
 @Transactional
 public class GiftCertificateService {
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-
     private final GiftCertificateDao giftCertificateDao;
     private final TagDao tagDao;
     private final GiftCertificateValidator validator;
@@ -47,7 +46,7 @@ public class GiftCertificateService {
     public List<GiftCertificateDto> getGiftCertificates(GiftCertificateQueryParameters parameters, Integer page, Integer pageSize) {
 
         return giftCertificateDao
-                .getGiftCertificates(parameters, page, paginationValidator.paginate(page, pageSize, giftCertificateDao.countGiftCertificates()))
+                .getGiftCertificates(parameters, paginationValidator.calculateFirstPage(page), paginationValidator.paginate(page, pageSize, giftCertificateDao.countGiftCertificates()))
                 .stream()
                 .map(dtoMapper::map)
                 .collect(Collectors.toList());
@@ -84,7 +83,7 @@ public class GiftCertificateService {
 
         GiftCertificate readGiftCertificate = optionalGiftCertificate.get();
 
-        modifiedGiftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
+        modifiedGiftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(Constants.HOUR_OFFSET)).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT))));
         modifiedGiftCertificate.setTags(initializeTags(modifiedGiftCertificate.getTags()));
 
         update(readGiftCertificate, modifiedGiftCertificate);
@@ -101,11 +100,15 @@ public class GiftCertificateService {
             throw new BadEntityException();
         }
 
-        giftCertificate.setCreationDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
-        giftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
+        setTime(giftCertificate);
         giftCertificate.setTags(initializeTags(giftCertificate.getTags()));
 
         return getGiftCertificate(giftCertificateDao.create(giftCertificate));
+    }
+
+    private void setTime(GiftCertificate giftCertificate) {
+        giftCertificate.setCreationDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(Constants.HOUR_OFFSET)).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT))));
+        giftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(Constants.HOUR_OFFSET)).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT))));
     }
 
     private Set<Tag> initializeTags(Set<Tag> incomingTags) {

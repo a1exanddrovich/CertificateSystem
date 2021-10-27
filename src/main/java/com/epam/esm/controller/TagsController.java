@@ -3,6 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.TagService;
+import com.epam.esm.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
@@ -46,9 +47,9 @@ public class TagsController {
                                                         @RequestParam(required = false) Integer pageSize) {
         List<TagDto> tags = service.getTags(page, pageSize);
         tags.forEach(tag -> tag.add(linkTo(methodOn(TagsController.class).getTag(tag.getId())).withSelfRel()));
-        int initialPage = page == null ? 4 : page;
-        int initialPageSize = pageSize == null ? 4 : pageSize;
-        Link previousPage = linkTo(methodOn(TagsController.class).getTags(initialPage - 1, initialPageSize)).withSelfRel();
+        int initialPage = page == null ? Constants.DEFAULT_FIRST_PAGE : page;
+        int initialPageSize = pageSize == null ? Constants.DEFAULT_PAGE_SIZE : pageSize;
+        Link previousPage = linkTo(methodOn(TagsController.class).getTags(initialPage - 1 == 0 ? 1 : initialPage, initialPageSize)).withSelfRel();
         Link nextPage = linkTo(methodOn(TagsController.class).getTags(initialPage + 1, initialPageSize)).withSelfRel();
         return ResponseEntity.ok(CollectionModel.of(tags, previousPage, nextPage));
     }

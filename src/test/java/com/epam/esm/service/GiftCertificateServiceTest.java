@@ -85,6 +85,7 @@ public class GiftCertificateServiceTest {
         when(dtoMapper.unmap(expectedGiftCertificateDto)).thenReturn(expectedGiftCertificate);
         when(giftCertificateDao.countGiftCertificates()).thenReturn(2);
         when(paginationValidator.paginate(1,1, 2)).thenReturn(1);
+        when(paginationValidator.calculateFirstPage(1)).thenReturn(1);
         when(giftCertificateDao.getGiftCertificates(null, 1, 1)).thenReturn(expectedGiftCertificates);
         List<GiftCertificate> actual = service.getGiftCertificates( null, 1, 1).stream().map(dtoMapper::unmap).collect(Collectors.toList());
 
@@ -132,7 +133,6 @@ public class GiftCertificateServiceTest {
 
         //then
         Mockito.verify(giftCertificateDao, times(1)).deleteById(anyLong());
-        //Mockito.verify(giftCertificateTagDao, times(1)).deleteGiftCertificateById(anyLong());
     }
 
     @Test

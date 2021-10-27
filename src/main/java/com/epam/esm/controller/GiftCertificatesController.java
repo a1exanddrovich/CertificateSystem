@@ -3,6 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.service.GiftCertificateService;
+import com.epam.esm.utils.Constants;
 import com.epam.esm.utils.GiftCertificateQueryParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -50,9 +51,9 @@ public class GiftCertificatesController {
                                                                                    GiftCertificateQueryParameters parameters) {
         List<GiftCertificateDto> giftCertificates = service.getGiftCertificates(parameters, page, pageSize);
         giftCertificates.forEach(giftCertificate -> giftCertificate.add(linkTo(methodOn(GiftCertificatesController.class).getGiftCertificate(giftCertificate.getId())).withSelfRel()));
-        int initialPage = page == null ? 4 : page;
-        int initialPageSize = pageSize == null ? 4 : pageSize;
-        Link previousPage = linkTo(methodOn(GiftCertificatesController.class).getGiftCertificates(initialPage - 1, initialPageSize, parameters)).withSelfRel();
+        int initialPage = page == null ? Constants.DEFAULT_FIRST_PAGE : page;
+        int initialPageSize = pageSize == null ? Constants.DEFAULT_PAGE_SIZE : pageSize;
+        Link previousPage = linkTo(methodOn(GiftCertificatesController.class).getGiftCertificates(initialPage - 1 == 0 ? 1 : initialPage, initialPageSize, parameters)).withSelfRel();
         Link nextPage = linkTo(methodOn(GiftCertificatesController.class).getGiftCertificates(initialPage + 1, initialPageSize, parameters)).withSelfRel();
         return ResponseEntity.ok(CollectionModel.of(giftCertificates, previousPage, nextPage));
     }
@@ -93,7 +94,7 @@ public class GiftCertificatesController {
     @PostMapping()
     public ResponseEntity<GiftCertificateDto> createGiftCertificate(@RequestBody GiftCertificateDto giftCertificate) {
         GiftCertificateDto createdGiftCertificate = service.createGiftCertificate(giftCertificate);
-        return new ResponseEntity<>(this.addHateoas(createdGiftCertificate), HttpStatus.CREATED);
+        return new ResponseEntity<>(addHateoas(createdGiftCertificate), HttpStatus.CREATED);
     }
 
     /**
@@ -107,7 +108,7 @@ public class GiftCertificatesController {
     @PatchMapping("/{id}")
     public ResponseEntity<GiftCertificateDto> updateGiftCertificate(@PathVariable(ID) long id, @RequestBody GiftCertificateDto giftCertificate) {
         GiftCertificateDto updatedGiftCertificate = service.updateGiftCertificate(id, giftCertificate);
-        return new ResponseEntity<>(this.addHateoas(updatedGiftCertificate), HttpStatus.OK);
+        return new ResponseEntity<>(addHateoas(updatedGiftCertificate), HttpStatus.OK);
     }
 
     private GiftCertificateDto addHateoas(GiftCertificateDto giftCertificate) {

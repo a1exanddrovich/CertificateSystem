@@ -40,8 +40,7 @@ public class GiftCertificateDao {
 
     public List<GiftCertificate> getGiftCertificates(GiftCertificateQueryParameters parameters, Integer page, Integer pageSize) {
         CriteriaQuery<GiftCertificate> criteriaQuery = queryBuilder.buildQuery(manager, parameters);
-        return page != null ? manager.createQuery(criteriaQuery).setFirstResult(page).setMaxResults(pageSize).getResultList()
-                            : manager.createQuery(criteriaQuery).getResultList();
+        return manager.createQuery(criteriaQuery).setFirstResult(page).setMaxResults(pageSize).getResultList();
     }
 
     public Optional<GiftCertificate> findById(long id) {

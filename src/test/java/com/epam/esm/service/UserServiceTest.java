@@ -47,6 +47,7 @@ public class UserServiceTest {
         when(userDtoMapper.unmap(userDto)).thenReturn(user);
         when(userDao.countUsers()).thenReturn(2);
         when(paginationValidator.paginate(1,1, 2)).thenReturn(1);
+        when(paginationValidator.calculateFirstPage(1)).thenReturn(1);
         when(userDao.findAll(1, 1)).thenReturn(expected);
         List<User> actual = service.getUsers(1, 1).stream().map(userDtoMapper::unmap).collect(Collectors.toList());
 

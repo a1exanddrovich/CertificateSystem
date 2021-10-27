@@ -1,5 +1,6 @@
 package com.epam.esm.service;
 
+import com.epam.esm.utils.Constants;
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.OrderDao;
 import com.epam.esm.dao.UserDao;
@@ -29,8 +30,6 @@ import java.util.stream.Collectors;
 @Transactional
 public class OrderService {
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-
     private final UserDao userDao;
     private final OrderDao orderDao;
     private final GiftCertificateDao giftCertificateDao;
@@ -56,22 +55,10 @@ public class OrderService {
         Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(orderRequestDto.getGiftCertificateId());
         Optional<User> optionalUser = userDao.findById(orderRequestDto.getUserId());
 
-        if (optionalGiftCertificate.isEmpty()) {
-            throw new GiftCertificateNotExistsException();
-        }
+        GiftCertificate certificate = optionalGiftCertificate.orElseThrow(GiftCertificateNotExistsException::new);
+        User user = optionalUser.orElseThrow(UserNotExistsException::new);
 
-        if (optionalUser.isEmpty()) {
-            throw new UserNotExistsException();
-        }
-
-        GiftCertificate certificate = optionalGiftCertificate.get();
-        User user = optionalUser.get();
-
-        Order order = new Order();
-        order.setGiftCertificate(certificate);
-        order.setUser(user);
-        order.setPrice(certificate.getPrice());
-        order.setTimeStamp(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
+        Order order = initOrder(certificate, user);
 
         long createdOrderId = orderDao.create(order);
 
@@ -92,12 +79,22 @@ public class OrderService {
         Optional<User> optionalUser = userDao.findById(id);
 
         if (optionalUser.isEmpty()) {
-            throw new EntityNotExistsException();
+            throw new UserNotExistsException();
         }
 
-        List<Order> result = orderDao.findAllByUserId(optionalUser.get(), page, paginationValidator.paginate(page, pageSize, orderDao.countById(optionalUser.get())));
+        List<Order> result = orderDao.findAllByUserId(optionalUser.get(), paginationValidator.calculateFirstPage(page), paginationValidator.paginate(page, pageSize, orderDao.countById(optionalUser.get())));
 
         return result.stream().map(mapper::map).collect(Collectors.toList());
+    }
+
+    private Order initOrder(GiftCertificate certificate, User user) {
+        Order order = new Order();
+        order.setGiftCertificate(certificate);
+        order.setUser(user);
+        order.setPrice(certificate.getPrice());
+        order.setTimeStamp(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(Constants.HOUR_OFFSET)).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT))));
+
+        return order;
     }
 
 }
