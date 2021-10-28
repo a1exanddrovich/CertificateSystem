@@ -4,4 +4,6 @@ public interface Identifiable {
 
     long getId();
 
+    String getType();
+
 }

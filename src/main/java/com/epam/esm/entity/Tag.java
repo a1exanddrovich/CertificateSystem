@@ -38,6 +38,11 @@ public class Tag implements Identifiable {
         return this.id;
     }
 
+    @Override
+    public String getType() {
+        return "Tag";
+    }
+
     public String getName() {
         return this.name;
     }

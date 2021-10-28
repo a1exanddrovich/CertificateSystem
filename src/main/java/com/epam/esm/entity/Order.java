@@ -54,6 +54,11 @@ public class Order implements Identifiable {
         return this.id;
     }
 
+    @Override
+    public String getType() {
+        return "Order";
+    }
+
     public ZonedDateTime getTimeStamp() {
         return this.timeStamp;
     }

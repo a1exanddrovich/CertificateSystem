@@ -1,46 +1,40 @@
 package com.epam.esm.audit;
 
 import com.epam.esm.converter.ZonedDateTimeAttributeConverter;
-import com.epam.esm.entity.Identifiable;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.Table;
 import java.time.ZonedDateTime;
 
-@MappedSuperclass
-public abstract class AuditableEntity<T extends Identifiable> {
+@Entity
+@Table(name = "audit")
+public class AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    protected long id;
+    private long id;
     @Column(name = "entity_id")
-    protected long entityId;
+    private long entityId;
     @Column(name = "operation_type")
-    protected String operationType;
-    @Column(name = "timestamp")
+    private String operationType;
+    @Column(name = "entity_type")
+    private String entityType;
+    @Column(name = "operation_timestamp")
     @Convert(converter = ZonedDateTimeAttributeConverter.class)
-    protected ZonedDateTime operationTimeStamp;
+    private ZonedDateTime operationTimeStamp;
 
-    protected AuditableEntity() { }
+    public AuditableEntity() { }
 
-    protected AuditableEntity(T entity) {
-       this.entityId = entity.getId();
-    }
-
-    protected AuditableEntity(long entityId, String operationType, ZonedDateTime operationTimeStamp) {
+    public AuditableEntity(long entityId, String entityType, String operationType) {
         this.entityId = entityId;
+        this.entityType = entityType;
         this.operationType = operationType;
-        this.operationTimeStamp = operationTimeStamp;
-    }
-
-    protected AuditableEntity(long id, Long entityId, String operationType, ZonedDateTime operationTimestamp) {
-        this(entityId, operationType, operationTimestamp);
-        this.id = id;
     }
 
     public long getId() {
@@ -76,5 +70,11 @@ public abstract class AuditableEntity<T extends Identifiable> {
     }
 
 
+    public String getEntityType() {
+        return entityType;
+    }
 
+    public void setEntityType(String entityType) {
+        this.entityType = entityType;
+    }
 }

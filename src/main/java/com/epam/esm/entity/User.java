@@ -30,6 +30,11 @@ public class User implements Identifiable {
         return this.id;
     }
 
+    @Override
+    public String getType() {
+        return "User";
+    }
+
     public void setId(long id) {
         this.id = id;
     }

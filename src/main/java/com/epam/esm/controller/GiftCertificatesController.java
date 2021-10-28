@@ -50,7 +50,7 @@ public class GiftCertificatesController {
                                                                                    @RequestParam(required = false) Integer pageSize,
                                                                                    GiftCertificateQueryParameters parameters) {
         List<GiftCertificateDto> giftCertificates = service.getGiftCertificates(parameters, page, pageSize);
-        giftCertificates.forEach(giftCertificate -> giftCertificate.add(linkTo(methodOn(GiftCertificatesController.class).getGiftCertificate(giftCertificate.getId())).withSelfRel()));
+        giftCertificates.forEach(this::addHateoas);
         int initialPage = page == null ? Constants.DEFAULT_FIRST_PAGE : page;
         int initialPageSize = pageSize == null ? Constants.DEFAULT_PAGE_SIZE : pageSize;
         Link previousPage = linkTo(methodOn(GiftCertificatesController.class).getGiftCertificates(initialPage - 1 == 0 ? 1 : initialPage, initialPageSize, parameters)).withSelfRel();

@@ -71,6 +71,11 @@ public class GiftCertificate implements Identifiable {
         return this.id;
     }
 
+    @Override
+    public String getType() {
+        return "Gift certificate";
+    }
+
     public String getName() {
         return this.name;
     }

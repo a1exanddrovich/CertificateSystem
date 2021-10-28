@@ -50,42 +50,13 @@ create table `order`
     primary key (id)
 );
 
-create table gift_certificate_audit
+create table audit
 (
     id bigint auto_increment,
     entity_id bigint,
     operation_type varchar(50),
-    timestamp timestamp,
-
-    primary key (id)
-);
-
-create table order_audit
-(
-    id bigint auto_increment,
-    entity_id bigint,
-    operation_type varchar(50),
-    timestamp timestamp,
-
-    primary key (id)
-);
-
-create table tag_audit
-(
-    id bigint auto_increment,
-    entity_id bigint,
-    operation_type varchar(50),
-    timestamp timestamp,
-
-    primary key (id)
-);
-
-create table user_audit
-(
-    id bigint auto_increment,
-    entity_id bigint,
-    operation_type varchar(50),
-    timestamp timestamp,
+    entity_type varchar(50),
+    operation_timestamp timestamp,
 
     primary key (id)
 );

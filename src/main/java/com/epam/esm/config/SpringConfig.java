@@ -1,9 +1,6 @@
 package com.epam.esm.config;
 
-import com.epam.esm.audit.AuditableGiftCertificate;
-import com.epam.esm.audit.AuditableOrder;
-import com.epam.esm.audit.AuditableTag;
-import com.epam.esm.audit.AuditableUser;
+import com.epam.esm.audit.AuditableEntity;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
@@ -58,10 +55,7 @@ public class SpringConfig implements WebMvcConfigurer {
         mutablePersistenceUnitInfo.addManagedClassName(GiftCertificate.class.getName());
         mutablePersistenceUnitInfo.addManagedClassName(User.class.getName());
         mutablePersistenceUnitInfo.addManagedClassName(Order.class.getName());
-        mutablePersistenceUnitInfo.addManagedClassName(AuditableTag.class.getName());
-        mutablePersistenceUnitInfo.addManagedClassName(AuditableOrder.class.getName());
-        mutablePersistenceUnitInfo.addManagedClassName(AuditableGiftCertificate.class.getName());
-        mutablePersistenceUnitInfo.addManagedClassName(AuditableUser.class.getName());
+        mutablePersistenceUnitInfo.addManagedClassName(AuditableEntity.class.getName());
         PersistenceUnitDescriptor persistenceUnitDescriptor = new PersistenceUnitInfoDescriptor(
                 mutablePersistenceUnitInfo);
         EntityManagerFactoryBuilder entityManagerFactoryBuilder = new EntityManagerFactoryBuilderImpl(
