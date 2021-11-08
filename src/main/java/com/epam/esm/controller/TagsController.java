@@ -3,7 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.TagService;
-import com.epam.esm.utils.Constants;
+import com.epam.esm.utils.HateoasPaginationEvaluator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
@@ -26,10 +26,12 @@ public class TagsController {
     private static final String ID = "id";
 
     private final TagService service;
+    private final HateoasPaginationEvaluator evaluator;
 
     @Autowired
-    public TagsController(TagService service) {
+    public TagsController(TagService service, HateoasPaginationEvaluator evaluator) {
         this.service = service;
+        this.evaluator = evaluator;
     }
 
     /**
@@ -44,13 +46,13 @@ public class TagsController {
      */
     @GetMapping
     public ResponseEntity<CollectionModel<TagDto>> getTags(@RequestParam(required = false) Integer page,
-                                                        @RequestParam(required = false) Integer pageSize) {
+                                                           @RequestParam(required = false) Integer pageSize) {
         List<TagDto> tags = service.getTags(page, pageSize);
         tags.forEach(tag -> tag.add(linkTo(methodOn(TagsController.class).getTag(tag.getId())).withSelfRel()));
-        int initialPage = page == null ? Constants.DEFAULT_FIRST_PAGE : page;
-        int initialPageSize = pageSize == null ? Constants.DEFAULT_PAGE_SIZE : pageSize;
-        Link previousPage = linkTo(methodOn(TagsController.class).getTags(initialPage - 1 == 0 ? 1 : initialPage, initialPageSize)).withSelfRel();
-        Link nextPage = linkTo(methodOn(TagsController.class).getTags(initialPage + 1, initialPageSize)).withSelfRel();
+        Link previousPage = linkTo(methodOn(TagsController.class)
+                .getTags(evaluator.evaluatePreviousPage(page), evaluator.evaluatePageSize(pageSize))).withSelfRel();
+        Link nextPage = linkTo(methodOn(TagsController.class)
+                .getTags(evaluator.evaluateNextPage(page), evaluator.evaluatePageSize(pageSize))).withSelfRel();
         return ResponseEntity.ok(CollectionModel.of(tags, previousPage, nextPage));
     }
 

@@ -3,8 +3,8 @@ package com.epam.esm.controller;
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.service.GiftCertificateService;
-import com.epam.esm.utils.Constants;
 import com.epam.esm.utils.GiftCertificateQueryParameters;
+import com.epam.esm.utils.HateoasPaginationEvaluator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
@@ -27,10 +27,12 @@ public class GiftCertificatesController {
     private static final String ID = "id";
 
     private final GiftCertificateService service;
+    private final HateoasPaginationEvaluator evaluator;
 
     @Autowired
-    public GiftCertificatesController(GiftCertificateService service) {
+    public GiftCertificatesController(GiftCertificateService service, HateoasPaginationEvaluator evaluator) {
         this.service = service;
+        this.evaluator = evaluator;
     }
 
     /**
@@ -51,10 +53,10 @@ public class GiftCertificatesController {
                                                                                    GiftCertificateQueryParameters parameters) {
         List<GiftCertificateDto> giftCertificates = service.getGiftCertificates(parameters, page, pageSize);
         giftCertificates.forEach(this::addHateoas);
-        int initialPage = page == null ? Constants.DEFAULT_FIRST_PAGE : page;
-        int initialPageSize = pageSize == null ? Constants.DEFAULT_PAGE_SIZE : pageSize;
-        Link previousPage = linkTo(methodOn(GiftCertificatesController.class).getGiftCertificates(initialPage - 1 == 0 ? 1 : initialPage, initialPageSize, parameters)).withSelfRel();
-        Link nextPage = linkTo(methodOn(GiftCertificatesController.class).getGiftCertificates(initialPage + 1, initialPageSize, parameters)).withSelfRel();
+        Link previousPage = linkTo(methodOn(GiftCertificatesController.class)
+                .getGiftCertificates(evaluator.evaluatePreviousPage(page), evaluator.evaluatePageSize(pageSize), parameters)).withSelfRel();
+        Link nextPage = linkTo(methodOn(GiftCertificatesController.class)
+                .getGiftCertificates(evaluator.evaluateNextPage(page), evaluator.evaluatePageSize(pageSize), parameters)).withSelfRel();
         return ResponseEntity.ok(CollectionModel.of(giftCertificates, previousPage, nextPage));
     }
 
@@ -112,7 +114,8 @@ public class GiftCertificatesController {
     }
 
     private GiftCertificateDto addHateoas(GiftCertificateDto giftCertificate) {
-        return giftCertificate.add(linkTo(methodOn(GiftCertificatesController.class).getGiftCertificate(giftCertificate.getId())).withSelfRel());
+        return giftCertificate.add(linkTo(methodOn(GiftCertificatesController.class)
+                .getGiftCertificate(giftCertificate.getId())).withSelfRel());
     }
 
 }
