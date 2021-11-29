@@ -8,8 +8,8 @@ public class Constants {
 
     public static final int HOUR_OFFSET = 3;
 
-    public static final int DEFAULT_PAGE_SIZE = 4;
+    public static final String DEFAULT_PAGE_SIZE = "4";
 
-    public static final int DEFAULT_FIRST_PAGE = 1;
+    public static final String DEFAULT_FIRST_PAGE = "1";
 
 }

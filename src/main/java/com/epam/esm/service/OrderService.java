@@ -14,16 +14,13 @@ import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.dto.OrderRequestDto;
 import com.epam.esm.exception.GiftCertificateNotExistsException;
 import com.epam.esm.exception.UserNotExistsException;
+import com.epam.esm.utils.DateTimeUtils;
 import com.epam.esm.validator.PaginationValidator;
 import com.epam.esm.validator.OrderRequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,40 +48,23 @@ public class OrderService {
         if (!validator.validate(orderRequestDto)) {
             throw new BadEntityException();
         }
-
-        Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(orderRequestDto.getGiftCertificateId());
-        Optional<User> optionalUser = userDao.findById(orderRequestDto.getUserId());
-
-        GiftCertificate certificate = optionalGiftCertificate.orElseThrow(GiftCertificateNotExistsException::new);
-        User user = optionalUser.orElseThrow(UserNotExistsException::new);
-
+        GiftCertificate certificate = giftCertificateDao.findById(orderRequestDto.getGiftCertificateId()).orElseThrow(GiftCertificateNotExistsException::new);
+        User user = userDao.findById(orderRequestDto.getUserId()).orElseThrow(UserNotExistsException::new);
         Order order = initOrder(certificate, user);
 
-        long createdOrderId = orderDao.create(order);
-
-        return findById(createdOrderId);
-    }
-
-    public OrderDto findById(long id) {
-        Optional<Order> optionalOrder = orderDao.findById(id);
-
-        if (optionalOrder.isEmpty()) {
-            throw new EntityNotExistsException();
-        }
-
-        return mapper.map(optionalOrder.get());
+        return findById(orderDao.create(order));
     }
 
     public List<OrderDto> getUsersOrders(long id, Integer page, Integer pageSize) {
-        Optional<User> optionalUser = userDao.findById(id);
-
-        if (optionalUser.isEmpty()) {
-            throw new UserNotExistsException();
-        }
-
-        List<Order> result = orderDao.findAllByUserId(optionalUser.get(), paginationValidator.calculateFirstPage(page), paginationValidator.paginate(page, pageSize, orderDao.countById(optionalUser.get())));
+        User user = userDao.findById(id).orElseThrow(UserNotExistsException::new);
+        List<Order> result = orderDao.findAllByUserId(user, paginationValidator.calculateFirstPage(page),paginationValidator.paginate(page, pageSize, orderDao.countById(user)));
 
         return result.stream().map(mapper::map).collect(Collectors.toList());
+    }
+
+    public OrderDto findById(long id) {
+        Order order = orderDao.findById(id).orElseThrow(EntityNotExistsException::new);
+        return mapper.map(order);
     }
 
     private Order initOrder(GiftCertificate certificate, User user) {
@@ -92,9 +72,12 @@ public class OrderService {
         order.setGiftCertificate(certificate);
         order.setUser(user);
         order.setPrice(certificate.getPrice());
-        order.setTimeStamp(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(Constants.HOUR_OFFSET)).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT))));
+        order.setTimeStamp(DateTimeUtils.now(Constants.DATE_FORMAT));
 
         return order;
     }
 
+    public boolean hasNextPage(Integer page, Integer pageSize, Long id) {
+        return (page + 1) * pageSize <= orderDao.countById(userDao.findById(id).orElseThrow(UserNotExistsException::new));
+    }
 }

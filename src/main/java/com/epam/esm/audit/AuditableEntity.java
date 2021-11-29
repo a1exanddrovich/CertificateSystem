@@ -1,6 +1,6 @@
 package com.epam.esm.audit;
 
-import com.epam.esm.converter.ZonedDateTimeAttributeConverter;
+import com.epam.esm.converter.LocalDateTimeConverter;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -9,7 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "audit")
@@ -26,8 +26,8 @@ public class AuditableEntity {
     @Column(name = "entity_type")
     private String entityType;
     @Column(name = "operation_timestamp")
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
-    private ZonedDateTime operationTimeStamp;
+    @Convert(converter = LocalDateTimeConverter.class)
+    private LocalDateTime operationTimeStamp;
 
     public AuditableEntity() { }
 
@@ -49,7 +49,7 @@ public class AuditableEntity {
         return operationType;
     }
 
-    public ZonedDateTime getOperationTimeStamp() {
+    public LocalDateTime getOperationTimeStamp() {
         return operationTimeStamp;
     }
 
@@ -65,7 +65,7 @@ public class AuditableEntity {
         this.operationType = operationType;
     }
 
-    public void setOperationTimeStamp(ZonedDateTime operationTimeStamp) {
+    public void setOperationTimeStamp(LocalDateTime operationTimeStamp) {
         this.operationTimeStamp = operationTimeStamp;
     }
 

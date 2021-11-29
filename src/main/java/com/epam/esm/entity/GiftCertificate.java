@@ -1,7 +1,7 @@
 package com.epam.esm.entity;
 
 import com.epam.esm.audit.AuditListener;
-import com.epam.esm.converter.ZonedDateTimeAttributeConverter;
+import com.epam.esm.converter.LocalDateTimeConverter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -17,7 +17,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -39,11 +39,11 @@ public class GiftCertificate implements Identifiable {
     @Column(name = "duration")
     private Duration duration;
     @Column(name = "create_date")
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
-    private ZonedDateTime creationDate;
+    @Convert(converter = LocalDateTimeConverter.class)
+    private LocalDateTime creationDate;
     @Column(name = "last_update_date")
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
-    private ZonedDateTime lastUpdateDate;
+    @Convert(converter = LocalDateTimeConverter.class)
+    private LocalDateTime lastUpdateDate;
     @ManyToMany(cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE,
@@ -53,7 +53,7 @@ public class GiftCertificate implements Identifiable {
                inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
 
-    public GiftCertificate(long id, String name, String description, BigDecimal price, Duration duration, ZonedDateTime creationDate, ZonedDateTime lastUpdateDate, Set<Tag> tags) {
+    public GiftCertificate(long id, String name, String description, BigDecimal price, Duration duration, LocalDateTime creationDate, LocalDateTime lastUpdateDate, Set<Tag> tags) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -92,11 +92,11 @@ public class GiftCertificate implements Identifiable {
         return this.duration;
     }
 
-    public ZonedDateTime getCreationDate() {
+    public LocalDateTime getCreationDate() {
         return this.creationDate;
     }
 
-    public ZonedDateTime getLastUpdateDate() {
+    public LocalDateTime getLastUpdateDate() {
         return this.lastUpdateDate;
     }
 
@@ -120,11 +120,11 @@ public class GiftCertificate implements Identifiable {
         this.duration = duration;
     }
 
-    public void setCreationDate(ZonedDateTime creationDate) {
+    public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
 
-    public void setLastUpdateDate(ZonedDateTime lastUpdateDate) {
+    public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }
 

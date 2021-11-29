@@ -2,17 +2,23 @@ package com.epam.esm.controller;
 
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.hateoas.TagsHateoasIssuer;
 import com.epam.esm.service.TagService;
-import com.epam.esm.utils.HateoasPaginationEvaluator;
+import com.epam.esm.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * The class that represents an API for basic operations with the application concerned to tags.
@@ -26,12 +32,12 @@ public class TagsController {
     private static final String ID = "id";
 
     private final TagService service;
-    private final HateoasPaginationEvaluator evaluator;
+    private final TagsHateoasIssuer hateoasIssuer;
 
     @Autowired
-    public TagsController(TagService service, HateoasPaginationEvaluator evaluator) {
+    public TagsController(TagService service, TagsHateoasIssuer hateoasIssuer) {
         this.service = service;
-        this.evaluator = evaluator;
+        this.hateoasIssuer = hateoasIssuer;
     }
 
     /**
@@ -45,15 +51,10 @@ public class TagsController {
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link List} of {@link Tag} tags.
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<TagDto>> getTags(@RequestParam(required = false) Integer page,
-                                                           @RequestParam(required = false) Integer pageSize) {
+    public ResponseEntity<CollectionModel<TagDto>> getTags(@RequestParam(required = false, defaultValue = Constants.DEFAULT_FIRST_PAGE) Integer page,
+                                                           @RequestParam(required = false, defaultValue = Constants.DEFAULT_PAGE_SIZE) Integer pageSize) {
         List<TagDto> tags = service.getTags(page, pageSize);
-        tags.forEach(tag -> tag.add(linkTo(methodOn(TagsController.class).getTag(tag.getId())).withSelfRel()));
-        Link previousPage = linkTo(methodOn(TagsController.class)
-                .getTags(evaluator.evaluatePreviousPage(page), evaluator.evaluatePageSize(pageSize))).withSelfRel();
-        Link nextPage = linkTo(methodOn(TagsController.class)
-                .getTags(evaluator.evaluateNextPage(page), evaluator.evaluatePageSize(pageSize))).withSelfRel();
-        return ResponseEntity.ok(CollectionModel.of(tags, previousPage, nextPage));
+        return ResponseEntity.ok(hateoasIssuer.addTagLinks(tags, page, pageSize, service.hasNextPage(page, pageSize)));
     }
 
     /**
@@ -65,7 +66,7 @@ public class TagsController {
     @GetMapping("/{id}")
     public ResponseEntity<TagDto> getTag(@PathVariable(ID) long id) {
         TagDto tag = service.getTag(id);
-        tag.add(linkTo(methodOn(TagsController.class).getTag(id)).withSelfRel());
+        hateoasIssuer.addTagLink(tag);
         return new ResponseEntity<>(tag, HttpStatus.OK);
     }
 
@@ -92,7 +93,7 @@ public class TagsController {
     @PostMapping
     public ResponseEntity<TagDto> createTag(@RequestBody TagDto tag) {
         TagDto createdTag = service.createTag(tag);
-        createdTag.add(linkTo(methodOn(TagsController.class).getTag(createdTag.getId())).withSelfRel());
+        hateoasIssuer.addTagLink(createdTag);
         return new ResponseEntity<>(createdTag, HttpStatus.CREATED);
     }
 
@@ -104,7 +105,7 @@ public class TagsController {
     @GetMapping("/mostPopular")
     public ResponseEntity<TagDto> getMostPopularTag() {
         TagDto tag = service.getMostPopular();
-        tag.add(linkTo(methodOn(TagsController.class).getTag(tag.getId())).withSelfRel());
+        hateoasIssuer.addTagLink(tag);
         return new ResponseEntity<>(tag, HttpStatus.OK);
     }
 

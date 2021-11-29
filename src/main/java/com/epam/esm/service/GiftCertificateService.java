@@ -9,15 +9,14 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.dtomapper.GiftCertificateDtoMapper;
+import com.epam.esm.utils.DateTimeUtils;
 import com.epam.esm.utils.GiftCertificateQueryParameters;
 import com.epam.esm.validator.PaginationValidator;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,15 +30,15 @@ public class GiftCertificateService {
     private final GiftCertificateDao giftCertificateDao;
     private final TagDao tagDao;
     private final GiftCertificateValidator validator;
-    private final GiftCertificateDtoMapper dtoMapper;
+    private final GiftCertificateDtoMapper mapper;
     private final PaginationValidator paginationValidator;
 
     @Autowired
-    public GiftCertificateService(GiftCertificateDao giftCertificateDao, TagDao tagDao, GiftCertificateValidator validator, GiftCertificateDtoMapper dtoMapper, PaginationValidator paginationValidator) {
+    public GiftCertificateService(GiftCertificateDao giftCertificateDao, TagDao tagDao, GiftCertificateValidator validator, GiftCertificateDtoMapper mapper, PaginationValidator paginationValidator) {
         this.giftCertificateDao = giftCertificateDao;
         this.tagDao = tagDao;
         this.validator = validator;
-        this.dtoMapper = dtoMapper;
+        this.mapper = mapper;
         this.paginationValidator = paginationValidator;
     }
 
@@ -48,53 +47,41 @@ public class GiftCertificateService {
         return giftCertificateDao
                 .getGiftCertificates(parameters, paginationValidator.calculateFirstPage(page), paginationValidator.paginate(page, pageSize, giftCertificateDao.countGiftCertificates()))
                 .stream()
-                .map(dtoMapper::map)
+                .map(mapper::map)
                 .collect(Collectors.toList());
     }
 
     public GiftCertificateDto getGiftCertificate(long id) throws EntityNotExistsException {
-        Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(id);
-        if (optionalGiftCertificate.isEmpty()) {
-            throw new EntityNotExistsException();
-        }
+        GiftCertificate giftCertificate = giftCertificateDao.findById(id).orElseThrow(EntityNotExistsException::new);
 
-        return dtoMapper.map(optionalGiftCertificate.get());
+        return mapper.map(giftCertificate);
     }
 
     public void deleteGiftCertificate(long id) throws EntityNotExistsException {
-        if (giftCertificateDao.findById(id).isEmpty()) {
-            throw new EntityNotExistsException();
-        }
-
         giftCertificateDao.deleteById(id);
     }
 
     public GiftCertificateDto updateGiftCertificate(long id, GiftCertificateDto giftCertificateDto) throws EntityNotExistsException, BadEntityException {
-        Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(id);
-        if (optionalGiftCertificate.isEmpty()) {
-            throw new EntityNotExistsException();
-        }
+        GiftCertificate giftCertificate = giftCertificateDao.findById(id).orElseThrow(EntityNotExistsException::new);
 
-        GiftCertificate modifiedGiftCertificate = dtoMapper.unmap(giftCertificateDto);
+        GiftCertificate modifiedGiftCertificate = mapper.unmap(giftCertificateDto);
 
         if (!validator.validateUpdate(modifiedGiftCertificate)) {
             throw new BadEntityException();
         }
 
-        GiftCertificate readGiftCertificate = optionalGiftCertificate.get();
-
-        modifiedGiftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(Constants.HOUR_OFFSET)).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT))));
+        modifiedGiftCertificate.setLastUpdateDate(DateTimeUtils.now(Constants.DATE_FORMAT));
         modifiedGiftCertificate.setTags(initializeTags(modifiedGiftCertificate.getTags()));
 
-        update(readGiftCertificate, modifiedGiftCertificate);
+        update(giftCertificate, modifiedGiftCertificate);
 
-        giftCertificateDao.updateGiftCertificate(readGiftCertificate);
+        giftCertificateDao.updateGiftCertificate(giftCertificate);
 
         return getGiftCertificate(id);
     }
 
     public GiftCertificateDto createGiftCertificate(GiftCertificateDto giftCertificateDto) throws BadEntityException, EntityNotExistsException {
-        GiftCertificate giftCertificate = dtoMapper.unmap(giftCertificateDto);
+        GiftCertificate giftCertificate = mapper.unmap(giftCertificateDto);
 
         if (!validator.validateCreate(giftCertificate)) {
             throw new BadEntityException();
@@ -106,9 +93,13 @@ public class GiftCertificateService {
         return getGiftCertificate(giftCertificateDao.create(giftCertificate));
     }
 
+    public boolean hasNextPage(Integer page, Integer pageSize) {
+        return (page + 1) * pageSize <= giftCertificateDao.countGiftCertificates();
+    }
+
     private void setTime(GiftCertificate giftCertificate) {
-        giftCertificate.setCreationDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(Constants.HOUR_OFFSET)).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT))));
-        giftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(Constants.HOUR_OFFSET)).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT))));
+        giftCertificate.setCreationDate(DateTimeUtils.now(Constants.DATE_FORMAT));
+        giftCertificate.setLastUpdateDate(DateTimeUtils.now(Constants.DATE_FORMAT));
     }
 
     private Set<Tag> initializeTags(Set<Tag> incomingTags) {
@@ -149,5 +140,4 @@ public class GiftCertificateService {
         readGiftCertificate.setLastUpdateDate(modifiedGiftCertificate.getLastUpdateDate());
 
     }
-
 }

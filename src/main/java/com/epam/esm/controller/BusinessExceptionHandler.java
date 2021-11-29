@@ -1,6 +1,13 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.exception.*;
+import com.epam.esm.exception.BadEntityException;
+import com.epam.esm.exception.EntityAlreadyExistsException;
+import com.epam.esm.exception.EntityNotExistsException;
+import com.epam.esm.exception.ExceptionResponse;
+import com.epam.esm.exception.GiftCertificateNotExistsException;
+import com.epam.esm.exception.GiftCertificateQueryException;
+import com.epam.esm.exception.PaginationException;
+import com.epam.esm.exception.UserNotExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;

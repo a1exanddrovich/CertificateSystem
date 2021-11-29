@@ -2,18 +2,25 @@ package com.epam.esm.controller;
 
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.hateoas.GiftCertificatesHateoasIssuer;
 import com.epam.esm.service.GiftCertificateService;
+import com.epam.esm.utils.Constants;
 import com.epam.esm.utils.GiftCertificateQueryParameters;
-import com.epam.esm.utils.HateoasPaginationEvaluator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * The class that represents an API for basic operations with the application concerned to gift certificates.
@@ -27,12 +34,12 @@ public class GiftCertificatesController {
     private static final String ID = "id";
 
     private final GiftCertificateService service;
-    private final HateoasPaginationEvaluator evaluator;
+    private final GiftCertificatesHateoasIssuer hateoasIssuer;
 
     @Autowired
-    public GiftCertificatesController(GiftCertificateService service, HateoasPaginationEvaluator evaluator) {
+    public GiftCertificatesController(GiftCertificateService service, GiftCertificatesHateoasIssuer hateoasIssuer) {
         this.service = service;
-        this.evaluator = evaluator;
+        this.hateoasIssuer = hateoasIssuer;
     }
 
     /**
@@ -48,16 +55,11 @@ public class GiftCertificatesController {
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link List} of {@link GiftCertificateDto}
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<GiftCertificateDto>> getGiftCertificates(@RequestParam(required = false) Integer page,
-                                                                                   @RequestParam(required = false) Integer pageSize,
+    public ResponseEntity<CollectionModel<GiftCertificateDto>> getGiftCertificates(@RequestParam(required = false, defaultValue = Constants.DEFAULT_FIRST_PAGE) Integer page,
+                                                                                   @RequestParam(required = false, defaultValue = Constants.DEFAULT_PAGE_SIZE) Integer pageSize,
                                                                                    GiftCertificateQueryParameters parameters) {
         List<GiftCertificateDto> giftCertificates = service.getGiftCertificates(parameters, page, pageSize);
-        giftCertificates.forEach(this::addHateoas);
-        Link previousPage = linkTo(methodOn(GiftCertificatesController.class)
-                .getGiftCertificates(evaluator.evaluatePreviousPage(page), evaluator.evaluatePageSize(pageSize), parameters)).withSelfRel();
-        Link nextPage = linkTo(methodOn(GiftCertificatesController.class)
-                .getGiftCertificates(evaluator.evaluateNextPage(page), evaluator.evaluatePageSize(pageSize), parameters)).withSelfRel();
-        return ResponseEntity.ok(CollectionModel.of(giftCertificates, previousPage, nextPage));
+        return ResponseEntity.ok(hateoasIssuer.addGiftCertificateLinks(giftCertificates, parameters, page, pageSize, service.hasNextPage(page, pageSize)));
     }
 
     /**
@@ -70,7 +72,8 @@ public class GiftCertificatesController {
     @GetMapping("/{id}")
     public ResponseEntity<GiftCertificateDto> getGiftCertificate(@PathVariable(ID) long id) {
         GiftCertificateDto giftCertificate = service.getGiftCertificate(id);
-        return new ResponseEntity<>(this.addHateoas(giftCertificate), HttpStatus.OK);
+        hateoasIssuer.addGiftCertificateLink(giftCertificate);
+        return new ResponseEntity<>(giftCertificate, HttpStatus.OK);
     }
 
     /**
@@ -96,7 +99,8 @@ public class GiftCertificatesController {
     @PostMapping()
     public ResponseEntity<GiftCertificateDto> createGiftCertificate(@RequestBody GiftCertificateDto giftCertificate) {
         GiftCertificateDto createdGiftCertificate = service.createGiftCertificate(giftCertificate);
-        return new ResponseEntity<>(addHateoas(createdGiftCertificate), HttpStatus.CREATED);
+        hateoasIssuer.addGiftCertificateLink(createdGiftCertificate);
+        return new ResponseEntity<>(createdGiftCertificate, HttpStatus.CREATED);
     }
 
     /**
@@ -110,12 +114,8 @@ public class GiftCertificatesController {
     @PatchMapping("/{id}")
     public ResponseEntity<GiftCertificateDto> updateGiftCertificate(@PathVariable(ID) long id, @RequestBody GiftCertificateDto giftCertificate) {
         GiftCertificateDto updatedGiftCertificate = service.updateGiftCertificate(id, giftCertificate);
-        return new ResponseEntity<>(addHateoas(updatedGiftCertificate), HttpStatus.OK);
-    }
-
-    private GiftCertificateDto addHateoas(GiftCertificateDto giftCertificate) {
-        return giftCertificate.add(linkTo(methodOn(GiftCertificatesController.class)
-                .getGiftCertificate(giftCertificate.getId())).withSelfRel());
+        hateoasIssuer.addGiftCertificateLink(updatedGiftCertificate);
+        return new ResponseEntity<>(updatedGiftCertificate, HttpStatus.OK);
     }
 
 }

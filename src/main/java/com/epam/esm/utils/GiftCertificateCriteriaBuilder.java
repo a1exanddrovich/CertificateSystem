@@ -2,7 +2,6 @@ package com.epam.esm.utils;
 
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.GiftCertificateQueryException;
 import org.springframework.stereotype.Component;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -23,7 +22,7 @@ public class GiftCertificateCriteriaBuilder {
     private static final String DESCRIPTION = "description";
     private static final String TAGS = "tags";
     private static final String CREATE_DATE = "create_date";
-    private static final String SYMBOL = "%";
+    private static final String PERCENT_SYMBOL = "%";
     private static final String PARAMETER_TAG_NAME_LIST = "tagNames";
     private static final String SELECT_TAG_BY_NAME = "FROM Tag t WHERE t.name IN (:" + PARAMETER_TAG_NAME_LIST + ")";
 
@@ -34,14 +33,16 @@ public class GiftCertificateCriteriaBuilder {
 
         List<Predicate> predicates = new ArrayList<>();
 
-        checkName(builder, root, predicates, parameters.getName());
-        checkDescription(builder, root, predicates, parameters.getDescription());
-        checkTags(manager, builder, root, predicates, parameters.getTagNames());
+        if (Objects.nonNull(parameters)) {
+            checkName(builder, root, predicates, parameters.getName());
+            checkDescription(builder, root, predicates, parameters.getDescription());
+            checkTags(manager, builder, root, predicates, parameters.getTagNames());
 
-        criteriaQuery.select(root).where(predicates.toArray(new Predicate[0]));
+            criteriaQuery.select(root).where(predicates.toArray(new Predicate[0]));
 
-        String sortColumn = checkSortColumn(parameters.getSortType());
-        checkOrderType(sortColumn, parameters.getOrderType(), criteriaQuery, builder, root);
+            String sortColumn = checkSortColumn(parameters.getSortType());
+            checkOrderType(sortColumn, parameters.getOrderType(), criteriaQuery, builder, root);
+        }
 
         return criteriaQuery;
 
@@ -61,8 +62,6 @@ public class GiftCertificateCriteriaBuilder {
                 case DESC:
                     order = builder.desc(root.get(sortColumn));
                     break;
-                default:
-                    throw new GiftCertificateQueryException();
             }
 
             criteriaQuery.orderBy(order);
@@ -76,8 +75,6 @@ public class GiftCertificateCriteriaBuilder {
                     return CREATE_DATE;
                 case NAME:
                     return NAME;
-                default:
-                    throw new GiftCertificateQueryException();
             }
         }
         return null;
@@ -93,13 +90,13 @@ public class GiftCertificateCriteriaBuilder {
 
     private void checkDescription(CriteriaBuilder builder, Root<GiftCertificate> root, List<Predicate> predicates, String description) {
         if (Objects.nonNull(description)) {
-            predicates.add(builder.like(root.get(DESCRIPTION), SYMBOL + description + SYMBOL));
+            predicates.add(builder.like(root.get(DESCRIPTION), PERCENT_SYMBOL + description + PERCENT_SYMBOL));
         }
     }
 
     private void checkName(CriteriaBuilder builder, Root<GiftCertificate> root, List<Predicate> predicates, String name) {
         if (Objects.nonNull(name)) {
-            predicates.add(builder.like(root.get(NAME), SYMBOL + name + SYMBOL));
+            predicates.add(builder.like(root.get(NAME), PERCENT_SYMBOL + name + PERCENT_SYMBOL));
         }
     }
 

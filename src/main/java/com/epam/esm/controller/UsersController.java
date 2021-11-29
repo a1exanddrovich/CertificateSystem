@@ -2,17 +2,20 @@ package com.epam.esm.controller;
 
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.entity.User;
+import com.epam.esm.hateoas.UsersHateoasIssuer;
 import com.epam.esm.service.UserService;
-import com.epam.esm.utils.HateoasPaginationEvaluator;
+import com.epam.esm.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * The class that represents an API for basic operations with the application concerned to users.
@@ -26,12 +29,12 @@ public class UsersController {
     private static final String ID = "id";
 
     private final UserService service;
-    private final HateoasPaginationEvaluator evaluator;
+    private final UsersHateoasIssuer hateoasIssuer;
 
     @Autowired
-    public UsersController(UserService service, HateoasPaginationEvaluator evaluator) {
+    public UsersController(UserService service, UsersHateoasIssuer hateoasIssuer) {
         this.service = service;
-        this.evaluator = evaluator;
+        this.hateoasIssuer = hateoasIssuer;
     }
 
     /**
@@ -44,15 +47,10 @@ public class UsersController {
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link List} of {@link User} users.
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<UserDto>> getUsers(@RequestParam(required = false) Integer page,
-                                                             @RequestParam(required = false) Integer pageSize) {
+    public ResponseEntity<CollectionModel<UserDto>> getUsers(@RequestParam(required = false, defaultValue = Constants.DEFAULT_FIRST_PAGE) Integer page,
+                                                             @RequestParam(required = false, defaultValue = Constants.DEFAULT_PAGE_SIZE) Integer pageSize) {
         List<UserDto> users = service.getUsers(page, pageSize);
-        users.forEach(user -> user.add(linkTo(methodOn(UsersController.class).getUser(user.getId())).withSelfRel()));
-        Link previousPage = linkTo(methodOn(UsersController.class)
-                .getUsers(evaluator.evaluatePreviousPage(page), evaluator.evaluatePageSize(pageSize))).withSelfRel();
-        Link nextPage = linkTo(methodOn(UsersController.class)
-                .getUsers(evaluator.evaluatePreviousPage(page), evaluator.evaluatePageSize(pageSize))).withSelfRel();
-        return ResponseEntity.ok(CollectionModel.of(users, previousPage, nextPage));
+        return ResponseEntity.ok(hateoasIssuer.addUserLinks(users, page, pageSize, service.hasNextPage(page, pageSize)));
     }
 
     /**
@@ -64,7 +62,7 @@ public class UsersController {
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable(ID) long id) {
         UserDto user = service.getUser(id);
-        user.add(linkTo(methodOn(UsersController.class).getUser(id)).withSelfRel());
+        hateoasIssuer.addUserLink(user);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 

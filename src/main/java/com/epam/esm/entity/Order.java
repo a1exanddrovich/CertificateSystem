@@ -1,7 +1,7 @@
 package com.epam.esm.entity;
 
 import com.epam.esm.audit.AuditListener;
-import com.epam.esm.converter.ZonedDateTimeAttributeConverter;
+import com.epam.esm.converter.LocalDateTimeConverter;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -15,7 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -34,12 +34,12 @@ public class Order implements Identifiable {
     @JoinColumn(name = "gift_certificate_id")
     private GiftCertificate giftCertificate;
     @Column(name = "timestamp")
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
-    private ZonedDateTime timeStamp;
+    @Convert(converter = LocalDateTimeConverter.class)
+    private LocalDateTime timeStamp;
     @Column(name = "price", scale = 2, precision = 10)
     private BigDecimal price;
 
-    public Order(long id, User user, GiftCertificate giftCertificate, ZonedDateTime timeStamp, BigDecimal price) {
+    public Order(long id, User user, GiftCertificate giftCertificate, LocalDateTime timeStamp, BigDecimal price) {
         this.id = id;
         this.user = user;
         this.giftCertificate = giftCertificate;
@@ -59,7 +59,7 @@ public class Order implements Identifiable {
         return "Order";
     }
 
-    public ZonedDateTime getTimeStamp() {
+    public LocalDateTime getTimeStamp() {
         return this.timeStamp;
     }
 
@@ -87,7 +87,7 @@ public class Order implements Identifiable {
         this.giftCertificate = giftCertificate;
     }
 
-    public void setTimeStamp(ZonedDateTime timeStamp) {
+    public void setTimeStamp(LocalDateTime timeStamp) {
         this.timeStamp = timeStamp;
     }
 

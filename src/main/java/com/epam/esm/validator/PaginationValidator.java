@@ -27,16 +27,16 @@ public class PaginationValidator {
             throw new PaginationException();
         }
 
-        return pageSize == null ? Constants.DEFAULT_PAGE_SIZE : pageSize;
+        return pageSize == null ? Integer.parseInt(Constants.DEFAULT_PAGE_SIZE) : pageSize;
 
     }
 
     public Integer calculateFirstPage(Integer page) {
-        return page == null ? Constants.DEFAULT_FIRST_PAGE : page;
+        return page < 1 ? Integer.parseInt(Constants.DEFAULT_FIRST_PAGE) : page;
     }
 
     private Integer setPageSize(Integer pageSize) {
-        return (pageSize == null || pageSize < 1) ? Constants.DEFAULT_PAGE_SIZE : pageSize;
+        return pageSize < 1 ? Integer.parseInt(Constants.DEFAULT_PAGE_SIZE) : pageSize;
     }
 
     private int getCalculatedDataCount(Integer page, Integer pageSize) {

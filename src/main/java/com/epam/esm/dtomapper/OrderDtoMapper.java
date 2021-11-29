@@ -1,8 +1,13 @@
 package com.epam.esm.dtomapper;
 
+import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.entity.Order;
+import com.epam.esm.utils.Constants;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class OrderDtoMapper {
@@ -18,8 +23,9 @@ public class OrderDtoMapper {
     public OrderDto map(Order order) {
         return new OrderDto(order.getId(),
                             userDtoMapper.map(order.getUser()),
+                            order.getGiftCertificate() == null ? null :
                             giftCertificateDtoMapper.map(order.getGiftCertificate()),
-                            order.getTimeStamp(),
+                            order.getTimeStamp().toString(),
                             order.getPrice());
     }
 
@@ -27,7 +33,7 @@ public class OrderDtoMapper {
         return new Order(orderDto.getId(),
                         userDtoMapper.unmap(orderDto.getUser()),
                         giftCertificateDtoMapper.unmap(orderDto.getGiftCertificate()),
-                        orderDto.getTimeStamp(),
+                        LocalDateTime.parse(orderDto.getTimeStamp(), DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)),
                         orderDto.getPrice());
     }
 

@@ -9,38 +9,37 @@ import com.epam.esm.validator.PaginationValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
-    private final UserDao userDao;
+    private final UserDao dao;
     private final PaginationValidator paginationValidator;
-    private final UserDtoMapper userDtoMapper;
+    private final UserDtoMapper mapper;
 
     @Autowired
-    public UserService(UserDao userDao, PaginationValidator paginationValidator, UserDtoMapper userDtoMapper) {
-        this.userDao = userDao;
+    public UserService(UserDao dao, PaginationValidator paginationValidator, UserDtoMapper mapper) {
+        this.dao = dao;
         this.paginationValidator = paginationValidator;
-        this.userDtoMapper = userDtoMapper;
+        this.mapper = mapper;
     }
 
     public List<UserDto> getUsers(Integer page, Integer pageSize) {
-        return userDao
-                .findAll(paginationValidator.calculateFirstPage(page), paginationValidator.paginate(page, pageSize, userDao.countUsers()))
+        return dao
+                .findAll(paginationValidator.calculateFirstPage(page), paginationValidator.paginate(page, pageSize, dao.countUsers()))
                 .stream()
-                .map(userDtoMapper::map)
+                .map(mapper::map)
                 .collect(Collectors.toList());
     }
 
     public UserDto getUser(long id) throws EntityNotExistsException {
-        Optional<User> optionalUser = userDao.findById(id);
-        if (optionalUser.isEmpty()) {
-            throw new EntityNotExistsException();
-        }
+        User user = dao.findById(id).orElseThrow(EntityNotExistsException::new);
 
-        return userDtoMapper.map(optionalUser.get());
+        return mapper.map(user);
     }
 
+    public boolean hasNextPage(Integer page, Integer pageSize) {
+        return (page + 1) * pageSize <= dao.countUsers();
+    }
 }

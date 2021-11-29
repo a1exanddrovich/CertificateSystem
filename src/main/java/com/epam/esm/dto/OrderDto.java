@@ -3,7 +3,6 @@ package com.epam.esm.dto;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
 import java.util.Objects;
 
 public class OrderDto extends RepresentationModel<OrderDto> {
@@ -11,12 +10,13 @@ public class OrderDto extends RepresentationModel<OrderDto> {
     private long id;
     private UserDto user;
     private GiftCertificateDto giftCertificate;
-    private ZonedDateTime timeStamp;
+    private String timeStamp;
     private BigDecimal price;
 
-    public OrderDto() { }
+    public OrderDto() {
+    }
 
-    public OrderDto(long id, UserDto user, GiftCertificateDto giftCertificate, ZonedDateTime timeStamp, BigDecimal price) {
+    public OrderDto(long id, UserDto user, GiftCertificateDto giftCertificate, String timeStamp, BigDecimal price) {
         this.id = id;
         this.user = user;
         this.giftCertificate = giftCertificate;
@@ -36,7 +36,7 @@ public class OrderDto extends RepresentationModel<OrderDto> {
         this.giftCertificate = giftCertificate;
     }
 
-    public void setTimeStamp(ZonedDateTime timeStamp) {
+    public void setTimeStamp(String timeStamp) {
         this.timeStamp = timeStamp;
     }
 
@@ -56,7 +56,7 @@ public class OrderDto extends RepresentationModel<OrderDto> {
         return giftCertificate;
     }
 
-    public ZonedDateTime getTimeStamp() {
+    public String getTimeStamp() {
         return timeStamp;
     }
 
@@ -66,9 +66,18 @@ public class OrderDto extends RepresentationModel<OrderDto> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()){
+            return false;
+        }
+
+        if (!super.equals(o)){
+            return false;
+        }
+
         OrderDto orderDto = (OrderDto) o;
         return id == orderDto.id && Objects.equals(timeStamp, orderDto.timeStamp) && Objects.equals(price, orderDto.price);
     }

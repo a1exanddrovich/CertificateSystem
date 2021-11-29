@@ -20,34 +20,30 @@ import java.util.stream.Collectors;
 @Transactional
 public class TagService {
 
-    private final TagDao tagDao;
+    private final TagDao dao;
     private final TagValidator validator;
     private final PaginationValidator paginationValidator;
     private final TagDtoMapper mapper;
 
     @Autowired
-    public TagService(TagDao tagDao, TagValidator validator, PaginationValidator paginationValidator, TagDtoMapper mapper) {
-        this.tagDao = tagDao;
+    public TagService(TagDao dao, TagValidator validator, PaginationValidator paginationValidator, TagDtoMapper mapper) {
+        this.dao = dao;
         this.validator = validator;
         this.paginationValidator = paginationValidator;
         this.mapper = mapper;
     }
 
     public List<TagDto> getTags(Integer page, Integer pageSize) {
-        return tagDao
-                .findAll(paginationValidator.calculateFirstPage(page), paginationValidator.paginate(page, pageSize, tagDao.countTags()))
+        return dao
+                .findAll(paginationValidator.calculateFirstPage(page), paginationValidator.paginate(page, pageSize, dao.countTags()))
                 .stream()
                 .map(mapper::map)
                 .collect(Collectors.toList());
     }
 
     public TagDto getTag(long id) throws EntityNotExistsException {
-        Optional<Tag> optionalTag = tagDao.findById(id);
-        if (optionalTag.isEmpty()) {
-            throw new EntityNotExistsException();
-        }
-
-        return mapper.map(optionalTag.get());
+        Tag tag = dao.findById(id).orElseThrow(EntityNotExistsException::new);
+        return mapper.map(tag);
     }
 
 
@@ -56,24 +52,27 @@ public class TagService {
         if (!validator.validate(tag)) {
             throw new BadEntityException();
         }
-
-        Optional<Tag> optionalTag = tagDao.findTagByName(tag.getName());
+        Optional<Tag> optionalTag = dao.findTagByName(tag.getName());
         if (optionalTag.isPresent()) {
             throw new EntityAlreadyExistsException();
         }
 
-        return getTag(tagDao.create(tag));
+        return getTag(dao.create(tag));
     }
 
     public void deleteTag(long id) {
-        if (tagDao.findById(id).isEmpty()) {
+        if (dao.findById(id).isEmpty()) {
             throw new EntityNotExistsException();
         }
 
-        tagDao.deleteById(id);
+        dao.deleteById(id);
     }
 
     public TagDto getMostPopular() {
-        return mapper.map(tagDao.getMostPopular());
+        return mapper.map(dao.getMostPopular());
+    }
+
+    public boolean hasNextPage(Integer page, Integer pageSize) {
+        return (page + 1) * pageSize <= dao.countTags();
     }
 }

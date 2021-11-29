@@ -14,13 +14,12 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import javax.persistence.EntityManagerFactory;
 import java.util.Collections;
 import java.util.Properties;
 
 @SpringBootConfiguration
-public class SpringConfig implements WebMvcConfigurer {
+public class SpringConfig {
 
     private static final String ENCODING = "UTF-8";
     private static final String SET_LOCALE = "classpath:locale/messages";

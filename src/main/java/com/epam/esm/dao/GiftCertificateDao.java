@@ -1,6 +1,7 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.query.Queries;
 import com.epam.esm.utils.GiftCertificateCriteriaBuilder;
 import com.epam.esm.utils.GiftCertificateQueryParameters;
@@ -29,7 +30,7 @@ public class GiftCertificateDao {
     @Transactional
     public void deleteById(long id) {
         Optional<GiftCertificate> optionalGiftCertificate = findById(id);
-        optionalGiftCertificate.ifPresent(manager::remove);
+        optionalGiftCertificate.ifPresentOrElse(manager::remove, EntityNotExistsException::new);
     }
 
     @Transactional

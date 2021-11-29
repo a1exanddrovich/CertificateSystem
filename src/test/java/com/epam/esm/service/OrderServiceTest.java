@@ -14,6 +14,8 @@ import com.epam.esm.entity.User;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.exception.EntityNotExistsException;
+import com.epam.esm.utils.Constants;
+import com.epam.esm.utils.DateTimeUtils;
 import com.epam.esm.validator.PaginationValidator;
 import com.epam.esm.validator.OrderRequestValidator;
 import org.junit.jupiter.api.BeforeAll;
@@ -83,13 +85,14 @@ public class OrderServiceTest {
     void testShouldFindById() throws EntityNotExistsException {
         //given
         long id = 1L;
-        OrderDto testClauseDto = new OrderDto(id, new UserDto(), new GiftCertificateDto(), ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))), new BigDecimal("20"));
-        Order testClause = new Order(id, new User(), new GiftCertificate(), ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))), new BigDecimal("20"));
+        OrderDto testClauseDto = new OrderDto(id, new UserDto(), new GiftCertificateDto(), DateTimeUtils.now(Constants.DATE_FORMAT).toString(), new BigDecimal("20"));
+        Order testClause = new Order(id, new User(), new GiftCertificate(), DateTimeUtils.now(Constants.DATE_FORMAT), new BigDecimal("20"));
 
         //when
         when(orderDao.findById(id)).thenReturn(Optional.of(testClause));
         when(mapper.map(testClause)).thenReturn(testClauseDto);
         when(mapper.unmap(testClauseDto)).thenReturn(testClause);
+
         Order actual = mapper.unmap(service.findById(id));
 
 
@@ -101,8 +104,8 @@ public class OrderServiceTest {
     void testShouldCreateOrder() throws EntityNotExistsException, EntityAlreadyExistsException, BadEntityException {
         //given
         long id = 1L;
-        OrderDto expectedDto = new OrderDto(id, new UserDto(), new GiftCertificateDto(), ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))), new BigDecimal("20"));
-        Order expectedOrder = new Order(id, new User(), new GiftCertificate(), ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))), new BigDecimal("20"));
+        OrderDto expectedDto = new OrderDto(id, new UserDto(), new GiftCertificateDto(), DateTimeUtils.now(Constants.DATE_FORMAT).toString(), new BigDecimal("20"));
+        Order expectedOrder = new Order(id, new User(), new GiftCertificate(), DateTimeUtils.now(Constants.DATE_FORMAT), new BigDecimal("20"));
         User user = new User();
         GiftCertificate giftCertificate = new GiftCertificate();
         OrderRequestDto orderRequestDto = new OrderRequestDto(id, id);

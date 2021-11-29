@@ -8,6 +8,7 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityNotExistsException;
 import com.epam.esm.dtomapper.GiftCertificateDtoMapper;
+import com.epam.esm.utils.Constants;
 import com.epam.esm.validator.PaginationValidator;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,7 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -69,8 +71,8 @@ public class GiftCertificateServiceTest {
         expectedGiftCertificate.setDescription("testDescription");
         expectedGiftCertificate.setPrice(new BigDecimal(120));
         expectedGiftCertificate.setDuration(Duration.ofDays(20));
-        expectedGiftCertificate.setCreationDate(ZonedDateTime.parse("2021-08-21T06:11:43.547Z"));
-        expectedGiftCertificate.setLastUpdateDate(ZonedDateTime.parse("2021-08-21T06:11:43.547Z"));
+        expectedGiftCertificate.setCreationDate(LocalDateTime.parse("2021-08-21T06:11:43.547Z", DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)));
+        expectedGiftCertificate.setLastUpdateDate(LocalDateTime.parse("2021-08-21T06:11:43.547Z", DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)));
         expectedGiftCertificate.setTags(giftCertificateTags);
     }
 
@@ -113,15 +115,6 @@ public class GiftCertificateServiceTest {
 
         //then
         assertEquals(expectedGiftCertificateDto, actual);
-    }
-
-    @Test
-    void testShouldThrowEntityNotExistsExceptionWhenDeletingGiftCertificateWithInvalidId() {
-        assertThrows(EntityNotExistsException.class, () -> {
-            Mockito.when(giftCertificateDao.findById(id)).thenReturn(Optional.empty());
-
-            service.deleteGiftCertificate(id);
-        });
     }
 
     @Test

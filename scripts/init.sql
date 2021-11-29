@@ -39,12 +39,12 @@ create table user
 create table `order`
 (
     id bigint auto_increment,
-    timestamp timestamp,
+    order_timestamp timestamp,
     price decimal(10, 2),
     user_id bigint,
-    giff_certificate_id bigint,
+    gift_certificate_id bigint,
 
-    constraint order_gift_certificate_id_fk foreign key (giff_certificate_id) references gift_certificate(id),
+    constraint order_gift_certificate_id_fk foreign key (gift_certificate_id) references gift_certificate(id),
     constraint order_user_id_fk foreign key (user_id) references user(id),
 
     primary key (id)
