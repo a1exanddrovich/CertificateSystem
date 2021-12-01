@@ -13,12 +13,12 @@ import java.util.Optional;
 public class UserDao {
 
     @PersistenceContext
-    private final EntityManager manager;
-
-    @Autowired
-    public UserDao(EntityManager manager) {
-        this.manager = manager;
-    }
+    private EntityManager manager;
+//
+//    @Autowired
+//    public UserDao(EntityManager manager) {
+//        this.manager = manager;
+//    }
 
     public Optional<User> findById(long id) {
         return Optional.ofNullable(manager.find(User.class, id));

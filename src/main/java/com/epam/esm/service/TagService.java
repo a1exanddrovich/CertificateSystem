@@ -1,5 +1,6 @@
 package com.epam.esm.service;
 
+import com.epam.esm.dao.AuditDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.dtomapper.TagDtoMapper;

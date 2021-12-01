@@ -3,7 +3,6 @@ package com.epam.esm.dao;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
 import com.epam.esm.query.Queries;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -16,12 +15,7 @@ public class OrderDao {
     private static final String USER_ID_PARAMETER = "user";
 
     @PersistenceContext
-    private final EntityManager manager;
-
-    @Autowired
-    public OrderDao(EntityManager manager) {
-        this.manager = manager;
-    }
+    private EntityManager manager;
 
     public long create(Order order) {
         manager.persist(order);

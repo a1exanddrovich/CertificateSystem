@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
+@Table(name = "giftcertificate")
 @EntityListeners(AuditListener.class)
 public class GiftCertificate implements Identifiable {
 

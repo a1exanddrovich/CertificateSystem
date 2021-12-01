@@ -18,12 +18,11 @@ import java.util.Optional;
 public class GiftCertificateDao {
 
     @PersistenceContext
-    private final EntityManager manager;
+    private EntityManager manager;
     private final GiftCertificateCriteriaBuilder queryBuilder;
 
     @Autowired
-    public GiftCertificateDao(EntityManager manager, GiftCertificateCriteriaBuilder queryBuilder) {
-        this.manager = manager;
+    public GiftCertificateDao(GiftCertificateCriteriaBuilder queryBuilder) {
         this.queryBuilder = queryBuilder;
     }
 

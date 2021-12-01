@@ -7,6 +7,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @Component
 public class AbstractHateoasIssuer<T extends RepresentationModel<T>> {
+
     protected static final String SELF_LINK = "self";
 
     protected void addLink(Class<?> controllerClass, T entity, Long id, String linkName) {
@@ -28,3 +29,4 @@ public class AbstractHateoasIssuer<T extends RepresentationModel<T>> {
     }
 
 }
+

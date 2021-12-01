@@ -1,5 +1,6 @@
 package com.epam.esm.audit;
 
+import com.epam.esm.dao.AuditDao;
 import com.epam.esm.entity.Identifiable;
 import com.epam.esm.utils.Constants;
 import com.epam.esm.utils.DateTimeUtils;
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
-import javax.persistence.EntityManager;
 import javax.persistence.PostPersist;
 import javax.persistence.PreUpdate;
 
@@ -17,29 +17,26 @@ public class AuditListener {
     private static final String PERSIST = "Persist";
     private static final String UPDATE = "Update";
 
-    private static EntityManager manager;
-
     @Autowired
-    public void setEntityManager(EntityManager entityManager) {
-        manager = entityManager;
-    }
+    private AuditDao dao;
+
+    public AuditListener() { }
 
     @PreUpdate
     private void preUpdating(Identifiable entity) {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        AuditableEntity auditable = new AuditableEntity(entity.getId(), entity.getType(), UPDATE);
-        setTimeStamp(auditable);
+        AuditableEntity auditableEntity = new AuditableEntity(entity.getId(), entity.getType(), UPDATE);
+        setTimeStamp(auditableEntity);
 
-        manager.merge(auditable);
+        dao.updateEntity(auditableEntity);
     }
 
     @PostPersist
     private void postPersisting(Identifiable entity) {
-        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        AuditableEntity auditable = new AuditableEntity(entity.getId(), entity.getType(), PERSIST);
-        setTimeStamp(auditable);
+        AuditableEntity auditableEntity = new AuditableEntity(entity.getId(), entity.getType(), PERSIST);
+        setTimeStamp(auditableEntity);
 
-        manager.persist(auditable);
+        dao.saveEntity(auditableEntity);
     }
 
     private void setTimeStamp(AuditableEntity entity) {

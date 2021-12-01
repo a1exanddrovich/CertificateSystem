@@ -42,11 +42,11 @@ class GiftCertificateDaoTest {
         expected.setId(2);
         expected.setName("Starbucks");
         expected.setDescription("Taste more than a thousand a kinds of coffee in Starbucks.");
-        expected.setPrice(new BigDecimal("57.00"));
-        expected.setDuration(Duration.ofSeconds(4320000));
-        expected.setCreationDate(LocalDateTime.parse("2021-08-21T07:11:43.547Z", DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)));
-        expected.setLastUpdateDate(LocalDateTime.parse("2021-08-27T10:15:28.472Z", DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)));
-        expected.setTags(Set.of(new Tag(1, "Coffee"), new Tag(8, "Recreation"), new Tag(4, "Relax")));
+        expected.setPrice(new BigDecimal("157.00"));
+        expected.setDuration(Duration.ofNanos(90));
+        expected.setCreationDate(LocalDateTime.parse("2021-08-20T06:11:43.547Z", DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)));
+        expected.setLastUpdateDate(LocalDateTime.parse("2021-08-21T06:11:43.547Z", DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)));
+        expected.setTags(Set.of(new Tag(1, "Coffee"), new Tag(8, "New"), new Tag(4, "Shopping")));
 
         //when
         Optional<GiftCertificate> actual = dao.findById(id);
