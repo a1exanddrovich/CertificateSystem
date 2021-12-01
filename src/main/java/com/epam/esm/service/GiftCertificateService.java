@@ -1,108 +1,105 @@
 package com.epam.esm.service;
 
+import com.epam.esm.utils.Constants;
 import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.GiftCertificateTagDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.BadEntityException;
 import com.epam.esm.exception.EntityNotExistsException;
-import com.epam.esm.utils.GiftCertificateDtoMapper;
+import com.epam.esm.dtomapper.GiftCertificateDtoMapper;
+import com.epam.esm.utils.DateTimeUtils;
+import com.epam.esm.utils.GiftCertificateQueryParameters;
+import com.epam.esm.validator.PaginationValidator;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class GiftCertificateService {
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private final GiftCertificateDao giftCertificateDao;
-    private final GiftCertificateTagDao giftCertificateTagDao;
     private final TagDao tagDao;
     private final GiftCertificateValidator validator;
-    private final GiftCertificateDtoMapper dtoMapper;
+    private final GiftCertificateDtoMapper mapper;
+    private final PaginationValidator paginationValidator;
 
     @Autowired
-    public GiftCertificateService(GiftCertificateDao giftCertificateDao, GiftCertificateTagDao giftCertificateTagDao, TagDao tagDao, GiftCertificateValidator validator, GiftCertificateDtoMapper dtoMapper) {
+    public GiftCertificateService(GiftCertificateDao giftCertificateDao, TagDao tagDao, GiftCertificateValidator validator, GiftCertificateDtoMapper mapper, PaginationValidator paginationValidator) {
         this.giftCertificateDao = giftCertificateDao;
-        this.giftCertificateTagDao = giftCertificateTagDao;
         this.tagDao = tagDao;
         this.validator = validator;
-        this.dtoMapper = dtoMapper;
+        this.mapper = mapper;
+        this.paginationValidator = paginationValidator;
     }
 
-    public List<GiftCertificateDto> getGiftCertificates(String tagName, String giftCertificateName, String description, String sortByName, String sortByDate) {
-        return giftCertificateDao.getGiftCertificates(tagName, giftCertificateName, description, sortByName, sortByDate).stream().map(dtoMapper::map).collect(Collectors.toList());
+    public List<GiftCertificateDto> getGiftCertificates(GiftCertificateQueryParameters parameters, Integer page, Integer pageSize) {
+
+        return giftCertificateDao
+                .getGiftCertificates(parameters, paginationValidator.calculateFirstPage(page), paginationValidator.paginate(page, pageSize, giftCertificateDao.countGiftCertificates()))
+                .stream()
+                .map(mapper::map)
+                .collect(Collectors.toList());
     }
 
     public GiftCertificateDto getGiftCertificate(long id) throws EntityNotExistsException {
-        Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(id);
-        if (optionalGiftCertificate.isEmpty()) {
-            throw new EntityNotExistsException();
-        }
+        GiftCertificate giftCertificate = giftCertificateDao.findById(id).orElseThrow(EntityNotExistsException::new);
 
-        return dtoMapper.map(optionalGiftCertificate.get());
+        return mapper.map(giftCertificate);
     }
 
-    @Transactional
     public void deleteGiftCertificate(long id) throws EntityNotExistsException {
-        if (giftCertificateDao.findById(id).isEmpty()) {
-            throw new EntityNotExistsException();
-        }
-
-        giftCertificateTagDao.deleteGiftCertificateById(id);
         giftCertificateDao.deleteById(id);
     }
 
-    @Transactional
     public GiftCertificateDto updateGiftCertificate(long id, GiftCertificateDto giftCertificateDto) throws EntityNotExistsException, BadEntityException {
-        if (giftCertificateDao.findById(id).isEmpty()) {
-            throw new EntityNotExistsException();
-        }
+        GiftCertificate giftCertificate = giftCertificateDao.findById(id).orElseThrow(EntityNotExistsException::new);
 
-        GiftCertificate giftCertificate = dtoMapper.unmap(giftCertificateDto);
+        GiftCertificate modifiedGiftCertificate = mapper.unmap(giftCertificateDto);
 
-        if (!validator.validateUpdate(giftCertificate)) {
+        if (!validator.validateUpdate(modifiedGiftCertificate)) {
             throw new BadEntityException();
         }
 
-        giftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
+        modifiedGiftCertificate.setLastUpdateDate(DateTimeUtils.now(Constants.DATE_FORMAT));
+        modifiedGiftCertificate.setTags(initializeTags(modifiedGiftCertificate.getTags()));
 
-        giftCertificate.setTags(initializeTags(giftCertificate.getTags()));
-        giftCertificateDao.updateGiftCertificate(id, giftCertificate);
+        update(giftCertificate, modifiedGiftCertificate);
 
-        if (!giftCertificate.getTags().isEmpty()) {
-            connectCertificatesAndTags(id, giftCertificate);
-        }
+        giftCertificateDao.updateGiftCertificate(giftCertificate);
 
         return getGiftCertificate(id);
     }
 
-    @Transactional
     public GiftCertificateDto createGiftCertificate(GiftCertificateDto giftCertificateDto) throws BadEntityException, EntityNotExistsException {
-        GiftCertificate giftCertificate = dtoMapper.unmap(giftCertificateDto);
+        GiftCertificate giftCertificate = mapper.unmap(giftCertificateDto);
 
         if (!validator.validateCreate(giftCertificate)) {
             throw new BadEntityException();
         }
 
-        giftCertificate.setCreationDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
-        giftCertificate.setLastUpdateDate(ZonedDateTime.parse(ZonedDateTime.now(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern(DATE_FORMAT))));
-
+        setTime(giftCertificate);
         giftCertificate.setTags(initializeTags(giftCertificate.getTags()));
-        long lastInsertedId = giftCertificateDao.create(giftCertificate);
-        giftCertificateTagDao.createConnections(lastInsertedId, giftCertificate.getTags());
 
-        return getGiftCertificate(lastInsertedId);
+        return getGiftCertificate(giftCertificateDao.create(giftCertificate));
+    }
+
+    public boolean hasNextPage(Integer page, Integer pageSize) {
+        return (page + 1) * pageSize <= giftCertificateDao.countGiftCertificates();
+    }
+
+    private void setTime(GiftCertificate giftCertificate) {
+        giftCertificate.setCreationDate(DateTimeUtils.now(Constants.DATE_FORMAT));
+        giftCertificate.setLastUpdateDate(DateTimeUtils.now(Constants.DATE_FORMAT));
     }
 
     private Set<Tag> initializeTags(Set<Tag> incomingTags) {
@@ -119,22 +116,28 @@ public class GiftCertificateService {
         }).collect(Collectors.toSet());
     }
 
-    private void connectCertificatesAndTags(long id, GiftCertificate giftCertificate) {
-        List<Long> tagIdsBeforeUpdate = giftCertificateTagDao.getIdsBeforeUpdate(id);
-        List<Long> tagIdsAfterUpdate = giftCertificate.getTags().stream().map(Tag::getId).collect(Collectors.toList());
-
-        for (Long tagId : tagIdsAfterUpdate) {
-            if (!tagIdsBeforeUpdate.contains(tagId)) {
-                giftCertificateTagDao.addTagId(id, tagId);
-            }
+    private void update(GiftCertificate readGiftCertificate, GiftCertificate modifiedGiftCertificate) {
+        if (Objects.nonNull(modifiedGiftCertificate.getName())) {
+            readGiftCertificate.setName(modifiedGiftCertificate.getName());
         }
 
-        for (Long tagId : tagIdsBeforeUpdate) {
-            if (!tagIdsAfterUpdate.contains(tagId)) {
-                giftCertificateTagDao.deleteTagId(id, tagId);
-            }
+        if (Objects.nonNull(modifiedGiftCertificate.getDescription())) {
+            readGiftCertificate.setDescription(modifiedGiftCertificate.getDescription());
         }
+
+        if (Objects.nonNull(modifiedGiftCertificate.getPrice())) {
+            readGiftCertificate.setPrice(modifiedGiftCertificate.getPrice());
+        }
+
+        if (Objects.nonNull(modifiedGiftCertificate.getDuration())) {
+            readGiftCertificate.setDuration(modifiedGiftCertificate.getDuration());
+        }
+
+        if (Objects.nonNull(modifiedGiftCertificate.getTags())) {
+            readGiftCertificate.setTags(initializeTags(modifiedGiftCertificate.getTags()));
+        }
+
+        readGiftCertificate.setLastUpdateDate(modifiedGiftCertificate.getLastUpdateDate());
 
     }
-
 }

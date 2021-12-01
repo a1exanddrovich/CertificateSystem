@@ -1,12 +1,25 @@
 package com.epam.esm.entity;
 
-import org.springframework.stereotype.Component;
+import com.epam.esm.audit.AuditListener;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.util.Objects;
 
-@Component
+
+@Entity
+@EntityListeners(AuditListener.class)
 public class Tag implements Identifiable {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
+    @Column(name = "name")
     private String name;
 
     public Tag(long id, String name) {
@@ -23,6 +36,11 @@ public class Tag implements Identifiable {
     @Override
     public long getId() {
         return this.id;
+    }
+
+    @Override
+    public String getType() {
+        return "Tag";
     }
 
     public String getName() {

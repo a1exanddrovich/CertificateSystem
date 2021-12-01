@@ -1,57 +1,49 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.mapper.TagMapper;
-import com.epam.esm.sql.SqlQueries;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import com.epam.esm.query.Queries;
+import org.springframework.stereotype.Repository;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
-@Component
-public class TagDao implements EntityDao<Tag> {
+@Repository
+public class TagDao {
 
-    private final JdbcTemplate template;
-    private final TagMapper mapper;
+    private static final String TAG_NAME_PARAMETER = "tagName";
 
-    @Autowired
-    public TagDao(JdbcTemplate template, TagMapper mapper) {
-        this.template = template;
-        this.mapper = mapper;
-    }
+    @PersistenceContext
+    private EntityManager manager;
 
-    @Override
     public long create(Tag tag) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        template.update(connection -> {
-            PreparedStatement statement = connection.prepareStatement(SqlQueries.CREATE_TAG, Statement.RETURN_GENERATED_KEYS);
-            statement.setString(1, tag.getName());
-            return statement;
-        }, keyHolder);
-        return keyHolder.getKey().longValue();
+        manager.persist(tag);
+        return tag.getId();
     }
 
-    @Override
     public void deleteById(long id) {
-        template.update(SqlQueries.DELETE_TAG, id);
+        Optional<Tag> optionalTag = findById(id);
+        optionalTag.ifPresent(manager::remove);
     }
 
-    @Override
     public Optional<Tag> findById(long id) {
-        return template.query(SqlQueries.FIND_TAG_BY_ID, mapper, new Object[]{id}).stream().findAny();
+        return Optional.ofNullable(manager.find(Tag.class, id));
     }
 
-    public List<Tag> findAll() {
-        return template.query(SqlQueries.FIND_ALL_TAGS, mapper);
+    public List<Tag> findAll(Integer page, Integer pageSize) {
+        return manager.createQuery(Queries.GET_ALL_TAGS, Tag.class).setFirstResult(page).setMaxResults(pageSize).getResultList();
     }
 
     public Optional<Tag> findTagByName(String tagName) {
-        return template.query(SqlQueries.FIND_TAG_BY_NAME, mapper, new Object[] {tagName}).stream().findAny();
+        return manager.createQuery(Queries.GET_TAG_BY_NAME, Tag.class).setParameter(TAG_NAME_PARAMETER, tagName).getResultStream().findFirst();
+    }
+
+    public Integer countTags() {
+        return Integer.parseInt(manager.createQuery(Queries.COUNT_TAGS).getSingleResult().toString());
+    }
+
+    public Tag getMostPopular() {
+        return (Tag) manager.createNativeQuery(Queries.GET_MOST_POPULAR_TAG, Tag.class).getSingleResult();
     }
 
 }

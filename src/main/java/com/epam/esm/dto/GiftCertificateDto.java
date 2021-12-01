@@ -1,11 +1,12 @@
 package com.epam.esm.dto;
 
+import org.springframework.hateoas.RepresentationModel;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class GiftCertificateDto {
+public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> {
 
     private long id;
     private String name;
@@ -16,7 +17,7 @@ public class GiftCertificateDto {
     private String lastUpdateDate;
     private Set<String> tags = new HashSet<>();
 
-    public GiftCertificateDto(long id, String name, String description, BigDecimal price, int duration, String creationDate, String lastUpdateDate) {
+    public GiftCertificateDto(long id, String name, String description, BigDecimal price, int duration, String creationDate, String lastUpdateDate, Set<String> tags) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -24,6 +25,7 @@ public class GiftCertificateDto {
         this.duration = duration;
         this.creationDate = creationDate;
         this.lastUpdateDate = lastUpdateDate;
+        this.tags = tags;
     }
 
     public GiftCertificateDto() { }

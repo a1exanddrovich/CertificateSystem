@@ -1,26 +1,61 @@
 package com.epam.esm.entity;
 
-import org.springframework.stereotype.Component;
+import com.epam.esm.audit.AuditListener;
+import com.epam.esm.converter.LocalDateTimeConverter;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Component
+@Entity
+@Table(name = "giftcertificate")
+@EntityListeners(AuditListener.class)
 public class GiftCertificate implements Identifiable {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
+    @Column(name = "name")
     private String name;
+    @Column(name = "description")
     private String description;
+    @Column(name = "price", scale = 2, precision = 10)
     private BigDecimal price;
+    @Column(name = "duration")
     private Duration duration;
-    private ZonedDateTime creationDate;
-    private ZonedDateTime lastUpdateDate;
+    @Column(name = "create_date")
+    @Convert(converter = LocalDateTimeConverter.class)
+    private LocalDateTime creationDate;
+    @Column(name = "last_update_date")
+    @Convert(converter = LocalDateTimeConverter.class)
+    private LocalDateTime lastUpdateDate;
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE,
+    }, fetch = FetchType.EAGER)
+    @JoinTable(name = "gift_certificate_tag",
+               joinColumns = @JoinColumn(name = "gift_certificate_id"),
+               inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
 
-    public GiftCertificate(long id, String name, String description, BigDecimal price, Duration duration, ZonedDateTime creationDate, ZonedDateTime lastUpdateDate) {
+    public GiftCertificate(long id, String name, String description, BigDecimal price, Duration duration, LocalDateTime creationDate, LocalDateTime lastUpdateDate, Set<Tag> tags) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -28,6 +63,7 @@ public class GiftCertificate implements Identifiable {
         this.duration = duration;
         this.creationDate = creationDate;
         this.lastUpdateDate = lastUpdateDate;
+        this.tags = tags;
     }
 
     public GiftCertificate() { }
@@ -35,6 +71,11 @@ public class GiftCertificate implements Identifiable {
     @Override
     public long getId() {
         return this.id;
+    }
+
+    @Override
+    public String getType() {
+        return "Gift certificate";
     }
 
     public String getName() {
@@ -53,11 +94,11 @@ public class GiftCertificate implements Identifiable {
         return this.duration;
     }
 
-    public ZonedDateTime getCreationDate() {
+    public LocalDateTime getCreationDate() {
         return this.creationDate;
     }
 
-    public ZonedDateTime getLastUpdateDate() {
+    public LocalDateTime getLastUpdateDate() {
         return this.lastUpdateDate;
     }
 
@@ -81,11 +122,11 @@ public class GiftCertificate implements Identifiable {
         this.duration = duration;
     }
 
-    public void setCreationDate(ZonedDateTime creationDate) {
+    public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
 
-    public void setLastUpdateDate(ZonedDateTime lastUpdateDate) {
+    public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }
 

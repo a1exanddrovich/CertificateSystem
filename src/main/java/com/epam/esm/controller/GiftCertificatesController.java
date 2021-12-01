@@ -2,14 +2,24 @@ package com.epam.esm.controller;
 
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.BadEntityException;
-import com.epam.esm.exception.EntityNotExistsException;
+import com.epam.esm.hateoas.GiftCertificatesHateoasIssuer;
 import com.epam.esm.service.GiftCertificateService;
+import com.epam.esm.utils.Constants;
+import com.epam.esm.utils.GiftCertificateQueryParameters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 
 /**
@@ -21,14 +31,15 @@ import java.util.List;
 @RequestMapping("/giftCertificates")
 public class GiftCertificatesController {
 
-    private static final String JSON = "application/json";
     private static final String ID = "id";
 
     private final GiftCertificateService service;
+    private final GiftCertificatesHateoasIssuer hateoasIssuer;
 
     @Autowired
-    public GiftCertificatesController(GiftCertificateService service) {
+    public GiftCertificatesController(GiftCertificateService service, GiftCertificatesHateoasIssuer hateoasIssuer) {
         this.service = service;
+        this.hateoasIssuer = hateoasIssuer;
     }
 
     /**
@@ -36,20 +47,19 @@ public class GiftCertificatesController {
      * mapped from a list of {@link GiftCertificate} gift certificates retrieved from database.The retrieved data has to fulfill parameters received from request.
      * All parameters are optional.
      *
-     * @param tagName - name of a {@link Tag} tag should be contained in a gift certificate.
-     * @param giftCertificateName - part of a name of a searched gift certificate.
-     * @param description - part of a description of a searched gift certificate.
-     * @param sortByName - sort of the retrieved gift certificates by name.
-     * @param sortByDate - sort of the retrieved gift certificates by creation date.
+     * @param parameters object {@link GiftCertificateQueryParameters} contains all the parameters could be sent
+     *                   in order to filter the result
+     * @param page specifies page of the result list.
+     * @param pageSize specifies number of gift certificates to be displayed in a single page. In case page were passed without page size
+     *                 default page size applies.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link List} of {@link GiftCertificateDto}
      */
-    @GetMapping(produces = JSON)
-    public ResponseEntity<List<GiftCertificateDto>> getGiftCertificates(@RequestParam(required = false) String tagName,
-                                                                     @RequestParam(required = false) String giftCertificateName,
-                                                                     @RequestParam(required = false) String description,
-                                                                     @RequestParam(required = false) String sortByName,
-                                                                     @RequestParam(required = false) String sortByDate) {
-        return new ResponseEntity<>(service.getGiftCertificates(tagName, giftCertificateName, description, sortByName, sortByDate), HttpStatus.OK);
+    @GetMapping
+    public ResponseEntity<CollectionModel<GiftCertificateDto>> getGiftCertificates(@RequestParam(required = false, defaultValue = Constants.DEFAULT_FIRST_PAGE) Integer page,
+                                                                                   @RequestParam(required = false, defaultValue = Constants.DEFAULT_PAGE_SIZE) Integer pageSize,
+                                                                                   GiftCertificateQueryParameters parameters) {
+        List<GiftCertificateDto> giftCertificates = service.getGiftCertificates(parameters, page, pageSize);
+        return ResponseEntity.ok(hateoasIssuer.addGiftCertificateLinks(giftCertificates, parameters, page, pageSize, service.hasNextPage(page, pageSize)));
     }
 
     /**
@@ -58,11 +68,12 @@ public class GiftCertificatesController {
      *
      * @param id - id of {@link GiftCertificate} that has to be retrieved from database.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and {@link GiftCertificateDto} object
-     * @throws EntityNotExistsException in case if nothing found with searched id.
      */
-    @GetMapping(value = "/{id}", produces = JSON)
-    public ResponseEntity<GiftCertificateDto> getGiftCertificate(@PathVariable(ID) long id) throws EntityNotExistsException {
-        return new ResponseEntity<>(service.getGiftCertificate(id), HttpStatus.OK);
+    @GetMapping("/{id}")
+    public ResponseEntity<GiftCertificateDto> getGiftCertificate(@PathVariable(ID) long id) {
+        GiftCertificateDto giftCertificate = service.getGiftCertificate(id);
+        hateoasIssuer.addGiftCertificateLink(giftCertificate);
+        return new ResponseEntity<>(giftCertificate, HttpStatus.OK);
     }
 
     /**
@@ -71,10 +82,9 @@ public class GiftCertificatesController {
      *
      * @param id - id of {@link GiftCertificate} that has to be deleted from database.
      * @return {@link ResponseEntity} contained {@link HttpStatus} status.
-     * @throws EntityNotExistsException in case if nothing found with searched id.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<GiftCertificateDto> deleteGiftCertificate(@PathVariable(ID) long id) throws EntityNotExistsException {
+    public ResponseEntity<GiftCertificateDto> deleteGiftCertificate(@PathVariable(ID) long id) {
         service.deleteGiftCertificate(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -85,12 +95,12 @@ public class GiftCertificatesController {
      *
      * @param giftCertificate - data for creating new {@link GiftCertificate} object.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and created {@link GiftCertificate} object.
-     * @throws BadEntityException in case if invalid data passed in request to construct a {@link GiftCertificate} object.
-     * @throws EntityNotExistsException in case if nothing found with searched id.
      */
     @PostMapping()
-    public ResponseEntity<GiftCertificateDto> createGiftCertificate(@RequestBody GiftCertificateDto giftCertificate) throws BadEntityException, EntityNotExistsException {
-        return new ResponseEntity<>(service.createGiftCertificate(giftCertificate), HttpStatus.CREATED);
+    public ResponseEntity<GiftCertificateDto> createGiftCertificate(@RequestBody GiftCertificateDto giftCertificate) {
+        GiftCertificateDto createdGiftCertificate = service.createGiftCertificate(giftCertificate);
+        hateoasIssuer.addGiftCertificateLink(createdGiftCertificate);
+        return new ResponseEntity<>(createdGiftCertificate, HttpStatus.CREATED);
     }
 
     /**
@@ -100,12 +110,12 @@ public class GiftCertificatesController {
      * @param id - id of {@link GiftCertificate} object to be updated.
      * @param giftCertificate - new data for updating an {@link GiftCertificate} object to be updated.
      * @return {@link ResponseEntity} contained both {@link HttpStatus} status and updated {@link GiftCertificate} object.
-     * @throws BadEntityException in case if invalid data passed in request to upadte a {@link GiftCertificate} object.
-     * @throws EntityNotExistsException in case if nothing found with searched id.
      */
-    @PatchMapping(value = "/{id}", produces = JSON)
-    public ResponseEntity<GiftCertificateDto> updateGiftCertificate(@PathVariable(ID) long id, @RequestBody GiftCertificateDto giftCertificate) throws EntityNotExistsException, BadEntityException {
-        return new ResponseEntity<>(service.updateGiftCertificate(id, giftCertificate), HttpStatus.OK);
+    @PatchMapping("/{id}")
+    public ResponseEntity<GiftCertificateDto> updateGiftCertificate(@PathVariable(ID) long id, @RequestBody GiftCertificateDto giftCertificate) {
+        GiftCertificateDto updatedGiftCertificate = service.updateGiftCertificate(id, giftCertificate);
+        hateoasIssuer.addGiftCertificateLink(updatedGiftCertificate);
+        return new ResponseEntity<>(updatedGiftCertificate, HttpStatus.OK);
     }
 
 }

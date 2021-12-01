@@ -1,12 +1,14 @@
 package com.epam.esm.validator;
 
 import com.epam.esm.entity.GiftCertificate;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import java.math.BigDecimal;
 import java.time.Duration;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -18,13 +20,13 @@ public class GiftCertificateValidatorTest {
     private static final TagValidator tagValidator = Mockito.mock(TagValidator.class);
     private final GiftCertificateValidator validator = new GiftCertificateValidator(tagValidator);
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         when(tagValidator.validate(any())).thenReturn(true);
     }
 
     @Test
-    public void testShouldReturnTrueWhenValidGiftCertificateGiven() {
+    void testShouldReturnTrueWhenValidGiftCertificateGiven() {
         //given
         GiftCertificate giftCertificate = new GiftCertificate();
         giftCertificate.setName(TEST_NAME);
@@ -36,11 +38,11 @@ public class GiftCertificateValidatorTest {
         boolean actual = validator.validateCreate(giftCertificate);
 
         //then
-        Assert.assertTrue(actual);
+        assertTrue(actual);
     }
 
     @Test
-    public void testShouldReturnFalseWhenInvalidGiftCertificateGiven() {
+    void testShouldReturnFalseWhenInvalidGiftCertificateGiven() {
         //given
         GiftCertificate giftCertificate = new GiftCertificate();
         giftCertificate.setName(TEST_NAME);
@@ -52,7 +54,7 @@ public class GiftCertificateValidatorTest {
         boolean actual = validator.validateCreate(giftCertificate);
 
         //then
-        Assert.assertFalse(actual);
+        assertFalse(actual);
     }
 
 }
